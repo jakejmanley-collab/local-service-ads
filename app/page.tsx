@@ -106,7 +106,7 @@ export default function Home() {
             </div>
             <div className="bg-slate-800 p-6 rounded-lg">
               <div className="text-yellow-400 mb-4">★★★★★</div>
-              <p className="text-slate-300 mb-4">"The 1-page website upgrade changed everything. Now when I reply to Kijiji leads, I send them my site link. It makes me look like a real company, not just a guy with a truck."</p>
+              <p className="text-slate-300 mb-4">"The 1-page website upgrade changed everything. Now when I reply to Kijiji leads, I send them my site link. It makes me look like a established company, not just someone who is starting out."</p>
               <div className="font-bold">- Sarah J., Residential Cleaning</div>
             </div>
             <div className="bg-slate-800 p-6 rounded-lg">
