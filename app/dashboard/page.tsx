@@ -1,10 +1,58 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '../../lib/supabase';
 
 export default function DashboardPage() {
+  const [loading, setLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState<string | undefined>('');
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        router.push('/login');
+      } else {
+        setUserEmail(session.user.email);
+        setLoading(false);
+      }
+    };
+    
+    checkUser();
+  }, [router]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-slate-50 flex justify-center items-center">
+        <div className="text-slate-500 font-bold animate-pulse">Loading Dashboard...</div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Dashboard</h1>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+            <p className="text-sm text-slate-500 mt-1">Logged in as {userEmail}</p>
+          </div>
+          <button 
+            onClick={handleSignOut}
+            className="text-sm font-bold text-slate-600 hover:text-slate-900 border border-slate-300 px-4 py-2 rounded-lg"
+          >
+            Sign Out
+          </button>
+        </div>
         
         <div className="grid md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
