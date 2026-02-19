@@ -1,155 +1,123 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
-import html2canvas from 'html2canvas';
 
-export default function PreviewPage() {
-  const [formData, setFormData] = useState({
-    businessName: '',
-    field: '',
-    services: '',
-    serviceArea: '',
-    phone: '',
-  });
-  const [showPreview, setShowPreview] = useState(false);
-  const [isDownloading, setIsDownloading] = useState<number | null>(null);
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+      
+      {/* Hero Section */}
+      <section className="max-w-6xl mx-auto px-6 py-20 text-center">
+        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6">
+          Turn Free Marketplace Listings <br className="hidden md:block" /> Into High-Paying Clients
+        </h1>
+        <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
+          Generate commercial-grade flyers and high-converting ad copy for your local service business in seconds. Stop blending in and start booking more jobs.
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Link href="/preview" className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition">
+            Start Your Free Preview
+          </Link>
+          <Link href="#pricing" className="bg-white text-slate-900 px-8 py-4 rounded-lg font-bold text-lg border border-slate-300 hover:bg-slate-100 transition">
+            View Pricing Packages
+          </Link>
+        </div>
+      </section>
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowPreview(true);
-  };
-
-  const handleDownload = async (templateId: number) => {
-    setIsDownloading(templateId);
-    const element = document.getElementById(`flyer-template-${templateId}`);
-    
-    if (element) {
-      try {
-        const canvas = await html2canvas(element, { 
-          scale: 2, // High-resolution export
-          backgroundColor: null 
-        });
-        
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-        const link = document.createElement('a');
-        link.download = `${formData.businessName.replace(/\s+/g, '-').toLowerCase()}-flyer.jpg`;
-        link.href = dataUrl;
-        link.click();
-      } catch (err) {
-        console.error('Export failed:', err);
-      }
-    }
-    setIsDownloading(null);
-  };
-
-  if (showPreview) {
-    return (
-      <main className="min-h-screen bg-slate-50 py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900">Your Generated Flyers</h1>
-            <Link href="/#pricing" className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700">
-              Unlock High-Res Templates
-            </Link>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            {[1, 2, 3, 4].map((template) => (
-              <div key={template} className="flex flex-col gap-4">
-                {/* The Canvas Element to be exported */}
-                <div 
-                  id={`flyer-template-${template}`}
-                  className="relative aspect-[4/5] bg-slate-800 rounded-xl overflow-hidden shadow-lg border border-slate-200"
-                >
-                  {/* Simulated Background Asset */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900 opacity-50"></div>
-                  
-                  {/* Watermark Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none transform -rotate-45 z-20">
-                    <span className="text-6xl font-black text-white tracking-widest uppercase">Watermark</span>
-                  </div>
-
-                  {/* Dynamic Code Layer (Foreground) */}
-                  <div className="relative z-10 p-8 h-full flex flex-col">
-                    <h2 className="text-4xl font-extrabold text-white mb-2 uppercase">{formData.businessName || 'Your Business'}</h2>
-                    <p className="text-blue-400 font-bold text-xl mb-auto uppercase tracking-wide">{formData.field || 'Service Field'}</p>
-                    
-                    <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg mb-6 border border-white/20">
-                      <h3 className="text-white font-bold mb-3 uppercase text-sm tracking-wider">Our Services</h3>
-                      <ul className="text-slate-100 space-y-2">
-                        {formData.services.split(',').map((service, i) => (
-                          <li key={i} className="flex gap-2">✓ {service.trim() || 'Service Example'}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="mt-auto flex justify-between items-end">
-                      <div className="bg-blue-600 text-white px-4 py-2 rounded-md font-bold text-lg">
-                        {formData.phone || '(555) 123-4567'}
-                      </div>
-                      <div className="text-slate-300 font-medium text-sm text-right">
-                        Serving:<br/>{formData.serviceArea || 'Your City'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Download Button (Outside the canvas so it isn't in the exported image) */}
-                <button 
-                  onClick={() => handleDownload(template)}
-                  disabled={isDownloading === template}
-                  className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 transition disabled:opacity-50"
-                >
-                  {isDownloading === template ? 'Exporting...' : 'Download JPG (Watermarked)'}
-                </button>
-              </div>
-            ))}
+      {/* Stats Section */}
+      <section className="bg-white py-16 border-y border-slate-200">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div className="p-6">
+              <div className="text-4xl font-extrabold text-blue-600 mb-2">34%</div>
+              <h3 className="text-lg font-bold mb-2">Higher Click-Through Rate</h3>
+              <p className="text-slate-600 text-sm">Listings that utilize multi-image carousel structures significantly outperform standard single-photo posts.</p>
+            </div>
+            <div className="p-6">
+              <div className="text-4xl font-extrabold text-blue-600 mb-2">30%</div>
+              <h3 className="text-lg font-bold mb-2">Conversion Increase</h3>
+              <p className="text-slate-600 text-sm">Optimizing ad copy with clear value propositions and localized keywords prevents bounce rates.</p>
+            </div>
+            <div className="p-6">
+              <div className="text-4xl font-extrabold text-blue-600 mb-2">9.96%</div>
+              <h3 className="text-lg font-bold mb-2">Industry Standard Target</h3>
+              <p className="text-slate-600 text-sm">We format your free, organic posts to match the conversion standards of professional paid lead-generation campaigns.</p>
+            </div>
           </div>
         </div>
-      </main>
-    );
-  }
+      </section>
 
-  return (
-    <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
-      <div className="bg-white max-w-xl w-full p-8 rounded-xl shadow-sm border border-slate-200">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Build Your Free Flyer</h1>
-        <p className="text-slate-600 mb-8">Enter your details below to generate 4 custom, high-converting templates instantly.</p>
-        
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">Business Name</label>
-            <input required type="text" name="businessName" onChange={handleInputChange} className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-600 outline-none" placeholder="e.g. Apex Plumbing" />
-          </div>
-          <div className="grid grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">Business Field</label>
-              <input required type="text" name="field" onChange={handleInputChange} className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-600 outline-none" placeholder="e.g. Plumbing, Cleaning" />
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center mb-12">Choose Your Growth Path</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            
+            {/* Starter Package */}
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+              <h3 className="text-2xl font-bold mb-2">Starter</h3>
+              <div className="text-3xl font-extrabold mb-6">$29<span className="text-lg text-slate-500 font-normal">/mo</span></div>
+              <ul className="space-y-3 mb-8 flex-1 text-slate-600">
+                <li className="flex gap-2">✓ <span>Commercial-grade business flyers</span></li>
+                <li className="flex gap-2">✓ <span>AI-generated, high-converting ad text</span></li>
+                <li className="flex gap-2">✓ <span>Unlimited edits and downloads</span></li>
+              </ul>
+              <button className="w-full bg-slate-100 text-slate-900 font-bold py-3 rounded-lg hover:bg-slate-200">Select Starter</button>
             </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">Phone Number</label>
-              <input required type="text" name="phone" onChange={handleInputChange} className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-600 outline-none" placeholder="e.g. 555-0198" />
+
+            {/* Growth Package */}
+            <div className="bg-blue-600 p-8 rounded-xl shadow-md border border-blue-700 flex flex-col text-white transform md:-translate-y-4">
+              <div className="text-sm font-bold uppercase tracking-wider mb-2 text-blue-200">Most Popular</div>
+              <h3 className="text-2xl font-bold mb-2">Growth</h3>
+              <div className="text-3xl font-extrabold mb-6">$99<span className="text-lg text-blue-200 font-normal">/mo</span></div>
+              <ul className="space-y-3 mb-8 flex-1 text-blue-50">
+                <li className="flex gap-2">✓ <span>Everything in Starter</span></li>
+                <li className="flex gap-2">✓ <span>Custom Single-Page Website</span></li>
+                <li className="flex gap-2">✓ <span>Lead capture contact form</span></li>
+                <li className="flex gap-2">✓ <span>Mobile optimized design</span></li>
+              </ul>
+              <button className="w-full bg-white text-blue-600 font-bold py-3 rounded-lg hover:bg-slate-100">Select Growth</button>
+            </div>
+
+            {/* Professional Package */}
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+              <h3 className="text-2xl font-bold mb-2">Professional</h3>
+              <div className="text-3xl font-extrabold mb-6">$299<span className="text-lg text-slate-500 font-normal">/mo</span></div>
+              <ul className="space-y-3 mb-8 flex-1 text-slate-600">
+                <li className="flex gap-2">✓ <span>Everything in Growth</span></li>
+                <li className="flex gap-2">✓ <span>20-Page SEO Optimized Website</span></li>
+                <li className="flex gap-2">✓ <span>Programmatic local service pages</span></li>
+                <li className="flex gap-2">✓ <span>Google Business Profile integration</span></li>
+              </ul>
+              <button className="w-full bg-slate-100 text-slate-900 font-bold py-3 rounded-lg hover:bg-slate-200">Select Professional</button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Section */}
+      <section className="bg-slate-900 text-white py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">What Local Contractors Are Saying</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-slate-800 p-6 rounded-lg">
+              <div className="text-yellow-400 mb-4">★★★★★</div>
+              <p className="text-slate-300 mb-4">"I used to get maybe one message a week for my landscaping business. After using these flyer templates and the exact ad text they gave me, I booked three jobs in two days."</p>
+              <div className="font-bold">- Mike T., Landscaping</div>
+            </div>
+            <div className="bg-slate-800 p-6 rounded-lg">
+              <div className="text-yellow-400 mb-4">★★★★★</div>
+              <p className="text-slate-300 mb-4">"The 1-page website upgrade changed everything. Now when I reply to Kijiji leads, I send them my site link. It makes me look like a real company, not just a guy with a truck."</p>
+              <div className="font-bold">- Sarah J., Residential Cleaning</div>
+            </div>
+            <div className="bg-slate-800 p-6 rounded-lg">
+              <div className="text-yellow-400 mb-4">★★★★★</div>
+              <p className="text-slate-300 mb-4">"Fast, easy, and it works. I enter my services and it spits out a professional ad and flyer. Best ROI for my plumbing business this year."</p>
+              <div className="font-bold">- David R., Plumbing Services</div>
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">Top 3 Services (Comma separated)</label>
-            <input required type="text" name="services" onChange={handleInputChange} className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-600 outline-none" placeholder="e.g. Leak Detection, Toilet Repair, 24/7 Emergency" />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">Service Area</label>
-            <input required type="text" name="serviceArea" onChange={handleInputChange} className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-600 outline-none" placeholder="e.g. Greater Toronto Area" />
-          </div>
-          
-          <button type="submit" className="w-full bg-slate-900 text-white font-bold py-4 rounded-lg mt-4 hover:bg-slate-800 transition">
-            Generate My Flyers
-          </button>
-        </form>
-      </div>
+        </div>
+      </section>
+
     </main>
   );
 }
