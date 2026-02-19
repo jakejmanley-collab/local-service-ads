@@ -17,7 +17,7 @@ export default function RootLayout({
       <body className="bg-slate-50 text-slate-900 font-sans">
         <nav className="w-full bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
           <div className="font-extrabold text-2xl text-blue-600 tracking-tight">
-            <Link href="/">AdBuilder</Link>
+            <span className="font-black tracking-tighter">ARETIFI</span>
           </div>
           <div className="hidden md:flex gap-8 items-center font-semibold text-sm text-slate-600">
             <Link href="/preview" className="hover:text-blue-600 transition">Free Preview</Link>
