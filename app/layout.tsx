@@ -2,10 +2,10 @@ import './globals.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-  title: 'Marketplace Flyer Builder',
-  description: 'Generate high-converting ads and flyers for local service businesses.',
-};
+export const metadata = {
+  title: 'Aretifi | High-End Contractor Flyers',
+  description: 'Generate commercial-grade marketing assets for local service professionals.',
+}
 
 export default function RootLayout({
   children,
