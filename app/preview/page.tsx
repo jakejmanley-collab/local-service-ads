@@ -25,17 +25,16 @@ const tradePhotos: Record<string, string[]> = {
 
 // --- TEMPLATES ---
 
-// 1. THE HEX-TECH (Using Figma Asset Workflow)
-const HexFrame = ({ id, data, photoUrl, theme }: any) => (
+// 1. THE HEX-TECH (Using Figma Asset Workflow with 3 Photos)
+const HexFrame = ({ id, data, photos, theme }: any) => (
   <div id={id} className="relative aspect-[4/5] w-full overflow-hidden bg-slate-900 shadow-2xl">
     
-    {/* 1. BOTTOM LAYER: Dynamic Trade Photo */}
-    <img 
-      src={photoUrl} 
-      alt="Trade Image" 
-      className="absolute inset-0 w-full h-full object-cover" 
-      crossOrigin="anonymous" 
-    />
+    {/* 1. BOTTOM LAYER: 3 Trade Photos mapped behind the cutouts */}
+    <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+      <img src={photos[0]} alt="Trade 1" className="w-full h-full object-cover col-span-1 row-span-2" crossOrigin="anonymous" />
+      <img src={photos[1]} alt="Trade 2" className="w-full h-full object-cover col-span-1 row-span-1" crossOrigin="anonymous" />
+      <img src={photos[2]} alt="Trade 3" className="w-full h-full object-cover col-span-1 row-span-1" crossOrigin="anonymous" />
+    </div>
 
     {/* 2. MIDDLE LAYER: Your Figma Template */}
     <img 
@@ -44,26 +43,30 @@ const HexFrame = ({ id, data, photoUrl, theme }: any) => (
       className="absolute inset-0 w-full h-full z-10" 
     />
 
-    {/* 3. TOP LAYER: Dynamic User Data (Text) */}
+    {/* 3. TOP LAYER: Dynamic User Data (Text) mapped to the Right Side */}
     <div className="absolute inset-0 z-20 pointer-events-none">
       
-      {/* Top Text Zone (Business Name & Trade) */}
-      <div className="absolute top-[8%] left-0 w-full text-center px-8">
-        <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-tight drop-shadow-md">
+      {/* Upper Right: Business Name & Category */}
+      <div className="absolute top-[8%] right-[6%] w-[60%] text-right">
+        <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter leading-tight drop-shadow-md">
           {data.businessName || 'YOUR BRAND'}
         </h2>
-        <p className={`font-bold text-sm md:text-base uppercase tracking-widest mt-2 ${theme.text}`}>
+        <p className={`font-bold text-sm md:text-base uppercase tracking-widest mt-1 ${theme.text}`}>
           {data.field || 'PROFESSIONAL SERVICE'}
         </p>
       </div>
 
-      {/* Bottom Text Zone (Services & Phone) */}
-      <div className="absolute bottom-[6%] left-0 w-full text-center px-8 flex flex-col items-center">
+      {/* Bottom Right: Services */}
+      <div className="absolute bottom-[20%] right-[6%] w-[60%] text-right">
         <ul className="text-white space-y-1 font-bold text-sm md:text-base mb-4">
           {data.services.slice(0, 3).map((s: string, i: number) => (
-            <li key={i} className="uppercase tracking-wider drop-shadow-md">✓ {s}</li>
+            <li key={i} className="uppercase tracking-wider drop-shadow-md">{s} ✓</li>
           ))}
         </ul>
+      </div>
+
+      {/* Bottom Right Box Alignment: Phone Number */}
+      <div className="absolute bottom-[6%] right-[6%] w-[60%] text-right">
         <div className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-lg ${theme.text}`}>
           {data.phone || '555-0123'}
         </div>
@@ -164,7 +167,7 @@ export default function PreviewPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<string>('');
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>(['', '', '']);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -179,9 +182,13 @@ export default function PreviewPage() {
     ) || 'default';
     
     const photos = tradePhotos[tradeKey];
-    const randomPhoto = photos[Math.floor(Math.random() * photos.length)];
     
-    setSelectedPhoto(randomPhoto);
+    // Select 3 random photos for the HexFrame grid
+    const p1 = photos[Math.floor(Math.random() * photos.length)];
+    const p2 = photos[Math.floor(Math.random() * photos.length)];
+    const p3 = photos[Math.floor(Math.random() * photos.length)];
+    
+    setSelectedPhotos([p1, p2, p3]);
 
     setTimeout(() => {
       setIsGenerating(false);
@@ -228,28 +235,28 @@ export default function PreviewPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="flex flex-col gap-4">
-              <HexFrame id="flyer-hex" data={parsedData} photoUrl={selectedPhoto} theme={activeTheme} />
+              <HexFrame id="flyer-hex" data={parsedData} photos={selectedPhotos} theme={activeTheme} />
               <button onClick={() => downloadFlyer('hex')} disabled={isDownloading === 'hex'} className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 disabled:opacity-50">
                 {isDownloading === 'hex' ? 'Rendering...' : 'Download Hex-Tech'}
               </button>
             </div>
 
             <div className="flex flex-col gap-4">
-              <SplitFrame id="flyer-split" data={parsedData} photoUrl={selectedPhoto} theme={activeTheme} />
+              <SplitFrame id="flyer-split" data={parsedData} photoUrl={selectedPhotos[0]} theme={activeTheme} />
               <button onClick={() => downloadFlyer('split')} disabled={isDownloading === 'split'} className={`w-full ${activeTheme.bg} text-white font-bold py-3 rounded-lg disabled:opacity-50`}>
                 {isDownloading === 'split' ? 'Rendering...' : 'Download Modern'}
               </button>
             </div>
 
             <div className="flex flex-col gap-4">
-              <CircleFrame id="flyer-circle" data={parsedData} photoUrl={selectedPhoto} theme={activeTheme} />
+              <CircleFrame id="flyer-circle" data={parsedData} photoUrl={selectedPhotos[0]} theme={activeTheme} />
               <button onClick={() => downloadFlyer('circle')} disabled={isDownloading === 'circle'} className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 disabled:opacity-50">
                 {isDownloading === 'circle' ? 'Rendering...' : 'Download Badge'}
               </button>
             </div>
 
             <div className="flex flex-col gap-4">
-              <StripeFrame id="flyer-stripe" data={parsedData} photoUrl={selectedPhoto} theme={activeTheme} />
+              <StripeFrame id="flyer-stripe" data={parsedData} photoUrl={selectedPhotos[0]} theme={activeTheme} />
               <button onClick={() => downloadFlyer('stripe')} disabled={isDownloading === 'stripe'} className={`w-full ${activeTheme.bg} text-white font-bold py-3 rounded-lg disabled:opacity-50`}>
                 {isDownloading === 'stripe' ? 'Rendering...' : 'Download Bold'}
               </button>
