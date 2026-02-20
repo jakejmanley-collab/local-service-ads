@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { toPng } from 'html-to-image';
 
-// --- COLOR PSYCHOLOGY THEMES (Adobe Marketing Standards) ---
+// --- COLOR PSYCHOLOGY THEMES ---
 const colorThemes: Record<string, any> = {
   blue: { id: 'blue', label: 'Trust & Security (Blue)', bg: 'bg-blue-600', text: 'text-blue-600', border: 'border-blue-600', hex: '#2563eb' },
   red: { id: 'red', label: 'Energy & Urgency (Red)', bg: 'bg-red-600', text: 'text-red-600', border: 'border-red-600', hex: '#dc2626' },
@@ -23,35 +23,59 @@ const tradePhotos: Record<string, string[]> = {
   default: ['https://images.unsplash.com/photo-1521791136064-7985c2d18854?auto=format&fit=crop&w=800&q=80']
 };
 
-// --- GENERIC TEMPLATES (THE "FRAMES") ---
+// --- TEMPLATES ---
 
+// 1. THE HEX-TECH (Using Figma Asset Workflow)
 const HexFrame = ({ id, data, photoUrl, theme }: any) => (
-  <div id={id} className="relative aspect-[4/5] bg-slate-900 flex flex-col items-center overflow-hidden">
-    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-    <div className="pt-12 pb-6 text-center z-10 w-full px-6">
-      <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none mb-2">{data.businessName || 'YOUR BRAND'}</h2>
-      <div className={`h-1 w-24 ${theme.bg} mx-auto`}></div>
-    </div>
-    <div className="relative w-64 h-64 z-10 drop-shadow-2xl filter">
-      <div className="w-full h-full bg-slate-800" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}>
-        <img src={photoUrl} alt="Trade Insert" className="w-full h-full object-cover grayscale opacity-90 mix-blend-screen" crossOrigin="anonymous" />
-        <div className={`absolute inset-0 border-[6px] opacity-80 ${theme.border}`} style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}></div>
+  <div id={id} className="relative aspect-[4/5] w-full overflow-hidden bg-slate-900 shadow-2xl">
+    
+    {/* 1. BOTTOM LAYER: Dynamic Trade Photo */}
+    <img 
+      src={photoUrl} 
+      alt="Trade Image" 
+      className="absolute inset-0 w-full h-full object-cover" 
+      crossOrigin="anonymous" 
+    />
+
+    {/* 2. MIDDLE LAYER: Your Figma Template */}
+    <img 
+      src="/hexagon.png" 
+      alt="Flyer Frame" 
+      className="absolute inset-0 w-full h-full z-10" 
+    />
+
+    {/* 3. TOP LAYER: Dynamic User Data (Text) */}
+    <div className="absolute inset-0 z-20 pointer-events-none">
+      
+      {/* Top Text Zone (Business Name & Trade) */}
+      <div className="absolute top-[8%] left-0 w-full text-center px-8">
+        <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-tight drop-shadow-md">
+          {data.businessName || 'YOUR BRAND'}
+        </h2>
+        <p className={`font-bold text-sm md:text-base uppercase tracking-widest mt-2 ${theme.text}`}>
+          {data.field || 'PROFESSIONAL SERVICE'}
+        </p>
       </div>
-    </div>
-    <div className="mt-auto w-full bg-white p-6 z-10 pb-8 text-center" style={{ clipPath: 'polygon(0 10%, 100% 0, 100% 100%, 0 100%)' }}>
-      <p className={`${theme.text} font-bold text-xs uppercase tracking-widest mb-3`}>{data.field || 'PROFESSIONAL SERVICE'}</p>
-      <ul className="flex flex-wrap justify-center gap-3 text-slate-800 font-bold text-xs mb-4">
-        {data.services.slice(0, 3).map((s: string, i: number) => (
-          <li key={i} className="bg-slate-100 px-3 py-1 rounded-full uppercase tracking-wide border border-slate-200">{s}</li>
-        ))}
-      </ul>
-      <div className="text-4xl font-black text-slate-900 tracking-tighter">{data.phone || '555-0123'}</div>
+
+      {/* Bottom Text Zone (Services & Phone) */}
+      <div className="absolute bottom-[6%] left-0 w-full text-center px-8 flex flex-col items-center">
+        <ul className="text-white space-y-1 font-bold text-sm md:text-base mb-4">
+          {data.services.slice(0, 3).map((s: string, i: number) => (
+            <li key={i} className="uppercase tracking-wider drop-shadow-md">✓ {s}</li>
+          ))}
+        </ul>
+        <div className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-lg ${theme.text}`}>
+          {data.phone || '555-0123'}
+        </div>
+      </div>
+
     </div>
   </div>
 );
 
+// 2. THE SPLIT-MODERN (CSS Fallback)
 const SplitFrame = ({ id, data, photoUrl, theme }: any) => (
-  <div id={id} className="relative aspect-[4/5] bg-white flex flex-col overflow-hidden">
+  <div id={id} className="relative aspect-[4/5] bg-white flex flex-col overflow-hidden shadow-2xl">
     <div className="h-[55%] relative">
       <img src={photoUrl} alt="Trade Insert" className="w-full h-full object-cover" crossOrigin="anonymous" />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-90"></div>
@@ -82,8 +106,9 @@ const SplitFrame = ({ id, data, photoUrl, theme }: any) => (
   </div>
 );
 
+// 3. THE CIRCLE-BADGE (CSS Fallback)
 const CircleFrame = ({ id, data, photoUrl, theme }: any) => (
-  <div id={id} className="relative aspect-[4/5] bg-slate-100 flex flex-col p-6 items-center justify-center">
+  <div id={id} className="relative aspect-[4/5] bg-slate-100 flex flex-col p-6 items-center justify-center shadow-2xl">
     <div className="absolute inset-4 border-2 border-slate-300 rounded-lg pointer-events-none"></div>
     <div className="z-10 text-center mb-6">
       <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-1">{data.businessName || 'YOUR BRAND'}</h2>
@@ -99,8 +124,9 @@ const CircleFrame = ({ id, data, photoUrl, theme }: any) => (
   </div>
 );
 
+// 4. THE BOLD-STRIPE (CSS Fallback)
 const StripeFrame = ({ id, data, photoUrl, theme }: any) => (
-  <div id={id} className={`relative aspect-[4/5] ${theme.bg} flex flex-col overflow-hidden`}>
+  <div id={id} className={`relative aspect-[4/5] ${theme.bg} flex flex-col overflow-hidden shadow-2xl`}>
     <div className="absolute top-0 right-0 w-2/3 h-full bg-slate-900 transform skew-x-12 translate-x-20 overflow-hidden border-l-4 border-white">
       <img src={photoUrl} alt="Trade Insert" className="absolute inset-0 w-full h-full object-cover opacity-60 transform -skew-x-12 scale-125 grayscale" crossOrigin="anonymous" />
     </div>
@@ -132,7 +158,7 @@ export default function PreviewPage() {
     services: '',
     serviceArea: '',
     phone: '',
-    colorTheme: 'blue' // Default Theme
+    colorTheme: 'blue'
   });
   
   const [showPreview, setShowPreview] = useState(false);
