@@ -1,5 +1,5 @@
 {
-  "name": "marketplace-flyer-app",
+  "name": "aretifi",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,10 +8,11 @@
     "start": "next start",
     "lint": "next lint"
   },
- "dependencies": {
+  "dependencies": {
     "react": "^18",
     "react-dom": "^18",
     "next": "^14",
+    "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
     "@supabase/supabase-js": "^2.39.0"
   },
