@@ -20,6 +20,24 @@ const platformContent: Record<string, { title: string; headline: string; problem
     headline: 'Get your post noticed in a crowded feed.',
     problem: 'Marketplace is flooded with generic text posts and bad photos. Users scroll right past services that lack visual impact.',
     solution: 'Aretifi creates high-contrast, professional flyers designed specifically to stop the scroll on social media feeds.'
+  },
+  'kijiji': {
+    title: 'Kijiji',
+    headline: 'Stop competing on price alone.',
+    problem: 'Kijiji is flooded with low-bid handymen. If your ad looks like everyone else\'s, the only way to win the job is to lower your price.',
+    solution: 'Aretifi gives you premium visual assets that justify higher rates and attract serious clients who value quality over the lowest bid.'
+  },
+  'nextdoor': {
+    title: 'Nextdoor',
+    headline: 'Become the most trusted pro in the neighborhood.',
+    problem: 'Nextdoor runs on neighbor recommendations. A plain text post gets lost quickly, and amateur photos don\'t inspire trust for in-home services.',
+    solution: 'Generate high-trust, commercial-grade flyers that look like an established local business neighbors want to recommend.'
+  },
+  'booksy': {
+    title: 'Booksy',
+    headline: 'Fill your calendar with premium clients.',
+    problem: 'Your portfolio is competing with dozens of other pros in your area. Basic photos don\'t convince clients to book high-ticket services.',
+    solution: 'Upgrade your Booksy profile with polished, high-end promotional graphics that make your services look irresistible and fully booked.'
   }
 };
 
@@ -27,7 +45,7 @@ export default function SolutionPage({ params }: { params: { platform: string } 
   // Look up the platform data based on the URL (e.g., /solutions/thumbtack)
   const content = platformContent[params.platform.toLowerCase()];
 
-  // If someone types a URL that doesn't exist (like /solutions/myspace), show a 404
+  // If someone types a URL that doesn't exist, show a 404
   if (!content) {
     notFound();
   }
@@ -84,4 +102,16 @@ export default function SolutionPage({ params }: { params: { platform: string } 
       </div>
     </div>
   );
+}
+
+// This function tells Next.js to pre-build these specific URLs as static HTML pages
+export async function generateStaticParams() {
+  return [
+    { platform: 'thumbtack' },
+    { platform: 'taskrabbit' },
+    { platform: 'facebook-marketplace' },
+    { platform: 'kijiji' },
+    { platform: 'nextdoor' },
+    { platform: 'booksy' },
+  ];
 }
