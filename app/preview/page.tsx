@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import Link from 'next/link';
 import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
@@ -14,7 +13,7 @@ const tradePhotos: Record<string, string[]> = {
   default: ['https://images.unsplash.com/photo-1521791136064-7985c2d18854?auto=format&fit=crop&w=800&q=80']
 };
 
-// 1. THE SPREADSHEET PARSER FUNCTION
+// 1. THE SPREADSHEET PARSER
 const parseZone = (csvString: string) => {
   if (!csvString) return null;
   const parts = csvString.split(',').map(s => s.trim());
@@ -33,7 +32,7 @@ const parseZone = (csvString: string) => {
   };
 };
 
-// 2. THE MASTER TEMPLATE ENGINE (SVG)
+// 2. THE UNIFIED MASTER ENGINE (SVG)
 const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => {
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
@@ -51,7 +50,9 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
     parseZone(rawConfig.service4)
   ];
 
-  const tradeWords = data.field ? data.field.split(' ') : ['PROFESSIONAL', 'SERVICE'];
+  // Logic: Use Business Name if provided, otherwise split the Trade field
+  const mainTitle = data.businessName || data.field || 'PROFESSIONAL';
+  const tradeWords = mainTitle.split(' ');
   const firstWord = tradeWords[0];
   const remainingWords = tradeWords.slice(1).join(' ');
 
@@ -59,7 +60,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
     <div id={id} className="relative w-full shadow-2xl bg-white overflow-hidden">
       <svg viewBox={rawConfig.viewBox} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         
-        {/* BOTTOM LAYER: Dynamic Trade Photo */}
+        {/* BOTTOM LAYER: Trade Photo */}
         {photoConfig && (
           <image 
             href={photoUrl} 
@@ -69,10 +70,10 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           />
         )}
         
-        {/* MIDDLE LAYER: Your Custom PNG Template */}
+        {/* MIDDLE LAYER: PNG Template Background */}
         <image href={rawConfig.bgImage} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {/* TOP LAYER: Text mapped to your database coordinates */}
+        {/* TOP LAYER: Header Top */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
             <div className="w-full text-left">
@@ -83,6 +84,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           </foreignObject>
         )}
 
+        {/* Header Bottom */}
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
             <div className="w-full text-left">
@@ -93,6 +95,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           </foreignObject>
         )}
 
+        {/* Services List */}
         {data.services.slice(0, 4).map((service: string, index: number) => {
           const sConf = serviceConfigs[index];
           if (!sConf || !service) return null;
@@ -105,6 +108,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           );
         })}
 
+        {/* Contact Information */}
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
             <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
@@ -133,10 +137,9 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   );
 };
 
-// 3. MAIN PAGE LOGIC
+// 3. MAIN PAGE COMPONENT
 export default function PreviewPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
-  
   const [formData, setFormData] = useState({
     businessName: '',
     field: '',
@@ -146,7 +149,6 @@ export default function PreviewPage() {
     location: '',
     selectedTemplate: ''
   });
-  
   const [showPreview, setShowPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -154,10 +156,7 @@ export default function PreviewPage() {
 
   useEffect(() => {
     fetch('/templates.csv')
-      .then(response => {
-         if(!response.ok) throw new Error("CSV not found");
-         return response.text();
-      })
+      .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
           header: true,
@@ -184,56 +183,42 @@ export default function PreviewPage() {
               }
             });
             setRawDatabase(newDb);
-            const templateKeys = Object.keys(newDb);
-            if (templateKeys.length > 0) {
-              setFormData(prev => ({ ...prev, selectedTemplate: templateKeys[0] }));
-            }
+            const keys = Object.keys(newDb);
+            if (keys.length > 0) setFormData(prev => ({ ...prev, selectedTemplate: keys[0] }));
           }
         });
-      })
-      .catch(err => console.error("Error loading templates.csv", err));
+      });
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     setIsGenerating(true);
-    const tradeKey = Object.keys(tradePhotos).find(key => 
-      formData.field.toLowerCase().includes(key)
-    ) || 'default';
+    const tradeKey = Object.keys(tradePhotos).find(k => formData.field.toLowerCase().includes(k)) || 'default';
     const photos = tradePhotos[tradeKey];
     setSelectedPhoto(photos[Math.floor(Math.random() * photos.length)]);
-    setTimeout(() => {
-      setIsGenerating(false);
-      setShowPreview(true);
-    }, 600);
+    setTimeout(() => { setIsGenerating(false); setShowPreview(true); }, 600);
   };
 
   const downloadFlyer = useCallback(async () => {
     setIsDownloading(true);
-    try {
-      const element = document.getElementById('flyer-master');
-      if (!element) return;
-      const dataUrl = await toPng(element, { quality: 1.0, pixelRatio: 2 });
+    const el = document.getElementById('flyer-master');
+    if (el) {
+      const url = await toPng(el, { quality: 1.0, pixelRatio: 2 });
       const link = document.createElement('a');
-      link.download = `${formData.businessName || 'aretifi'}-${formData.selectedTemplate}.png`;
-      link.href = dataUrl;
+      link.download = `${formData.businessName || 'flyer'}.png`;
+      link.href = url;
       link.click();
-    } catch (err) {
-      console.error('Failed to download image', err);
-    } finally {
-      setIsDownloading(false);
     }
-  }, [formData.businessName, formData.selectedTemplate]);
+    setIsDownloading(false);
+  }, [formData]);
 
   const parsedData = {
     ...formData,
-    services: formData.services.split(',').map(s => s.trim()).filter(Boolean).length > 0 
-      ? formData.services.split(',').map(s => s.trim()).filter(Boolean) 
-      : ['Service 1', 'Service 2', 'Service 3']
+    services: formData.services.split(',').map(s => s.trim()).filter(Boolean)
   };
 
   if (showPreview) {
@@ -241,81 +226,38 @@ export default function PreviewPage() {
       <main className="min-h-screen bg-slate-50 py-12 px-6">
         <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900">Your Custom Asset</h1>
-            <button onClick={() => setShowPreview(false)} className="text-slate-500 font-bold hover:text-slate-900">
-              ← Edit Data
-            </button>
+            <h1 className="text-3xl font-bold">Your Flyer</h1>
+            <button onClick={() => setShowPreview(false)} className="font-bold text-slate-500">← Edit</button>
           </div>
-          <div className="flex flex-col gap-6">
-            <MasterTemplate 
-              id="flyer-master" 
-              data={parsedData} 
-              photoUrl={selectedPhoto} 
-              configKey={formData.selectedTemplate} 
-              rawDatabase={rawDatabase}
-            />
-            <button 
-              onClick={downloadFlyer} 
-              disabled={isDownloading} 
-              className="w-full bg-slate-900 text-white font-bold py-4 rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors"
-            >
-              {isDownloading ? 'Rendering High-Res...' : 'Download Flyer'}
-            </button>
-          </div>
+          <MasterTemplate id="flyer-master" data={parsedData} photoUrl={selectedPhoto} configKey={formData.selectedTemplate} rawDatabase={rawDatabase} />
+          <button onClick={downloadFlyer} disabled={isDownloading} className="w-full bg-slate-900 text-white font-bold py-4 rounded-lg mt-6">
+            {isDownloading ? 'Downloading...' : 'Download Flyer'}
+          </button>
         </div>
       </main>
     );
   }
 
-  const availableTemplates = Object.keys(rawDatabase);
-
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900">
         <h1 className="text-3xl font-black text-slate-900 mb-2 uppercase italic tracking-tighter">Aretifi Studio</h1>
-        <p className="text-slate-600 mb-8 font-medium">Input your business data. We will assemble the commercial assets.</p>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Business Name</label>
-            <input required type="text" name="businessName" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Apex Repairs" />
-          </div>
+          <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Business Name" />
           <div className="grid grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Trade</label>
-              <input required type="text" name="field" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Plumbing" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Phone Number</label>
-              <input required type="text" name="phone" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. 555-0198" />
-            </div>
+            <input required name="field" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Trade (e.g. Plumbing)" />
+            <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Phone Number" />
           </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Top 3-4 Services (Comma separated)</label>
-            <input required type="text" name="services" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Repair, Maintenance, Install" />
-          </div>
+          <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
           <div className="grid grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Website (Optional)</label>
-              <input type="text" name="website" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. www.apex.com" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Location (Optional)</label>
-              <input type="text" name="location" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Toronto, ON" />
-            </div>
+            <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website (Optional)" />
+            <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Location (Optional)" />
           </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Select Template</label>
-            <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 bg-white cursor-pointer">
-              {availableTemplates.map(id => (
-                <option key={id} value={id}>{id}</option>
-              ))}
-            </select>
-            {availableTemplates.length === 0 && (
-              <p className="text-red-500 text-xs mt-2 font-bold">Ensure templates.csv is in your /public folder.</p>
-            )}
-          </div>
-          <button type="submit" disabled={isGenerating || availableTemplates.length === 0} className="w-full bg-slate-900 text-white font-black uppercase tracking-widest py-4 rounded-lg mt-6 hover:bg-slate-700 disabled:opacity-50 transition-colors">
-            {isGenerating ? 'Assembling Assets...' : 'Generate Flyer'}
+          <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
+            {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
+          </select>
+          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest">
+            {isGenerating ? 'Assembling...' : 'Generate Flyer'}
           </button>
         </form>
       </div>
