@@ -23,7 +23,13 @@ const parseZone = (csvString: string) => {
   }
   return {
     x: parts[0], y: parts[1], width: parts[2], height: parts[3],
-    style: { fontSize: parts[4], color: parts[5], fontWeight: parts[6], fontStyle: parts[7], fontFamily: parts[8] }
+    style: { 
+      fontSize: parts[4], 
+      color: parts[5], 
+      fontWeight: parts[6], 
+      fontStyle: parts[7], 
+      fontFamily: parts[8] 
+    }
   };
 };
 
@@ -87,7 +93,6 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           </foreignObject>
         )}
 
-        {/* INDIVIDUAL SERVICES */}
         {data.services.slice(0, 4).map((service: string, index: number) => {
           const sConf = serviceConfigs[index];
           if (!sConf || !service) return null;
@@ -100,7 +105,6 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           );
         })}
 
-        {/* PHONE NUMBER */}
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
             <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
@@ -109,7 +113,6 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           </foreignObject>
         )}
 
-        {/* WEBSITE */}
         {data.website && websiteConfig && (
           <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
             <div className="w-full text-left" style={websiteConfig.style}>
@@ -118,7 +121,6 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           </foreignObject>
         )}
 
-        {/* LOCATION */}
         {data.location && locationConfig && (
           <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
             <div className="w-full text-left" style={locationConfig.style}>
@@ -150,7 +152,6 @@ export default function PreviewPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string>('');
 
-  // DYNAMIC SPREADSHEET LOADER
   useEffect(() => {
     fetch('/templates.csv')
       .then(response => {
@@ -183,7 +184,6 @@ export default function PreviewPage() {
               }
             });
             setRawDatabase(newDb);
-            
             const templateKeys = Object.keys(newDb);
             if (templateKeys.length > 0) {
               setFormData(prev => ({ ...prev, selectedTemplate: templateKeys[0] }));
@@ -201,14 +201,11 @@ export default function PreviewPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
-
     const tradeKey = Object.keys(tradePhotos).find(key => 
       formData.field.toLowerCase().includes(key)
     ) || 'default';
-    
     const photos = tradePhotos[tradeKey];
     setSelectedPhoto(photos[Math.floor(Math.random() * photos.length)]);
-
     setTimeout(() => {
       setIsGenerating(false);
       setShowPreview(true);
@@ -249,7 +246,6 @@ export default function PreviewPage() {
               ← Edit Data
             </button>
           </div>
-          
           <div className="flex flex-col gap-6">
             <MasterTemplate 
               id="flyer-master" 
@@ -258,7 +254,6 @@ export default function PreviewPage() {
               configKey={formData.selectedTemplate} 
               rawDatabase={rawDatabase}
             />
-            
             <button 
               onClick={downloadFlyer} 
               disabled={isDownloading} 
@@ -278,45 +273,49 @@ export default function PreviewPage() {
     <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900">
         <h1 className="text-3xl font-black text-slate-900 mb-2 uppercase italic tracking-tighter">Aretifi Studio</h1>
+        <p className="text-slate-600 mb-8 font-medium">Input your business data. We will assemble the commercial assets.</p>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Business Name</label>
-            <input required type="text" name="businessName" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. Apex Repairs" />
+            <input required type="text" name="businessName" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Apex Repairs" />
           </div>
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Trade</label>
-              <input required type="text" name="field" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. Plumbing" />
+              <input required type="text" name="field" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Plumbing" />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Phone Number</label>
-              <input required type="text" name="phone" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. 555-0198" />
+              <input required type="text" name="phone" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. 555-0198" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Top 3-4 Services (Comma separated)</label>
-            <input required type="text" name="services" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. Repair, Maintenance" />
+            <input required type="text" name="services" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Repair, Maintenance, Install" />
           </div>
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Website</label>
-              <input type="text" name="website" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="Optional" />
+              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Website (Optional)</label>
+              <input type="text" name="website" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. www.apex.com" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Location</label>
-              <input type="text" name="location" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="Optional" />
+              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Location (Optional)</label>
+              <input type="text" name="location" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-slate-900 transition-colors" placeholder="e.g. Toronto, ON" />
             </div>
           </div>
           <div>
             <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Select Template</label>
-            <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 bg-white">
+            <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 bg-white cursor-pointer">
               {availableTemplates.map(id => (
                 <option key={id} value={id}>{id}</option>
               ))}
             </select>
+            {availableTemplates.length === 0 && (
+              <p className="text-red-500 text-xs mt-2 font-bold">Ensure templates.csv is in your /public folder.</p>
+            )}
           </div>
-          <button type="submit" disabled={isGenerating || availableTemplates.length === 0} className="w-full bg-slate-900 text-white font-black uppercase tracking-widest py-4 rounded-lg mt-6 hover:bg-slate-700 disabled:opacity-50">
-            {isGenerating ? 'Assembling...' : 'Generate Flyer'}
+          <button type="submit" disabled={isGenerating || availableTemplates.length === 0} className="w-full bg-slate-900 text-white font-black uppercase tracking-widest py-4 rounded-lg mt-6 hover:bg-slate-700 disabled:opacity-50 transition-colors">
+            {isGenerating ? 'Assembling Assets...' : 'Generate Flyer'}
           </button>
         </form>
       </div>
