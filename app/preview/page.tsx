@@ -27,7 +27,7 @@ const parseZone = (csvString: string) => {
       color: parts[5], 
       fontWeight: parts[6], 
       fontStyle: parts[7], 
-      fontFamily: parts[8] 
+      fontFamily: parts[8] // This will apply "Anton" from your CSV
     }
   };
 };
@@ -92,7 +92,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
             <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
-              {/* Removed hardcoded emoji to prevent double-icons */}
+              {/* Removed hardcoded 📞 icon to prevent duplication */}
               {data.phone || '555-0123'}
             </div>
           </foreignObject>
@@ -223,7 +223,6 @@ export default function PreviewPage() {
           </div>
           <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
           
-          {/* Restored Missing Form Fields */}
           <div className="grid grid-cols-2 gap-5">
             <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website (Optional)" />
             <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Location/Service Area" />
