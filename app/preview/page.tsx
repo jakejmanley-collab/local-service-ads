@@ -1,18 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { toPng } from 'html-to-image';
-
-// --- COLOR PSYCHOLOGY THEMES ---
-const colorThemes: Record<string, any> = {
-  blue: { id: 'blue', label: 'Trust & Security (Blue)', bg: 'bg-blue-600', text: 'text-blue-600', border: 'border-blue-600', hex: '#2563eb' },
-  red: { id: 'red', label: 'Energy & Urgency (Red)', bg: 'bg-red-600', text: 'text-red-600', border: 'border-red-600', hex: '#dc2626' },
-  green: { id: 'green', label: 'Nature & Growth (Green)', bg: 'bg-emerald-600', text: 'text-emerald-600', border: 'border-emerald-600', hex: '#059669' },
-  orange: { id: 'orange', label: 'Friendly & Action (Orange)', bg: 'bg-orange-500', text: 'text-orange-500', border: 'border-orange-500', hex: '#f97316' },
-  purple: { id: 'purple', label: 'Luxury & Quality (Purple)', bg: 'bg-purple-600', text: 'text-purple-600', border: 'border-purple-600', hex: '#9333ea' },
-  black: { id: 'black', label: 'Power & Elegance (Black)', bg: 'bg-slate-900', text: 'text-slate-900', border: 'border-slate-900', hex: '#0f172a' },
-};
+import Papa from 'papaparse';
 
 // --- CURATED IMAGE LIBRARY ---
 const tradePhotos: Record<string, string[]> = {
@@ -23,151 +14,186 @@ const tradePhotos: Record<string, string[]> = {
   default: ['https://images.unsplash.com/photo-1521791136064-7985c2d18854?auto=format&fit=crop&w=800&q=80']
 };
 
-// --- TEMPLATES ---
+// 1. THE SPREADSHEET PARSER FUNCTION
+const parseZone = (csvString: string) => {
+  if (!csvString) return null;
+  const parts = csvString.split(',').map(s => s.trim());
+  if (parts.length === 4) {
+    return { x: parts[0], y: parts[1], width: parts[2], height: parts[3] };
+  }
+  return {
+    x: parts[0], y: parts[1], width: parts[2], height: parts[3],
+    style: { fontSize: parts[4], color: parts[5], fontWeight: parts[6], fontStyle: parts[7], fontFamily: parts[8] }
+  };
+};
 
-// 1. THE HEX-TECH (Using Figma Asset Workflow with 3 Photos)
-const HexFrame = ({ id, data, photos, theme }: any) => (
-  <div id={id} className="relative aspect-[4/5] w-full overflow-hidden bg-slate-900 shadow-2xl">
-    
-    {/* 1. BOTTOM LAYER: 3 Trade Photos mapped behind the cutouts */}
-    <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-      <img src={photos[0]} alt="Trade 1" className="w-full h-full object-cover col-span-1 row-span-2" crossOrigin="anonymous" />
-      <img src={photos[1]} alt="Trade 2" className="w-full h-full object-cover col-span-1 row-span-1" crossOrigin="anonymous" />
-      <img src={photos[2]} alt="Trade 3" className="w-full h-full object-cover col-span-1 row-span-1" crossOrigin="anonymous" />
+// 2. THE MASTER TEMPLATE ENGINE (SVG)
+const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => {
+  const rawConfig = rawDatabase[configKey];
+  if (!rawConfig) return null;
+
+  const photoConfig = parseZone(rawConfig.photoHole);
+  const headerTopConfig = parseZone(rawConfig.headerTop);
+  const headerBottomConfig = parseZone(rawConfig.headerBottom);
+  const phoneConfig = parseZone(rawConfig.phone);
+  const websiteConfig = parseZone(rawConfig.website);
+  const locationConfig = parseZone(rawConfig.location);
+  const serviceConfigs = [
+    parseZone(rawConfig.service1),
+    parseZone(rawConfig.service2),
+    parseZone(rawConfig.service3),
+    parseZone(rawConfig.service4)
+  ];
+
+  const tradeWords = data.field ? data.field.split(' ') : ['PROFESSIONAL', 'SERVICE'];
+  const firstWord = tradeWords[0];
+  const remainingWords = tradeWords.slice(1).join(' ');
+
+  return (
+    <div id={id} className="relative w-full shadow-2xl bg-white overflow-hidden">
+      <svg viewBox={rawConfig.viewBox} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+        
+        {/* BOTTOM LAYER: Dynamic Trade Photo */}
+        {photoConfig && (
+          <image 
+            href={photoUrl} 
+            x={photoConfig.x} y={photoConfig.y} 
+            width={photoConfig.width} height={photoConfig.height} 
+            preserveAspectRatio="xMidYMid slice" crossOrigin="anonymous" 
+          />
+        )}
+        
+        {/* MIDDLE LAYER: Your Custom PNG Template */}
+        <image href={rawConfig.bgImage} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
+        
+        {/* TOP LAYER: Text mapped to your database coordinates */}
+        {headerTopConfig && (
+          <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
+            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left">
+              <h2 className="uppercase leading-none tracking-tighter drop-shadow-md" style={headerTopConfig.style}>
+                {firstWord}
+              </h2>
+            </div>
+          </foreignObject>
+        )}
+
+        {headerBottomConfig && (
+          <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
+            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left">
+              <h2 className="uppercase leading-none tracking-tighter drop-shadow-md" style={headerBottomConfig.style}>
+                {remainingWords}
+              </h2>
+            </div>
+          </foreignObject>
+        )}
+
+        {/* INDIVIDUAL SERVICES */}
+        {data.services.slice(0, 4).map((service: string, index: number) => {
+          const sConf = serviceConfigs[index];
+          if (!sConf || !service) return null;
+          return (
+            <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
+              <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left uppercase" style={sConf.style}>
+                ✓ {service}
+              </div>
+            </foreignObject>
+          );
+        })}
+
+        {/* PHONE NUMBER */}
+        {phoneConfig && (
+          <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
+            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
+              📞 {data.phone || '555-0123'}
+            </div>
+          </foreignObject>
+        )}
+
+        {/* WEBSITE */}
+        {data.website && websiteConfig && (
+          <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
+            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left" style={websiteConfig.style}>
+              🌐 {data.website}
+            </div>
+          </foreignObject>
+        )}
+
+        {/* LOCATION */}
+        {data.location && locationConfig && (
+          <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
+            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left" style={locationConfig.style}>
+              📍 {data.location}
+            </div>
+          </foreignObject>
+        )}
+      </svg>
     </div>
+  );
+};
 
-    {/* 2. MIDDLE LAYER: Your Figma Template */}
-    <img 
-      src="/hexagon.png" 
-      alt="Flyer Frame" 
-      className="absolute inset-0 w-full h-full z-10" 
-    />
-
-    {/* 3. TOP LAYER: Dynamic User Data (Text) mapped to the Right Side */}
-    <div className="absolute inset-0 z-20 pointer-events-none">
-      
-      {/* Upper Right: Business Name & Category */}
-      <div className="absolute top-[8%] right-[6%] w-[60%] text-right">
-        <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter leading-tight drop-shadow-md">
-          {data.businessName || 'YOUR BRAND'}
-        </h2>
-        <p className={`font-bold text-sm md:text-base uppercase tracking-widest mt-1 ${theme.text}`}>
-          {data.field || 'PROFESSIONAL SERVICE'}
-        </p>
-      </div>
-
-      {/* Bottom Right: Services */}
-      <div className="absolute bottom-[20%] right-[6%] w-[60%] text-right">
-        <ul className="text-white space-y-1 font-bold text-sm md:text-base mb-4">
-          {data.services.slice(0, 3).map((s: string, i: number) => (
-            <li key={i} className="uppercase tracking-wider drop-shadow-md">{s} ✓</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Bottom Right Box Alignment: Phone Number */}
-      <div className="absolute bottom-[6%] right-[6%] w-[60%] text-right">
-        <div className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-lg ${theme.text}`}>
-          {data.phone || '555-0123'}
-        </div>
-      </div>
-
-    </div>
-  </div>
-);
-
-// 2. THE SPLIT-MODERN (CSS Fallback)
-const SplitFrame = ({ id, data, photoUrl, theme }: any) => (
-  <div id={id} className="relative aspect-[4/5] bg-white flex flex-col overflow-hidden shadow-2xl">
-    <div className="h-[55%] relative">
-      <img src={photoUrl} alt="Trade Insert" className="w-full h-full object-cover" crossOrigin="anonymous" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-90"></div>
-      <div className="absolute bottom-6 left-6 text-white">
-        <p className={`font-bold ${theme.text} text-sm uppercase tracking-widest mb-1 brightness-150`}>{data.field || 'EXPERT'}</p>
-        <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">{data.businessName || 'YOUR BUSINESS'}</h2>
-      </div>
-    </div>
-    <div className="h-[45%] bg-white p-8 flex flex-col justify-between">
-      <div className="space-y-4">
-        {data.services.slice(0, 3).map((s: string, i: number) => (
-          <div key={i} className="flex items-center gap-3 border-b border-slate-100 pb-2">
-            <div className={`w-2 h-2 ${theme.bg} rounded-full`}></div>
-            <span className="font-bold text-slate-700 uppercase text-sm tracking-wide">{s}</span>
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-between items-end mt-4">
-        <div>
-          <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest">Serving</p>
-          <p className="text-slate-900 font-bold text-sm uppercase">{data.serviceArea || 'LOCAL AREA'}</p>
-        </div>
-        <div className="text-right">
-          <p className={`${theme.text} font-black text-2xl tracking-tighter`}>{data.phone || '555-0123'}</p>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// 3. THE CIRCLE-BADGE (CSS Fallback)
-const CircleFrame = ({ id, data, photoUrl, theme }: any) => (
-  <div id={id} className="relative aspect-[4/5] bg-slate-100 flex flex-col p-6 items-center justify-center shadow-2xl">
-    <div className="absolute inset-4 border-2 border-slate-300 rounded-lg pointer-events-none"></div>
-    <div className="z-10 text-center mb-6">
-      <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-1">{data.businessName || 'YOUR BRAND'}</h2>
-      <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">{data.field || 'SERVICE'}</p>
-    </div>
-    <div className={`relative w-56 h-56 rounded-full border-[6px] ${theme.border} shadow-xl overflow-hidden mb-8 z-10`}>
-      <img src={photoUrl} alt="Trade Insert" className="w-full h-full object-cover transform scale-110" crossOrigin="anonymous" />
-    </div>
-    <div className="bg-white p-6 w-full rounded-xl shadow-sm border border-slate-200 z-10 text-center">
-      <div className={`${theme.text} font-black text-3xl tracking-tight mb-2`}>{data.phone || '555-0123'}</div>
-      <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Call for a free quote</p>
-    </div>
-  </div>
-);
-
-// 4. THE BOLD-STRIPE (CSS Fallback)
-const StripeFrame = ({ id, data, photoUrl, theme }: any) => (
-  <div id={id} className={`relative aspect-[4/5] ${theme.bg} flex flex-col overflow-hidden shadow-2xl`}>
-    <div className="absolute top-0 right-0 w-2/3 h-full bg-slate-900 transform skew-x-12 translate-x-20 overflow-hidden border-l-4 border-white">
-      <img src={photoUrl} alt="Trade Insert" className="absolute inset-0 w-full h-full object-cover opacity-60 transform -skew-x-12 scale-125 grayscale" crossOrigin="anonymous" />
-    </div>
-    <div className="relative z-10 h-full flex flex-col justify-center p-8 w-2/3">
-      <div className="bg-white p-4 shadow-lg mb-6 -ml-8 pl-8 border-l-8 border-slate-900">
-        <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter leading-none">{data.businessName || 'YOUR BRAND'}</h2>
-      </div>
-      <div className="space-y-3 mb-8">
-        {data.services.slice(0, 3).map((s: string, i: number) => (
-          <div key={i} className="bg-slate-900 text-white px-3 py-2 font-bold uppercase text-sm tracking-wide self-start inline-block shadow-md">
-            {s}
-          </div>
-        ))}
-      </div>
-      <div className="mt-auto">
-        <p className="text-white/80 font-bold text-xs uppercase tracking-widest mb-1">Available In {data.serviceArea}</p>
-        <div className="text-white font-black text-4xl tracking-tighter">{data.phone || '555-0123'}</div>
-      </div>
-    </div>
-  </div>
-);
-
-// --- MAIN PAGE LOGIC ---
-
+// 3. MAIN PAGE LOGIC
 export default function PreviewPage() {
+  const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
+  
   const [formData, setFormData] = useState({
     businessName: '',
     field: '',
     services: '',
-    serviceArea: '',
     phone: '',
-    colorTheme: 'blue'
+    website: '',
+    location: '',
+    selectedTemplate: ''
   });
   
   const [showPreview, setShowPreview] = useState(false);
-  const [isDownloading, setIsDownloading] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedPhotos, setSelectedPhotos] = useState<string[]>(['', '', '']);
+  const [selectedPhoto, setSelectedPhoto] = useState<string>('');
+
+  // DYNAMIC SPREADSHEET LOADER
+  useEffect(() => {
+    fetch('/templates.csv')
+      .then(response => {
+         if(!response.ok) throw new Error("CSV not found");
+         return response.text();
+      })
+      .then(csvText => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const newDb: Record<string, any> = {};
+            results.data.forEach((row: any) => {
+              if (row['Template ID']) {
+                newDb[row['Template ID']] = {
+                  id: row['Template ID'],
+                  bgImage: `/${row['Template ID']}.png`,
+                  viewBox: row['Canvas Dimensions'] ? `0 0 ${row['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080",
+                  photoHole: row['Photo Hole'],
+                  headerTop: row['Header Top'],
+                  headerBottom: row['Header Bottom'],
+                  service1: row['Service 1'],
+                  service2: row['Service 2'],
+                  service3: row['Service 3'],
+                  service4: row['Service 4'],
+                  phone: row['Phone'],
+                  website: row['Website'],
+                  location: row['Location']
+                };
+              }
+            });
+            setRawDatabase(newDb);
+            
+            // Auto-select the first template from your CSV
+            const templateKeys = Object.keys(newDb);
+            if (templateKeys.length > 0) {
+              setFormData(prev => ({ ...prev, selectedTemplate: templateKeys[0] }));
+            }
+          }
+        });
+      })
+      .catch(err => console.error("Error loading templates.csv. Make sure it is in the /public folder.", err));
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -182,13 +208,7 @@ export default function PreviewPage() {
     ) || 'default';
     
     const photos = tradePhotos[tradeKey];
-    
-    // Select 3 random photos for the HexFrame grid
-    const p1 = photos[Math.floor(Math.random() * photos.length)];
-    const p2 = photos[Math.floor(Math.random() * photos.length)];
-    const p3 = photos[Math.floor(Math.random() * photos.length)];
-    
-    setSelectedPhotos([p1, p2, p3]);
+    setSelectedPhoto(photos[Math.floor(Math.random() * photos.length)]);
 
     setTimeout(() => {
       setIsGenerating(false);
@@ -196,22 +216,22 @@ export default function PreviewPage() {
     }, 600);
   };
 
-  const downloadFlyer = useCallback(async (templateId: string) => {
-    setIsDownloading(templateId);
+  const downloadFlyer = useCallback(async () => {
+    setIsDownloading(true);
     try {
-      const element = document.getElementById(`flyer-${templateId}`);
+      const element = document.getElementById('flyer-master');
       if (!element) return;
       const dataUrl = await toPng(element, { quality: 1.0, pixelRatio: 2 });
       const link = document.createElement('a');
-      link.download = `${formData.businessName || 'aretifi'}-${templateId}.png`;
+      link.download = `${formData.businessName || 'aretifi'}-${formData.selectedTemplate}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
       console.error('Failed to download image', err);
     } finally {
-      setIsDownloading(null);
+      setIsDownloading(false);
     }
-  }, [formData.businessName]);
+  }, [formData.businessName, formData.selectedTemplate]);
 
   const parsedData = {
     ...formData,
@@ -220,64 +240,54 @@ export default function PreviewPage() {
       : ['Service 1', 'Service 2', 'Service 3']
   };
 
-  const activeTheme = colorThemes[formData.colorTheme];
-
   if (showPreview) {
     return (
       <main className="min-h-screen bg-slate-50 py-12 px-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900">Choose Your Layout</h1>
-            <Link href="/checkout" className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-800 transition-colors">
-              Unlock High-Res
-            </Link>
+            <h1 className="text-3xl font-bold text-slate-900">Your Custom Asset</h1>
+            <button onClick={() => setShowPreview(false)} className="text-slate-500 font-bold hover:text-slate-900">
+              ← Edit Data
+            </button>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="flex flex-col gap-4">
-              <HexFrame id="flyer-hex" data={parsedData} photos={selectedPhotos} theme={activeTheme} />
-              <button onClick={() => downloadFlyer('hex')} disabled={isDownloading === 'hex'} className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 disabled:opacity-50">
-                {isDownloading === 'hex' ? 'Rendering...' : 'Download Hex-Tech'}
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <SplitFrame id="flyer-split" data={parsedData} photoUrl={selectedPhotos[0]} theme={activeTheme} />
-              <button onClick={() => downloadFlyer('split')} disabled={isDownloading === 'split'} className={`w-full ${activeTheme.bg} text-white font-bold py-3 rounded-lg disabled:opacity-50`}>
-                {isDownloading === 'split' ? 'Rendering...' : 'Download Modern'}
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <CircleFrame id="flyer-circle" data={parsedData} photoUrl={selectedPhotos[0]} theme={activeTheme} />
-              <button onClick={() => downloadFlyer('circle')} disabled={isDownloading === 'circle'} className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-slate-800 disabled:opacity-50">
-                {isDownloading === 'circle' ? 'Rendering...' : 'Download Badge'}
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <StripeFrame id="flyer-stripe" data={parsedData} photoUrl={selectedPhotos[0]} theme={activeTheme} />
-              <button onClick={() => downloadFlyer('stripe')} disabled={isDownloading === 'stripe'} className={`w-full ${activeTheme.bg} text-white font-bold py-3 rounded-lg disabled:opacity-50`}>
-                {isDownloading === 'stripe' ? 'Rendering...' : 'Download Bold'}
-              </button>
-            </div>
+          <div className="flex flex-col gap-6">
+            {/* Renders the Exact Template Picked from the Dropdown */}
+            <MasterTemplate 
+              id="flyer-master" 
+              data={parsedData} 
+              photoUrl={selectedPhoto} 
+              configKey={formData.selectedTemplate} 
+              rawDatabase={rawDatabase}
+            />
+            
+            <button 
+              onClick={downloadFlyer} 
+              disabled={isDownloading} 
+              className="w-full bg-slate-900 text-white font-bold py-4 rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            >
+              {isDownloading ? 'Rendering High-Res...' : 'Download Flyer'}
+            </button>
           </div>
         </div>
       </main>
     );
   }
 
+  const availableTemplates = Object.keys(rawDatabase);
+
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900">
         <h1 className="text-3xl font-black text-slate-900 mb-2 uppercase italic tracking-tighter">Aretifi Studio</h1>
-        <p className="text-slate-600 mb-8 font-medium">Input your business data. We'll assemble the commercial assets.</p>
+        <p className="text-slate-600 mb-8 font-medium">Input your business data. We will assemble the commercial assets.</p>
         
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Business Name</label>
             <input required type="text" name="businessName" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Apex Repairs" />
           </div>
+          
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Trade</label>
@@ -288,29 +298,50 @@ export default function PreviewPage() {
               <input required type="text" name="phone" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. 555-0198" />
             </div>
           </div>
+
           <div>
-            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Top 3 Services (Comma separated)</label>
+            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Top 3-4 Services (Comma separated)</label>
             <input required type="text" name="services" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Repair, Maintenance, Install" />
           </div>
-          <div>
-            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Service Area</label>
-            <input required type="text" name="serviceArea" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Downtown Metro" />
+
+          <div className="grid grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Website (Optional)</label>
+              <input type="text" name="website" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. www.apex.com" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Location (Optional)</label>
+              <input type="text" name="location" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Toronto, ON" />
+            </div>
           </div>
+
           <div>
-            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Brand Psychology (Color)</label>
-            <select name="colorTheme" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors cursor-pointer bg-white">
-              {Object.values(colorThemes).map(theme => (
-                <option key={theme.id} value={theme.id}>{theme.label}</option>
-              ))}
+            <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Select Template</label>
+            <select 
+              name="selectedTemplate" 
+              onChange={handleInputChange} 
+              value={formData.selectedTemplate}
+              className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors cursor-pointer bg-white"
+            >
+              {availableTemplates.length === 0 ? (
+                <option>Loading templates from CSV...</option>
+              ) : (
+                availableTemplates.map(templateId => (
+                  <option key={templateId} value={templateId}>{templateId}</option>
+                ))
+              )}
             </select>
+            {availableTemplates.length === 0 && (
+              <p className="text-red-500 text-xs mt-2 font-bold">Ensure templates.csv is in your /public folder.</p>
+            )}
           </div>
           
           <button 
             type="submit" 
-            disabled={isGenerating}
-            className="w-full bg-slate-900 text-white font-black uppercase tracking-widest py-4 rounded-lg mt-6 hover:bg-blue-600 transition-colors disabled:opacity-50"
+            disabled={isGenerating || availableTemplates.length === 0}
+            className="w-full bg-slate-900 text-white font-black uppercase tracking-widest py-4 rounded-lg mt-6 hover:bg-slate-700 transition-colors disabled:opacity-50"
           >
-            {isGenerating ? 'Assembling Assets...' : 'Generate Flyers'}
+            {isGenerating ? 'Assembling Assets...' : 'Generate Flyer'}
           </button>
         </form>
       </div>
