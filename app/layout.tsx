@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Load fonts defined in your CSV */}
+        {/* Load Anton and Roboto for flyer rendering */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link 
@@ -24,7 +24,6 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-slate-50 text-slate-900 antialiased">
-        {/* --- RESTORED GLOBAL HEADER --- */}
         <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center">
