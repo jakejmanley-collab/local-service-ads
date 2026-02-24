@@ -69,7 +69,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
         {/* TOP LAYER: Text mapped to your database coordinates */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left">
+            <div className="w-full text-left">
               <h2 className="uppercase leading-none tracking-tighter drop-shadow-md" style={headerTopConfig.style}>
                 {firstWord}
               </h2>
@@ -79,7 +79,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
 
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left">
+            <div className="w-full text-left">
               <h2 className="uppercase leading-none tracking-tighter drop-shadow-md" style={headerBottomConfig.style}>
                 {remainingWords}
               </h2>
@@ -93,7 +93,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left uppercase" style={sConf.style}>
+              <div className="w-full text-left uppercase" style={sConf.style}>
                 ✓ {service}
               </div>
             </foreignObject>
@@ -103,7 +103,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
         {/* PHONE NUMBER */}
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
+            <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
               📞 {data.phone || '555-0123'}
             </div>
           </foreignObject>
@@ -112,7 +112,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
         {/* WEBSITE */}
         {data.website && websiteConfig && (
           <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left" style={websiteConfig.style}>
+            <div className="w-full text-left" style={websiteConfig.style}>
               🌐 {data.website}
             </div>
           </foreignObject>
@@ -121,7 +121,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
         {/* LOCATION */}
         {data.location && locationConfig && (
           <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full text-left" style={locationConfig.style}>
+            <div className="w-full text-left" style={locationConfig.style}>
               📍 {data.location}
             </div>
           </foreignObject>
@@ -184,7 +184,6 @@ export default function PreviewPage() {
             });
             setRawDatabase(newDb);
             
-            // Auto-select the first template from your CSV
             const templateKeys = Object.keys(newDb);
             if (templateKeys.length > 0) {
               setFormData(prev => ({ ...prev, selectedTemplate: templateKeys[0] }));
@@ -192,7 +191,7 @@ export default function PreviewPage() {
           }
         });
       })
-      .catch(err => console.error("Error loading templates.csv. Make sure it is in the /public folder.", err));
+      .catch(err => console.error("Error loading templates.csv", err));
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -252,7 +251,6 @@ export default function PreviewPage() {
           </div>
           
           <div className="flex flex-col gap-6">
-            {/* Renders the Exact Template Picked from the Dropdown */}
             <MasterTemplate 
               id="flyer-master" 
               data={parsedData} 
@@ -280,68 +278,45 @@ export default function PreviewPage() {
     <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900">
         <h1 className="text-3xl font-black text-slate-900 mb-2 uppercase italic tracking-tighter">Aretifi Studio</h1>
-        <p className="text-slate-600 mb-8 font-medium">Input your business data. We will assemble the commercial assets.</p>
-        
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Business Name</label>
-            <input required type="text" name="businessName" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Apex Repairs" />
+            <input required type="text" name="businessName" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. Apex Repairs" />
           </div>
-          
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Trade</label>
-              <input required type="text" name="field" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Plumbing" />
+              <input required type="text" name="field" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. Plumbing" />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Phone Number</label>
-              <input required type="text" name="phone" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. 555-0198" />
+              <input required type="text" name="phone" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. 555-0198" />
             </div>
           </div>
-
           <div>
             <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Top 3-4 Services (Comma separated)</label>
-            <input required type="text" name="services" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Repair, Maintenance, Install" />
+            <input required type="text" name="services" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="e.g. Repair, Maintenance" />
           </div>
-
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Website (Optional)</label>
-              <input type="text" name="website" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. www.apex.com" />
+              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Website</label>
+              <input type="text" name="website" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="Optional" />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Location (Optional)</label>
-              <input type="text" name="location" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors" placeholder="e.g. Toronto, ON" />
+              <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Location</label>
+              <input type="text" name="location" onChange={handleInputChange} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 outline-none" placeholder="Optional" />
             </div>
           </div>
-
           <div>
             <label className="block text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Select Template</label>
-            <select 
-              name="selectedTemplate" 
-              onChange={handleInputChange} 
-              value={formData.selectedTemplate}
-              className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:border-slate-900 focus:ring-0 outline-none transition-colors cursor-pointer bg-white"
-            >
-              {availableTemplates.length === 0 ? (
-                <option>Loading templates from CSV...</option>
-              ) : (
-                availableTemplates.map(templateId => (
-                  <option key={templateId} value={templateId}>{templateId}</option>
-                ))
-              )}
+            <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 bg-white">
+              {availableTemplates.map(id => (
+                <option key={id} value={id}>{id}</option>
+              ))}
             </select>
-            {availableTemplates.length === 0 && (
-              <p className="text-red-500 text-xs mt-2 font-bold">Ensure templates.csv is in your /public folder.</p>
-            )}
           </div>
-          
-          <button 
-            type="submit" 
-            disabled={isGenerating || availableTemplates.length === 0}
-            className="w-full bg-slate-900 text-white font-black uppercase tracking-widest py-4 rounded-lg mt-6 hover:bg-slate-700 transition-colors disabled:opacity-50"
-          >
-            {isGenerating ? 'Assembling Assets...' : 'Generate Flyer'}
+          <button type="submit" disabled={isGenerating || availableTemplates.length === 0} className="w-full bg-slate-900 text-white font-black uppercase tracking-widest py-4 rounded-lg mt-6 hover:bg-slate-700 disabled:opacity-50">
+            {isGenerating ? 'Assembling...' : 'Generate Flyer'}
           </button>
         </form>
       </div>
