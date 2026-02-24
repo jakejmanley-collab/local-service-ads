@@ -58,11 +58,15 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   return (
     <div id={id} className="relative w-full shadow-2xl bg-white overflow-hidden">
       <svg viewBox={rawConfig.viewBox} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+        {/* BOTTOM LAYER: Trade Photo */}
         {photoConfig && (
           <image href={photoUrl} x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height} preserveAspectRatio="xMidYMid slice" />
         )}
+        
+        {/* MIDDLE LAYER: PNG Template Background */}
         <image href={rawConfig.bgImage} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
+        {/* TOP LAYER: Text mapped to coordinates from CSV */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
             <div className="w-full text-left">
@@ -112,8 +116,10 @@ export default function PreviewPage() {
     selectedTemplate: ''
   });
   const [showPreview, setShowPreview] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string>('');
 
+  // Loads the CSV from /public/templates.csv
   useEffect(() => {
     fetch('/templates.csv')
       .then(res => res.text())
@@ -155,6 +161,19 @@ export default function PreviewPage() {
     setShowPreview(true);
   };
 
+  const downloadFlyer = useCallback(async () => {
+    setIsDownloading(true);
+    const el = document.getElementById('flyer-master');
+    if (el) {
+      const url = await toPng(el, { quality: 1.0, pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.download = `${formData.businessName || 'aretifi'}.png`;
+      link.href = url;
+      link.click();
+    }
+    setIsDownloading(false);
+  }, [formData]);
+
   const parsedData = {
     ...formData,
     services: formData.services.split(',').map(s => s.trim()).filter(Boolean)
@@ -165,7 +184,12 @@ export default function PreviewPage() {
       <main className="min-h-screen bg-slate-50 py-12 px-6">
         <div className="max-w-md mx-auto">
           <MasterTemplate id="flyer-master" data={parsedData} photoUrl={selectedPhoto} configKey={formData.selectedTemplate} rawDatabase={rawDatabase} />
-          <button onClick={() => setShowPreview(false)} className="w-full bg-slate-900 text-white font-bold py-4 rounded-lg mt-6">Edit Data</button>
+          <div className="flex gap-4 mt-6">
+            <button onClick={() => setShowPreview(false)} className="flex-1 bg-white border-2 border-slate-900 font-bold py-4 rounded-lg">Edit Data</button>
+            <button onClick={downloadFlyer} disabled={isDownloading} className="flex-1 bg-slate-900 text-white font-bold py-4 rounded-lg">
+              {isDownloading ? 'Downloading...' : 'Download'}
+            </button>
+          </div>
         </div>
       </main>
     );
@@ -176,16 +200,18 @@ export default function PreviewPage() {
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900">
         <h1 className="text-3xl font-black text-slate-900 mb-8 uppercase italic tracking-tighter text-center">Aretifi Studio</h1>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Business Name" />
+          <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Business Name" />
           <div className="grid grid-cols-2 gap-5">
-            <input required name="field" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Trade (e.g. Plumbing)" />
-            <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Phone Number" />
+            <input required name="field" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Trade (e.g. Plumbing)" />
+            <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Phone Number" />
           </div>
-          <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
-          <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
+          <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Services (comma separated)" />
+          <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white cursor-pointer">
             {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
           </select>
-          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest">Generate Flyer</button>
+          <button type="submit" disabled={Object.keys(rawDatabase).length === 0} className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest hover:bg-slate-700 transition-colors disabled:opacity-50">
+            Generate Flyer
+          </button>
         </form>
       </div>
     </main>
