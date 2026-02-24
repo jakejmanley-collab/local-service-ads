@@ -91,7 +91,22 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
 
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>📞 {data.phone || '555-0123'}</div>
+            <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
+              {/* Removed hardcoded emoji to prevent double-icons */}
+              {data.phone || '555-0123'}
+            </div>
+          </foreignObject>
+        )}
+
+        {data.website && websiteConfig && (
+          <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
+            <div className="w-full text-left" style={websiteConfig.style}>{data.website}</div>
+          </foreignObject>
+        )}
+
+        {(data.location || data.serviceArea) && locationConfig && (
+          <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
+            <div className="w-full text-left" style={locationConfig.style}>{data.location || data.serviceArea}</div>
           </foreignObject>
         )}
       </svg>
@@ -109,6 +124,7 @@ export default function PreviewPage() {
     phone: '',
     website: '',
     location: '',
+    serviceArea: '',
     selectedTemplate: ''
   });
   const [showPreview, setShowPreview] = useState(false);
@@ -130,7 +146,6 @@ export default function PreviewPage() {
                   id: row['Template ID'],
                   bgImage: `/${row['Template ID']}.png`,
                   viewBox: row['Canvas Dimensions'] ? `0 0 ${row['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080",
-                  // Updated mapping to match your CSV headers
                   photoHole: row['Photo Hole (X, Y, W, H)'],
                   headerTop: row['Header Top (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
                   headerBottom: row['Header Bottom (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
@@ -168,7 +183,7 @@ export default function PreviewPage() {
     if (el) {
       const url = await toPng(el, { quality: 1.0, pixelRatio: 2 });
       const link = document.createElement('a');
-      link.download = `${formData.businessName || 'aretifi'}.png`;
+      link.download = `${formData.businessName || 'flyer'}.png`;
       link.href = url;
       link.click();
     }
@@ -199,18 +214,25 @@ export default function PreviewPage() {
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900">
-        <h1 className="text-3xl font-black text-slate-900 mb-8 uppercase italic tracking-tighter text-center border-b pb-4">Aretifi Studio</h1>
+        <h1 className="text-3xl font-black text-slate-900 mb-8 uppercase italic tracking-tighter text-center">Aretifi Studio</h1>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Business Name" />
+          <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Business Name" />
           <div className="grid grid-cols-2 gap-5">
-            <input required name="field" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Trade (e.g. Plumbing)" />
-            <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Phone Number" />
+            <input required name="field" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Trade (e.g. Plumbing)" />
+            <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Phone Number" />
           </div>
-          <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Services (comma separated)" />
-          <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white cursor-pointer">
+          <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
+          
+          {/* Restored Missing Form Fields */}
+          <div className="grid grid-cols-2 gap-5">
+            <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website (Optional)" />
+            <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Location/Service Area" />
+          </div>
+
+          <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
             {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
           </select>
-          <button type="submit" disabled={Object.keys(rawDatabase).length === 0} className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest hover:bg-slate-700 transition-colors disabled:opacity-50">
+          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest">
             Generate Flyer
           </button>
         </form>
