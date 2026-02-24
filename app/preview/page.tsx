@@ -14,8 +14,8 @@ const tradePhotos: Record<string, string[]> = {
 };
 
 // 1. THE SPREADSHEET PARSER
-const parseZone = (csvString: string) => {
-  if (!csvString) return null;
+const parseZone = (csvString: any) => {
+  if (!csvString || typeof csvString !== 'string') return null;
   const parts = csvString.split(',').map(s => s.trim());
   if (parts.length < 4) return null;
   
@@ -36,18 +36,24 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
 
-  const photoConfig = parseZone(rawConfig['Photo Hole (X, Y, W, H)']);
-  const headerTopConfig = parseZone(rawConfig['Header Top (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
-  const headerBottomConfig = parseZone(rawConfig['Header Bottom (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
-  const phoneConfig = parseZone(rawConfig['Phone (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
-  const websiteConfig = parseZone(rawConfig['Website (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
-  const locationConfig = parseZone(rawConfig['Location (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
+  // Fuzzy find logic to handle CSV header variations
+  const findVal = (keyPart: string) => {
+    const fullKey = Object.keys(rawConfig).find(k => k.toLowerCase().includes(keyPart.toLowerCase()));
+    return fullKey ? rawConfig[fullKey] : null;
+  };
+
+  const photoConfig = parseZone(findVal('Photo Hole'));
+  const headerTopConfig = parseZone(findVal('Header Top'));
+  const headerBottomConfig = parseZone(findVal('Header Bottom'));
+  const phoneConfig = parseZone(findVal('Phone'));
+  const websiteConfig = parseZone(findVal('Website'));
+  const locationConfig = parseZone(findVal('Location'));
   
   const serviceConfigs = [
-    parseZone(rawConfig['Service 1 (X, Y, W, H, Size, Hex, Weight, Style, Font)']),
-    parseZone(rawConfig['Service 2 (X, Y, W, H, Size, Hex, Weight, Style, Font)']),
-    parseZone(rawConfig['Service 3 (X, Y, W, H, Size, Hex, Weight, Style, Font)']),
-    parseZone(rawConfig['Service 4 (X, Y, W, H, Size, Hex, Weight, Style, Font)'])
+    parseZone(findVal('Service 1')),
+    parseZone(findVal('Service 2')),
+    parseZone(findVal('Service 3')),
+    parseZone(findVal('Service 4'))
   ];
 
   const mainTitle = data.businessName || data.field || 'PROFESSIONAL';
@@ -57,17 +63,12 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
 
   return (
     <div id={id} className="relative w-full shadow-2xl bg-white overflow-hidden">
-      <svg viewBox={rawConfig['Canvas Dimensions'] ? `0 0 ${rawConfig['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080"} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
-        
-        {/* BOTTOM LAYER: Dynamic Trade Photo */}
+      <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         {photoConfig && (
           <image href={photoUrl} x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height} preserveAspectRatio="xMidYMid slice" crossOrigin="anonymous" />
         )}
-        
-        {/* MIDDLE LAYER: Template PNG */}
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {/* TOP LAYER: Dynamic Text Content */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
             <div className="w-full text-left uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
@@ -95,28 +96,16 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
             <div className="w-full text-left" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
-
-        {data.website && websiteConfig && (
-          <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
-            <div className="w-full text-left" style={websiteConfig.style}>{data.website}</div>
-          </foreignObject>
-        )}
-
-        {(data.location || data.serviceArea) && locationConfig && (
-          <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
-            <div className="w-full text-left" style={locationConfig.style}>{data.location || data.serviceArea}</div>
-          </foreignObject>
-        )}
       </svg>
     </div>
   );
 };
 
-// 3. MAIN COMPONENT
+// 3. MAIN PAGE LOGIC
 export default function PreviewPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
   const [formData, setFormData] = useState({
-    businessName: '', field: '', services: '', phone: '', website: '', location: '', serviceArea: '', selectedTemplate: ''
+    businessName: '', field: '', services: '', phone: '', website: '', location: '', selectedTemplate: ''
   });
   const [showPreview, setShowPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -129,9 +118,13 @@ export default function PreviewPage() {
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
+          transformHeader: (h) => h.trim(), // Sanitizes hidden spaces in CSV
           complete: (results) => {
             const newDb: Record<string, any> = {};
-            results.data.forEach((row: any) => { if (row['Template ID']) newDb[row['Template ID']] = row; });
+            results.data.forEach((row: any) => {
+              const idKey = Object.keys(row).find(k => k.toLowerCase().includes('template id'));
+              if (idKey && row[idKey]) newDb[row[idKey]] = row;
+            });
             setRawDatabase(newDb);
             const keys = Object.keys(newDb);
             if (keys.length > 0) setFormData(p => ({ ...p, selectedTemplate: keys[0] }));
@@ -195,10 +188,6 @@ export default function PreviewPage() {
             <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Phone Number" />
           </div>
           <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
-          <div className="grid grid-cols-2 gap-5">
-            <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website" />
-            <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Address/Location" />
-          </div>
           <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
             {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
           </select>
