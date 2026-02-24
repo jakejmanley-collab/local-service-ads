@@ -21,13 +21,13 @@ const parseZone = (csvString: string) => {
   
   return {
     x: parts[0], y: parts[1], width: parts[2], height: parts[3],
-    style: parts.length > 4 ? { 
-      fontSize: parts[4], 
-      color: parts[5], 
-      fontWeight: parts[6], 
-      fontStyle: parts[7], 
-      fontFamily: parts[8] 
-    } : {}
+    style: { 
+      fontSize: parts[4] || '16px', 
+      color: parts[5] || '#000000', 
+      fontWeight: parts[6] || '400', 
+      fontStyle: parts[7] || 'normal', 
+      fontFamily: parts[8] || 'Arial'
+    }
   };
 };
 
@@ -64,47 +64,47 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
           <image href={photoUrl} x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height} preserveAspectRatio="xMidYMid slice" crossOrigin="anonymous" />
         )}
         
-        {/* MIDDLE LAYER: Your Template PNG (Uses the key to find filename) */}
+        {/* MIDDLE LAYER: Template PNG */}
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {/* TOP LAYER: Headers */}
+        {/* TOP LAYER: Dynamic Text Content */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className="w-full h-full flex items-center">
-              <h2 className="uppercase leading-none tracking-tighter w-full" style={headerTopConfig.style}>{firstWord}</h2>
-            </div>
+            <div className="w-full text-left uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
 
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className="w-full h-full flex items-center">
-              <h2 className="uppercase leading-none tracking-tighter w-full" style={headerBottomConfig.style}>{remainingWords}</h2>
-            </div>
+            <div className="w-full text-left uppercase leading-none tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
 
-        {/* Dynamic Services Population */}
         {data.services.slice(0, 4).map((service: string, index: number) => {
           const sConf = serviceConfigs[index];
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className="w-full h-full flex items-center uppercase" style={sConf.style}>✓ {service}</div>
+              <div className="w-full text-left uppercase" style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
 
-        {/* Contact Info */}
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full h-full flex items-center" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
+            <div className="w-full text-left" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
 
         {data.website && websiteConfig && (
           <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
-            <div className="w-full h-full flex items-center" style={websiteConfig.style}>{data.website}</div>
+            <div className="w-full text-left" style={websiteConfig.style}>{data.website}</div>
+          </foreignObject>
+        )}
+
+        {(data.location || data.serviceArea) && locationConfig && (
+          <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
+            <div className="w-full text-left" style={locationConfig.style}>{data.location || data.serviceArea}</div>
           </foreignObject>
         )}
       </svg>
@@ -112,11 +112,11 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   );
 };
 
-// 3. MAIN PAGE COMPONENT
+// 3. MAIN COMPONENT
 export default function PreviewPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
   const [formData, setFormData] = useState({
-    businessName: '', field: '', services: '', phone: '', website: '', location: '', selectedTemplate: ''
+    businessName: '', field: '', services: '', phone: '', website: '', location: '', serviceArea: '', selectedTemplate: ''
   });
   const [showPreview, setShowPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -131,9 +131,7 @@ export default function PreviewPage() {
           skipEmptyLines: true,
           complete: (results) => {
             const newDb: Record<string, any> = {};
-            results.data.forEach((row: any) => {
-              if (row['Template ID']) { newDb[row['Template ID']] = row; }
-            });
+            results.data.forEach((row: any) => { if (row['Template ID']) newDb[row['Template ID']] = row; });
             setRawDatabase(newDb);
             const keys = Object.keys(newDb);
             if (keys.length > 0) setFormData(p => ({ ...p, selectedTemplate: keys[0] }));
@@ -176,7 +174,7 @@ export default function PreviewPage() {
         <div className="max-w-md mx-auto">
           <MasterTemplate id="flyer-master" data={parsedData} photoUrl={selectedPhoto} configKey={formData.selectedTemplate} rawDatabase={rawDatabase} />
           <div className="flex gap-4 mt-6">
-            <button onClick={() => setShowPreview(false)} className="flex-1 bg-white border-2 border-slate-900 font-bold py-4 rounded-lg">Edit Data</button>
+            <button onClick={() => setShowPreview(false)} className="flex-1 bg-white border-2 border-slate-900 font-bold py-4 rounded-lg">Edit</button>
             <button onClick={downloadFlyer} disabled={isDownloading} className="flex-1 bg-slate-900 text-white font-bold py-4 rounded-lg">
               {isDownloading ? 'Downloading...' : 'Download'}
             </button>
@@ -189,7 +187,7 @@ export default function PreviewPage() {
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl border-2 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
-        <h1 className="text-3xl font-black text-slate-900 mb-8 uppercase italic tracking-tighter border-b pb-4">Aretifi Studio</h1>
+        <h1 className="text-3xl font-black mb-8 uppercase italic tracking-tighter border-b pb-4">Aretifi Studio</h1>
         <form onSubmit={handleSubmit} className="space-y-5">
           <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Business Name" />
           <div className="grid grid-cols-2 gap-5">
@@ -198,15 +196,13 @@ export default function PreviewPage() {
           </div>
           <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
           <div className="grid grid-cols-2 gap-5">
-            <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website (Optional)" />
-            <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Location/Area" />
+            <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website" />
+            <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Address/Location" />
           </div>
           <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
             {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
           </select>
-          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest hover:bg-slate-700 transition-colors">
-            Generate Flyer
-          </button>
+          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest">Generate</button>
         </form>
       </div>
     </main>
