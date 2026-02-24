@@ -27,7 +27,7 @@ const parseZone = (csvString: string) => {
       color: parts[5], 
       fontWeight: parts[6], 
       fontStyle: parts[7], 
-      fontFamily: parts[8] // This will apply "Anton" from your CSV
+      fontFamily: parts[8] // Dynamically applies "Anton" or "Roboto" from CSV
     }
   };
 };
@@ -37,17 +37,18 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
 
-  const photoConfig = parseZone(rawConfig.photoHole);
-  const headerTopConfig = parseZone(rawConfig.headerTop);
-  const headerBottomConfig = parseZone(rawConfig.headerBottom);
-  const phoneConfig = parseZone(rawConfig.phone);
-  const websiteConfig = parseZone(rawConfig.website);
-  const locationConfig = parseZone(rawConfig.location);
+  const photoConfig = parseZone(rawConfig['Photo Hole (X, Y, W, H)']);
+  const headerTopConfig = parseZone(rawConfig['Header Top (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
+  const headerBottomConfig = parseZone(rawConfig['Header Bottom (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
+  const phoneConfig = parseZone(rawConfig['Phone (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
+  const websiteConfig = parseZone(rawConfig['Website (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
+  const locationConfig = parseZone(rawConfig['Location (X, Y, W, H, Size, Hex, Weight, Style, Font)']);
+  
   const serviceConfigs = [
-    parseZone(rawConfig.service1),
-    parseZone(rawConfig.service2),
-    parseZone(rawConfig.service3),
-    parseZone(rawConfig.service4)
+    parseZone(rawConfig['Service 1 (X, Y, W, H, Size, Hex, Weight, Style, Font)']),
+    parseZone(rawConfig['Service 2 (X, Y, W, H, Size, Hex, Weight, Style, Font)']),
+    parseZone(rawConfig['Service 3 (X, Y, W, H, Size, Hex, Weight, Style, Font)']),
+    parseZone(rawConfig['Service 4 (X, Y, W, H, Size, Hex, Weight, Style, Font)'])
   ];
 
   const mainTitle = data.businessName || data.field || 'PROFESSIONAL';
@@ -57,11 +58,11 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
 
   return (
     <div id={id} className="relative w-full shadow-2xl bg-white overflow-hidden">
-      <svg viewBox={rawConfig.viewBox} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox={rawConfig['Canvas Dimensions'] ? `0 0 ${rawConfig['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080"} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         {photoConfig && (
           <image href={photoUrl} x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height} preserveAspectRatio="xMidYMid slice" />
         )}
-        <image href={rawConfig.bgImage} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
+        <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
@@ -91,10 +92,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
 
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>
-              {/* Removed hardcoded 📞 icon to prevent duplication */}
-              {data.phone || '555-0123'}
-            </div>
+            <div className="w-full text-left tracking-tighter drop-shadow-lg" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
 
@@ -114,7 +112,7 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   );
 };
 
-// 3. MAIN PAGE LOGIC
+// 3. MAIN PAGE COMPONENT
 export default function PreviewPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
   const [formData, setFormData] = useState({
@@ -142,21 +140,7 @@ export default function PreviewPage() {
             const newDb: Record<string, any> = {};
             results.data.forEach((row: any) => {
               if (row['Template ID']) {
-                newDb[row['Template ID']] = {
-                  id: row['Template ID'],
-                  bgImage: `/${row['Template ID']}.png`,
-                  viewBox: row['Canvas Dimensions'] ? `0 0 ${row['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080",
-                  photoHole: row['Photo Hole (X, Y, W, H)'],
-                  headerTop: row['Header Top (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  headerBottom: row['Header Bottom (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  service1: row['Service 1 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  service2: row['Service 2 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  service3: row['Service 3 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  service4: row['Service 4 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  phone: row['Phone (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  website: row['Website (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
-                  location: row['Location (X, Y, W, H, Size, Hex, Weight, Style, Font)']
-                };
+                newDb[row['Template ID']] = row;
               }
             });
             setRawDatabase(newDb);
@@ -222,18 +206,14 @@ export default function PreviewPage() {
             <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Phone Number" />
           </div>
           <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
-          
           <div className="grid grid-cols-2 gap-5">
             <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website (Optional)" />
             <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Location/Service Area" />
           </div>
-
           <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
             {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
           </select>
-          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest">
-            Generate Flyer
-          </button>
+          <button type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest">Generate Flyer</button>
         </form>
       </div>
     </main>
