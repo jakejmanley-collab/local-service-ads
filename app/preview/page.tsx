@@ -58,15 +58,11 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   return (
     <div id={id} className="relative w-full shadow-2xl bg-white overflow-hidden">
       <svg viewBox={rawConfig.viewBox} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
-        {/* BOTTOM LAYER: Trade Photo */}
         {photoConfig && (
           <image href={photoUrl} x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height} preserveAspectRatio="xMidYMid slice" />
         )}
-        
-        {/* MIDDLE LAYER: PNG Template Background */}
         <image href={rawConfig.bgImage} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {/* TOP LAYER: Text mapped to coordinates from CSV */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
             <div className="w-full text-left">
@@ -119,7 +115,6 @@ export default function PreviewPage() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string>('');
 
-  // Loads the CSV from /public/templates.csv
   useEffect(() => {
     fetch('/templates.csv')
       .then(res => res.text())
@@ -135,11 +130,17 @@ export default function PreviewPage() {
                   id: row['Template ID'],
                   bgImage: `/${row['Template ID']}.png`,
                   viewBox: row['Canvas Dimensions'] ? `0 0 ${row['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080",
-                  photoHole: row['Photo Hole'],
-                  headerTop: row['Header Top'],
-                  headerBottom: row['Header Bottom'],
-                  service1: row['Service 1'], service2: row['Service 2'], service3: row['Service 3'], service4: row['Service 4'],
-                  phone: row['Phone'], website: row['Website'], location: row['Location']
+                  // Updated mapping to match your CSV headers
+                  photoHole: row['Photo Hole (X, Y, W, H)'],
+                  headerTop: row['Header Top (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  headerBottom: row['Header Bottom (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  service1: row['Service 1 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  service2: row['Service 2 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  service3: row['Service 3 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  service4: row['Service 4 (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  phone: row['Phone (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  website: row['Website (X, Y, W, H, Size, Hex, Weight, Style, Font)'],
+                  location: row['Location (X, Y, W, H, Size, Hex, Weight, Style, Font)']
                 };
               }
             });
@@ -198,7 +199,7 @@ export default function PreviewPage() {
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6 flex justify-center items-center">
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] border-2 border-slate-900">
-        <h1 className="text-3xl font-black text-slate-900 mb-8 uppercase italic tracking-tighter text-center">Aretifi Studio</h1>
+        <h1 className="text-3xl font-black text-slate-900 mb-8 uppercase italic tracking-tighter text-center border-b pb-4">Aretifi Studio</h1>
         <form onSubmit={handleSubmit} className="space-y-5">
           <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg outline-none focus:border-slate-900" placeholder="Business Name" />
           <div className="grid grid-cols-2 gap-5">
