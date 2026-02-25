@@ -15,7 +15,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Load Anton and Roboto for flyer rendering */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link 
@@ -42,12 +41,7 @@ export default function RootLayout({
             </div>
           </div>
         </nav>
-
         <main>{children}</main>
-
-        <footer className="bg-slate-50 border-t border-slate-200 py-12 mt-20 text-center text-sm text-slate-500">
-          © 2026 ARETIFI. All rights reserved.
-        </footer>
       </body>
     </html>
   );
