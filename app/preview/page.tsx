@@ -12,21 +12,30 @@ const tradePhotos: Record<string, string[]> = {
   default: ['https://images.unsplash.com/photo-1521791136064-7985c2d18854?auto=format&fit=crop&w=800&q=80']
 };
 
-// Parses your CSV strings like: "50, 100, 900, 100, 80px, #dc2626, 900, normal, Anton"
-const parseZone = (csvString: string) => {
+const parseZone = (csvString: any) => {
   if (!csvString || typeof csvString !== 'string') return null;
   const parts = csvString.split(',').map(s => s.trim());
   if (parts.length < 4) return null;
   
+  let fontSize = parts[4] || '30px';
+  if (!fontSize.includes('px') && !fontSize.includes('rem') && !fontSize.includes('em')) {
+    fontSize += 'px';
+  }
+
+  let color = parts[5] || '#000000';
+  if (color && !color.startsWith('#') && (color.length === 6 || color.length === 3)) {
+    color = `#${color}`;
+  }
+
   return {
     x: parts[0], y: parts[1], width: parts[2], height: parts[3],
-    style: parts.length >= 9 ? { 
-      fontSize: parts[4], 
-      color: parts[5], 
-      fontWeight: parts[6], 
-      fontStyle: parts[7], 
-      fontFamily: parts[8] 
-    } : {}
+    style: { 
+      fontSize: fontSize, 
+      color: color, 
+      fontWeight: parts[6] || '400', 
+      fontStyle: parts[7] || 'normal', 
+      fontFamily: parts[8] || 'Anton' 
+    }
   };
 };
 
@@ -59,22 +68,24 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
     <div id={id} className="relative w-full bg-white overflow-hidden shadow-2xl">
       <svg viewBox={viewBoxStr} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         
-       
-        {/* BOTTOM LAYER: Dynamic Trade Photo (Using foreignObject for external URL support) */}
-        {photoConfig && (
-          <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
-            <img 
-              src={photoUrl} 
-              alt="Trade" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-              crossOrigin="anonymous" 
-            />
-          </foreignObject>
-        )}
-        {/* MIDDLE LAYER: Template PNG (Must be transparent where photo goes) */}
+        {/* BOTTOM LAYER: Flat Template PNG (with white hexagon baked in) */}
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {/* TOP LAYER: Text Elements mapped directly to CSV styling */}
+        {/* MIDDLE LAYER: Dynamic Trade Photo clipped into a Hexagon and placed over the white spot */}
+        {photoConfig && (
+          <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
+            <div style={{ width: '100%', height: '100%', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}>
+              <img 
+                src={photoUrl} 
+                alt="Trade" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                crossOrigin="anonymous" 
+              />
+            </div>
+          </foreignObject>
+        )}
+        
+        {/* TOP LAYER: Text Elements */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
             <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
