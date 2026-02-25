@@ -59,11 +59,18 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
     <div id={id} className="relative w-full bg-white overflow-hidden shadow-2xl">
       <svg viewBox={viewBoxStr} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         
-        {/* BOTTOM LAYER: Dynamic Trade Photo */}
+       
+        {/* BOTTOM LAYER: Dynamic Trade Photo (Using foreignObject for external URL support) */}
         {photoConfig && (
-          <image href={photoUrl} x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height} preserveAspectRatio="xMidYMid slice" crossOrigin="anonymous" />
+          <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
+            <img 
+              src={photoUrl} 
+              alt="Trade" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              crossOrigin="anonymous" 
+            />
+          </foreignObject>
         )}
-        
         {/* MIDDLE LAYER: Template PNG (Must be transparent where photo goes) */}
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
