@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
-// --- CURATED IMAGE LIBRARY ---
 const tradePhotos: Record<string, string[]> = {
   plumbing: ['https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80'],
   hvac: ['https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80'],
@@ -13,47 +12,34 @@ const tradePhotos: Record<string, string[]> = {
   default: ['https://images.unsplash.com/photo-1521791136064-7985c2d18854?auto=format&fit=crop&w=800&q=80']
 };
 
-// 1. THE SPREADSHEET PARSER
 const parseZone = (csvString: any) => {
   if (!csvString || typeof csvString !== 'string') return null;
   const parts = csvString.split(',').map(s => s.trim());
   if (parts.length < 4) return null;
-  
   return {
     x: parts[0], y: parts[1], width: parts[2], height: parts[3],
     style: { 
-      fontSize: parts[4] || '16px', 
-      color: parts[5] || '#000000', 
-      fontWeight: parts[6] || '400', 
-      fontStyle: parts[7] || 'normal', 
-      fontFamily: parts[8] || 'Arial'
+      fontSize: parts[4] || '16px', color: parts[5] || '#000000', 
+      fontWeight: parts[6] || '400', fontStyle: parts[7] || 'normal', 
+      fontFamily: parts[8] || 'Anton' 
     }
   };
 };
 
-// 2. THE MASTER TEMPLATE ENGINE (SVG)
 const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => {
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
 
-  // Fuzzy find logic to handle CSV header variations
-  const findVal = (keyPart: string) => {
-    const fullKey = Object.keys(rawConfig).find(k => k.toLowerCase().includes(keyPart.toLowerCase()));
-    return fullKey ? rawConfig[fullKey] : null;
-  };
-
-  const photoConfig = parseZone(findVal('Photo Hole'));
-  const headerTopConfig = parseZone(findVal('Header Top'));
-  const headerBottomConfig = parseZone(findVal('Header Bottom'));
-  const phoneConfig = parseZone(findVal('Phone'));
-  const websiteConfig = parseZone(findVal('Website'));
-  const locationConfig = parseZone(findVal('Location'));
+  const photoConfig = parseZone(rawConfig['Photo Hole']);
+  const headerTopConfig = parseZone(rawConfig['Header Top']);
+  const headerBottomConfig = parseZone(rawConfig['Header Bottom']);
+  const phoneConfig = parseZone(rawConfig['Phone']);
+  const websiteConfig = parseZone(rawConfig['Website']);
+  const locationConfig = parseZone(rawConfig['Location']);
   
   const serviceConfigs = [
-    parseZone(findVal('Service 1')),
-    parseZone(findVal('Service 2')),
-    parseZone(findVal('Service 3')),
-    parseZone(findVal('Service 4'))
+    parseZone(rawConfig['Service 1']), parseZone(rawConfig['Service 2']),
+    parseZone(rawConfig['Service 3']), parseZone(rawConfig['Service 4'])
   ];
 
   const mainTitle = data.businessName || data.field || 'PROFESSIONAL';
@@ -62,25 +48,22 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   const remainingWords = tradeWords.slice(1).join(' ');
 
   return (
-    <div id={id} className="relative w-full shadow-2xl bg-white overflow-hidden">
+    <div id={id} className="relative w-full bg-white overflow-hidden shadow-2xl">
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         {photoConfig && (
           <image href={photoUrl} x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height} preserveAspectRatio="xMidYMid slice" crossOrigin="anonymous" />
         )}
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
-        
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
             <div className="w-full text-left uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
-
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
             <div className="w-full text-left uppercase leading-none tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
-
         {data.services.slice(0, 4).map((service: string, index: number) => {
           const sConf = serviceConfigs[index];
           if (!sConf || !service) return null;
@@ -90,10 +73,19 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
             </foreignObject>
           );
         })}
-
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
             <div className="w-full text-left" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
+          </foreignObject>
+        )}
+        {data.website && websiteConfig && (
+          <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
+            <div className="w-full text-left" style={websiteConfig.style}>{data.website}</div>
+          </foreignObject>
+        )}
+        {(data.location || data.serviceArea) && locationConfig && (
+          <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
+            <div className="w-full text-left" style={locationConfig.style}>{data.location || data.serviceArea}</div>
           </foreignObject>
         )}
       </svg>
@@ -101,11 +93,10 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
   );
 };
 
-// 3. MAIN PAGE LOGIC
 export default function PreviewPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
   const [formData, setFormData] = useState({
-    businessName: '', field: '', services: '', phone: '', website: '', location: '', selectedTemplate: ''
+    businessName: '', field: '', services: '', phone: '', website: '', location: '', serviceArea: '', selectedTemplate: ''
   });
   const [showPreview, setShowPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -116,14 +107,11 @@ export default function PreviewPage() {
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          transformHeader: (h) => h.trim(), // Sanitizes hidden spaces in CSV
+          header: true, skipEmptyLines: true, transformHeader: (h) => h.trim(),
           complete: (results) => {
             const newDb: Record<string, any> = {};
             results.data.forEach((row: any) => {
-              const idKey = Object.keys(row).find(k => k.toLowerCase().includes('template id'));
-              if (idKey && row[idKey]) newDb[row[idKey]] = row;
+              if (row['Template ID']) newDb[row['Template ID']] = row;
             });
             setRawDatabase(newDb);
             const keys = Object.keys(newDb);
@@ -156,10 +144,7 @@ export default function PreviewPage() {
     setIsDownloading(false);
   }, [formData]);
 
-  const parsedData = {
-    ...formData,
-    services: formData.services.split(',').map(s => s.trim()).filter(Boolean)
-  };
+  const parsedData = { ...formData, services: formData.services.split(',').map(s => s.trim()).filter(Boolean) };
 
   if (showPreview) {
     return (
@@ -168,9 +153,7 @@ export default function PreviewPage() {
           <MasterTemplate id="flyer-master" data={parsedData} photoUrl={selectedPhoto} configKey={formData.selectedTemplate} rawDatabase={rawDatabase} />
           <div className="flex gap-4 mt-6">
             <button onClick={() => setShowPreview(false)} className="flex-1 bg-white border-2 border-slate-900 font-bold py-4 rounded-lg">Edit</button>
-            <button onClick={downloadFlyer} disabled={isDownloading} className="flex-1 bg-slate-900 text-white font-bold py-4 rounded-lg">
-              {isDownloading ? 'Downloading...' : 'Download'}
-            </button>
+            <button onClick={downloadFlyer} disabled={isDownloading} className="flex-1 bg-slate-900 text-white font-bold py-4 rounded-lg">{isDownloading ? 'Downloading...' : 'Download'}</button>
           </div>
         </div>
       </main>
@@ -188,6 +171,10 @@ export default function PreviewPage() {
             <input required name="phone" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Phone Number" />
           </div>
           <input required name="services" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Services (comma separated)" />
+          <div className="grid grid-cols-2 gap-5">
+            <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website" />
+            <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Address/Location" />
+          </div>
           <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
             {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
           </select>
