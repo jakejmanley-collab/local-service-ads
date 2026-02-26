@@ -4,12 +4,44 @@ import { useState, useCallback, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
+// Expanded image library to ensure two distinct photos for the circle templates
 const tradePhotos: Record<string, string[]> = {
-  plumbing: ['https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80'],
-  hvac: ['https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80'],
-  landscaping: ['https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=80'],
-  cleaning: ['https://images.unsplash.com/photo-1581578731117-104f2a863a39?auto=format&fit=crop&w=800&q=80'],
-  default: ['https://images.unsplash.com/photo-1521791136064-7985c2d18854?auto=format&fit=crop&w=800&q=80']
+  plumbing: [
+    'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80'
+  ],
+  hvac: [
+    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80'
+  ],
+  landscaping: [
+    'https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1592424001807-6c2e361239c4?auto=format&fit=crop&w=800&q=80'
+  ],
+  cleaning: [
+    'https://images.unsplash.com/photo-1581578731117-104f2a863a39?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80'
+  ],
+  drywall: [
+    'https://images.unsplash.com/photo-1505082823024-00d346e9dd98?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'
+  ],
+  electrical: [
+    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=800&q=80'
+  ],
+  roofing: [
+    'https://images.unsplash.com/photo-1632758999321-df621a50a1eb?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80'
+  ],
+  painting: [
+    'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'
+  ],
+  default: [
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80'
+  ]
 };
 
 const parseZone = (csvString: any) => {
@@ -39,11 +71,13 @@ const parseZone = (csvString: any) => {
   };
 };
 
-const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => {
+const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase }: any) => {
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
 
   const photoConfig = parseZone(rawConfig['Photo Hole']);
+  const photoConfig2 = parseZone(rawConfig['Photo Hole 2']); // New second photo hole
+  
   const headerTopConfig = parseZone(rawConfig['Header Top']);
   const headerBottomConfig = parseZone(rawConfig['Header Bottom']);
   const phoneConfig = parseZone(rawConfig['Phone']);
@@ -64,20 +98,44 @@ const MasterTemplate = ({ id, data, photoUrl, configKey, rawDatabase }: any) => 
 
   const viewBoxStr = rawConfig['Canvas Dimensions'] ? `0 0 ${rawConfig['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080";
 
+  // Auto-detect the shape based on the template name to apply the correct cropping
+  const isHex = configKey.includes('hex');
+  const isCircle = configKey.includes('circle');
+  
+  const clipStyle = isHex 
+    ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } 
+    : isCircle 
+      ? { borderRadius: '50%', overflow: 'hidden' } 
+      : {}; // Square gets no clip path
+
   return (
     <div id={id} className="relative w-full bg-white overflow-hidden shadow-2xl">
       <svg viewBox={viewBoxStr} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         
-        {/* BOTTOM LAYER: Flat Template PNG (with white hexagon baked in) */}
+        {/* BOTTOM LAYER: Base Template PNG */}
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {/* MIDDLE LAYER: Dynamic Trade Photo clipped into a Hexagon and placed over the white spot */}
+        {/* MIDDLE LAYER 1: First Dynamic Trade Photo (Back Circle/Hex/Square) */}
         {photoConfig && (
           <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
-            <div style={{ width: '100%', height: '100%', clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}>
+            <div style={{ width: '100%', height: '100%', ...clipStyle }}>
               <img 
                 src={photoUrl} 
-                alt="Trade" 
+                alt="Trade 1" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                crossOrigin="anonymous" 
+              />
+            </div>
+          </foreignObject>
+        )}
+
+        {/* MIDDLE LAYER 2: Second Dynamic Trade Photo (Front Circle) */}
+        {photoConfig2 && (
+          <foreignObject x={photoConfig2.x} y={photoConfig2.y} width={photoConfig2.width} height={photoConfig2.height}>
+            <div style={{ width: '100%', height: '100%', ...clipStyle }}>
+              <img 
+                src={photoUrl2} 
+                alt="Trade 2" 
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                 crossOrigin="anonymous" 
               />
@@ -138,6 +196,7 @@ export default function PreviewPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string>('');
+  const [selectedPhoto2, setSelectedPhoto2] = useState<string>('');
 
   useEffect(() => {
     fetch('/templates.csv')
@@ -166,7 +225,12 @@ export default function PreviewPage() {
     e.preventDefault();
     const tradeKey = Object.keys(tradePhotos).find(k => formData.field.toLowerCase().includes(k)) || 'default';
     const photos = tradePhotos[tradeKey];
-    setSelectedPhoto(photos[Math.floor(Math.random() * photos.length)]);
+    
+    // Shuffle the array to get two random, distinct photos
+    const shuffled = [...photos].sort(() => 0.5 - Math.random());
+    setSelectedPhoto(shuffled[0]);
+    setSelectedPhoto2(shuffled[1] || shuffled[0]); 
+    
     setShowPreview(true);
   };
 
@@ -189,7 +253,14 @@ export default function PreviewPage() {
     return (
       <main className="min-h-screen bg-slate-50 py-12 px-6">
         <div className="max-w-md mx-auto">
-          <MasterTemplate id="flyer-master" data={parsedData} photoUrl={selectedPhoto} configKey={formData.selectedTemplate} rawDatabase={rawDatabase} />
+          <MasterTemplate 
+            id="flyer-master" 
+            data={parsedData} 
+            photoUrl={selectedPhoto} 
+            photoUrl2={selectedPhoto2}
+            configKey={formData.selectedTemplate} 
+            rawDatabase={rawDatabase} 
+          />
           <div className="flex gap-4 mt-6">
             <button onClick={() => setShowPreview(false)} className="flex-1 bg-white border-2 border-slate-900 font-bold py-4 rounded-lg">Edit</button>
             <button onClick={downloadFlyer} disabled={isDownloading} className="flex-1 bg-slate-900 text-white font-bold py-4 rounded-lg">{isDownloading ? 'Downloading...' : 'Download'}</button>
