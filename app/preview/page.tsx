@@ -6,7 +6,6 @@ import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
 
-// Expanded image library to ensure two distinct photos for the circle templates
 const tradePhotos: Record<string, string[]> = {
   plumbing: [
     'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
@@ -83,8 +82,6 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
   const headerTopConfig = parseZone(rawConfig['Header Top']);
   const headerBottomConfig = parseZone(rawConfig['Header Bottom']);
   const phoneConfig = parseZone(rawConfig['Phone']);
-  const websiteConfig = parseZone(rawConfig['Website']);
-  const locationConfig = parseZone(rawConfig['Location']);
   
   const serviceConfigs = [
     parseZone(rawConfig['Service 1']), 
@@ -100,7 +97,6 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
 
   const viewBoxStr = rawConfig['Canvas Dimensions'] ? `0 0 ${rawConfig['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080";
 
-  // Auto-detect shape for perfect photo cropping
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
   
@@ -159,18 +155,6 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
             <div className="w-full h-full flex items-center" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
-        
-        {data.website && websiteConfig && (
-          <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
-            <div className="w-full h-full flex items-center" style={websiteConfig.style}>{data.website}</div>
-          </foreignObject>
-        )}
-        
-        {(data.location || data.serviceArea) && locationConfig && (
-          <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
-            <div className="w-full h-full flex items-center" style={locationConfig.style}>{data.location || data.serviceArea}</div>
-          </foreignObject>
-        )}
       </svg>
     </div>
   );
@@ -179,7 +163,7 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
 export default function PreviewPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
   const [formData, setFormData] = useState({
-    businessName: '', field: '', service1: '', service2: '', service3: '', service4: '', phone: '', website: '', location: '', serviceArea: '', themeColor: 'red'
+    businessName: '', field: '', service1: '', service2: '', service3: '', service4: '', phone: '', themeColor: 'red'
   });
   const [showPreview, setShowPreview] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -213,7 +197,6 @@ export default function PreviewPage() {
     const tradeKey = Object.keys(tradePhotos).find(k => formData.field.toLowerCase().includes(k)) || 'default';
     const photos = tradePhotos[tradeKey];
     
-    // Shuffle the array to get two random, distinct photos
     const shuffled = [...photos].sort(() => 0.5 - Math.random());
     setSelectedPhoto(shuffled[0]);
     setSelectedPhoto2(shuffled[1] || shuffled[0]); 
@@ -234,7 +217,6 @@ export default function PreviewPage() {
     setDownloadingId(null);
   }, [formData]);
 
-  // Consolidate the 4 separate service inputs into a single array, filtering out empty ones
   const parsedData = { 
     ...formData, 
     services: [formData.service1, formData.service2, formData.service3, formData.service4].filter(Boolean) 
@@ -257,7 +239,6 @@ export default function PreviewPage() {
               const elementId = `flyer-${shape}`;
               const isDownloadingThis = downloadingId === elementId;
               
-              // Only render if the template exists in the CSV database
               if (!rawDatabase[configKey]) return null;
 
               return (
@@ -306,7 +287,7 @@ export default function PreviewPage() {
             />
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 pb-2">
             <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Services Offered</label>
             <div className="grid grid-cols-2 gap-3">
               <input required name="service1" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm" placeholder="Service 1 (e.g. Roof Repair)" />
@@ -314,11 +295,6 @@ export default function PreviewPage() {
               <input name="service3" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm" placeholder="Service 3 (Optional)" />
               <input name="service4" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm" placeholder="Service 4 (Optional)" />
             </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-5 pt-2">
-            <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website" />
-            <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="City" />
           </div>
           
           <select name="themeColor" onChange={handleInputChange} value={formData.themeColor} className="w-full border-2 p-3 rounded-lg bg-white">
