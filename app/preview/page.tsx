@@ -9,7 +9,7 @@ const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
 const tradePhotos: Record<string, string[]> = {
   plumbing: [
     'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80'
+    'https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?auto=format&fit=crop&w=800&q=80'
   ],
   hvac: [
     'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
@@ -38,6 +38,34 @@ const tradePhotos: Record<string, string[]> = {
   painting: [
     'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'
+  ],
+  welding: [
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1533552755457-5b481238fb01?auto=format&fit=crop&w=800&q=80'
+  ],
+  carpentry: [
+    'https://images.unsplash.com/photo-1584999970366-eb1fc677f594?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1505015920881-0f83c2f7c95e?auto=format&fit=crop&w=800&q=80'
+  ],
+  moving: [
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1582269438706-93049b106e2c?auto=format&fit=crop&w=800&q=80'
+  ],
+  pool: [
+    'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=800&q=80'
+  ],
+  pest: [
+    'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1558223616-566b6c7ec2af?auto=format&fit=crop&w=800&q=80'
+  ],
+  tree: [
+    'https://images.unsplash.com/photo-1596708453535-c38c11bb8d96?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1542385151-efd9000785a0?auto=format&fit=crop&w=800&q=80'
+  ],
+  concrete: [
+    'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1590483861877-c9de32f8ebf9?auto=format&fit=crop&w=800&q=80'
   ],
   default: [
     'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
@@ -130,13 +158,13 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
         
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
+            <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
+            <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
@@ -145,14 +173,14 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className="w-full h-full flex items-center uppercase" style={sConf.style}>✓ {service}</div>
+              <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full h-full flex items-center" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
+            <div className="w-full h-full flex items-start leading-none pt-1" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
       </svg>
@@ -172,7 +200,8 @@ export default function PreviewPage() {
   const [selectedPhoto2, setSelectedPhoto2] = useState<string>('');
 
   useEffect(() => {
-    fetch('/templates.csv')
+    // Cache buster appended to fetch
+    fetch('/templates.csv?v=' + new Date().getTime())
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
@@ -235,7 +264,8 @@ export default function PreviewPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {shapes.map((shape) => {
-              const configKey = `${shape}-${formData.themeColor}-url`;
+              // Now pointing to exact file name without -url
+              const configKey = `${shape}-${formData.themeColor}`;
               const elementId = `flyer-${shape}`;
               const isDownloadingThis = downloadingId === elementId;
               
