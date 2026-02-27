@@ -3,14 +3,11 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 
-// We use hardcoded dummy data for the test environment
 const DUMMY_DATA = {
   businessName: 'APEX PROFESSIONAL',
   field: 'Plumbing',
   services: ['Water Heater Repair', 'Pipe Replacement', 'Drain Cleaning', '24/7 Emergency'],
-  phone: '555-0199',
-  website: 'www.apexservices.com',
-  location: '123 Main St, Springfield'
+  phone: '519-555-0199'
 };
 
 const DUMMY_PHOTOS = [
@@ -55,8 +52,6 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
   const headerTopConfig = parseZone(rawConfig['Header Top']);
   const headerBottomConfig = parseZone(rawConfig['Header Bottom']);
   const phoneConfig = parseZone(rawConfig['Phone']);
-  const websiteConfig = parseZone(rawConfig['Website']);
-  const locationConfig = parseZone(rawConfig['Location']);
   
   const serviceConfigs = [
     parseZone(rawConfig['Service 1']), 
@@ -131,17 +126,6 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
           </foreignObject>
         )}
         
-        {data.website && websiteConfig && (
-          <foreignObject x={websiteConfig.x} y={websiteConfig.y} width={websiteConfig.width} height={websiteConfig.height}>
-            <div className="w-full h-full flex items-center" style={websiteConfig.style}>{data.website}</div>
-          </foreignObject>
-        )}
-        
-        {(data.location || data.serviceArea) && locationConfig && (
-          <foreignObject x={locationConfig.x} y={locationConfig.y} width={locationConfig.width} height={locationConfig.height}>
-            <div className="w-full h-full flex items-center" style={locationConfig.style}>{data.location || data.serviceArea}</div>
-          </foreignObject>
-        )}
       </svg>
     </div>
   );
