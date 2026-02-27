@@ -16,7 +16,8 @@ const parseToPercent = (val: string) => {
     top: `${(parseFloat(p[1]) / 1080) * 100}%`,
     width: `${(parseFloat(p[2]) / 1080) * 100}%`,
     height: `${(parseFloat(p[3]) / 1080) * 100}%`,
-    fontSize: p[4] || '30px',
+    // Scaling font-size down to match the new container math
+    fontSize: `${(parseFloat(p[4]) || 30) * 0.9}px`,
     color: p[5] || '#000',
     fontWeight: p[6] || '400',
     fontFamily: p[8] || 'Anton'
@@ -46,24 +47,24 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%' } : {};
 
   return (
-    <div id={id} className="relative w-full aspect-square bg-white overflow-hidden shadow-2xl">
-      {/* LAYER 0: BACKGROUND */}
-      <img src={`/${configKey}.png`} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
+    <div id={id} className="relative w-full aspect-square bg-white overflow-hidden shadow-2xl border border-black">
+      {/* BACKGROUND */}
+      <img src={`/${configKey}.png`} className="absolute inset-0 w-full h-full z-0" alt="" />
 
-      {/* LAYER 1: IMAGES */}
+      {/* PHOTOS */}
       {p1 && (
         <div style={{ position: 'absolute', ...p1, ...clip, overflow: 'hidden', zIndex: 10 }}>
-          <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover" crossOrigin="anonymous" />
+          <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=1000" className="w-full h-full object-cover" crossOrigin="anonymous" />
         </div>
       )}
 
       {p2 && (
         <div style={{ position: 'absolute', ...p2, ...clip, overflow: 'hidden', zIndex: 10 }}>
-          <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover" crossOrigin="anonymous" />
+          <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1000" className="w-full h-full object-cover" crossOrigin="anonymous" />
         </div>
       )}
 
-      {/* LAYER 2: TEXT */}
+      {/* TEXT - Switched to bottom alignment to fix "Too High" issue */}
       {[
         { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
         { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
@@ -73,7 +74,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
       ].map((item, i) => item.c && item.t && (
         <div 
           key={i} 
-          className="uppercase flex items-center whitespace-nowrap"
+          className="uppercase flex items-end whitespace-nowrap"
           style={{ 
             position: 'absolute', 
             left: item.c.left, 
@@ -84,7 +85,8 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
             color: item.c.color,
             fontWeight: item.c.fontWeight,
             fontFamily: item.c.fontFamily,
-            zIndex: 20
+            zIndex: 20,
+            lineHeight: '0.9' 
           }}
         >
           {item.t}
@@ -116,7 +118,7 @@ export default function PreviewPage() {
   if (show) {
     return (
       <main className="min-h-screen bg-slate-50 p-8 text-slate-900 font-sans">
-        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Edit Info</button>
+        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Edit</button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
@@ -128,7 +130,7 @@ export default function PreviewPage() {
                   const link = document.createElement('a');
                   link.download = `${s}.png`; link.href = url; link.click();
                 }
-              }} className="w-full bg-black text-white py-4 font-black uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">Download {s}</button>
+              }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
             </div>
           ))}
         </div>
