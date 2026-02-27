@@ -23,7 +23,6 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const row = rawDatabase[configKey];
   if (!row) return null;
 
-  // Manual mapping - exactly how we did it when Hole 1 worked
   const p1 = parse(row['Photo Hole']);
   const p2 = parse(row['Photo Hole 2']); 
   const h1 = parse(row['Header Top']);
@@ -47,7 +46,6 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
         
-        {/* HOLE 1 */}
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
@@ -56,7 +54,6 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
           </foreignObject>
         )}
 
-        {/* HOLE 2 - DUMB COPY OF HOLE 1 LOGIC */}
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
@@ -66,16 +63,35 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         )}
 
         {[
-          { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
+          { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone, isPhone: true },
           { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
           { c: s2, t: data.service2 ? `✓ ${data.service2}` : '' },
           { c: s3, t: data.service3 ? `✓ ${data.service3}` : '' },
           { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }
-        ].map((item, i) => item.c && item.t && (
-          <foreignObject key={i} x={item.c.x} y={item.c.y} width={item.c.w} height={item.c.h}>
-            <div style={item.c.s} className="w-full h-full uppercase whitespace-nowrap">{item.t}</div>
-          </foreignObject>
-        ))}
+        ].map((item, i) => {
+          if (!item.c || !item.t) return null;
+
+          // Buffer for Hex phone number to prevent last 2 digit clipping
+          const widthBuffer = (item.isPhone && isHex) ? 100 : 0;
+          
+          // Visual nudge for circle phone number
+          const xOffset = (item.isPhone && isCircle) ? -40 : 0;
+
+          return (
+            <foreignObject 
+              key={i} 
+              x={parseFloat(item.c.x) + xOffset} 
+              y={item.c.y} 
+              width={parseFloat(item.c.w) + widthBuffer} 
+              height={item.c.h}
+              style={{ overflow: 'visible' }}
+            >
+              <div style={item.c.s} className="w-full h-full uppercase whitespace-nowrap">
+                {item.t}
+              </div>
+            </foreignObject>
+          );
+        })}
       </svg>
     </div>
   );
@@ -97,6 +113,10 @@ export default function PreviewPage() {
       }});
     });
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('flyer_form_data', JSON.stringify(form));
+  }, [form]);
 
   if (show) {
     return (
