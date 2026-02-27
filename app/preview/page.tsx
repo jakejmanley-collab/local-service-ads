@@ -11,7 +11,6 @@ const parseToPercent = (val: string) => {
   const p = val.split(',').map(s => s.trim());
   if (p.length < 4) return null;
   
-  // Convert 1080px coordinates to 0-100% values
   return {
     left: `${(parseFloat(p[0]) / 1080) * 100}%`,
     top: `${(parseFloat(p[1]) / 1080) * 100}%`,
@@ -38,34 +37,33 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const s4 = parseToPercent(row[9]);
   const ph = parseToPercent(row[10]);
 
-  const words = (data.businessName || "").split(' ');
-  const first = words[0] || "PRO";
-  const rest = words.slice(1).join(' ') || "SERVICES";
+  const name = data.businessName || "";
+  const first = name.split(' ')[0] || "PRO";
+  const rest = name.split(' ').slice(1).join(' ') || "SERVICES";
 
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
   const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%' } : {};
 
   return (
-    <div id={id} className="relative w-full aspect-square bg-white overflow-hidden select-none">
-      {/* BACKGROUND LAYER */}
-      <img src={`/${configKey}.png`} className="absolute inset-0 w-full h-full z-0" alt="" />
+    <div id={id} className="relative w-full aspect-square bg-white overflow-hidden shadow-2xl">
+      {/* LAYER 0: BACKGROUND */}
+      <img src={`/${configKey}.png`} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />
 
-      {/* PHOTO HOLE 1 */}
+      {/* LAYER 1: IMAGES */}
       {p1 && (
         <div style={{ position: 'absolute', ...p1, ...clip, overflow: 'hidden', zIndex: 10 }}>
-          <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=1000" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover" crossOrigin="anonymous" />
         </div>
       )}
 
-      {/* PHOTO HOLE 2 - NO SVG, JUST HTML */}
       {p2 && (
         <div style={{ position: 'absolute', ...p2, ...clip, overflow: 'hidden', zIndex: 10 }}>
-          <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1000" className="w-full h-full object-cover" />
+          <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1000&q=80" className="w-full h-full object-cover" crossOrigin="anonymous" />
         </div>
       )}
 
-      {/* TEXT OVERLAYS */}
+      {/* LAYER 2: TEXT */}
       {[
         { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
         { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
@@ -118,7 +116,7 @@ export default function PreviewPage() {
   if (show) {
     return (
       <main className="min-h-screen bg-slate-50 p-8 text-slate-900 font-sans">
-        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Back</button>
+        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Edit Info</button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
@@ -130,7 +128,7 @@ export default function PreviewPage() {
                   const link = document.createElement('a');
                   link.download = `${s}.png`; link.href = url; link.click();
                 }
-              }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
+              }} className="w-full bg-black text-white py-4 font-black uppercase tracking-tighter shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">Download {s}</button>
             </div>
           ))}
         </div>
