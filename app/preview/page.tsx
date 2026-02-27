@@ -6,17 +6,31 @@ import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
 
+// RESTORED: Your actual plumbing theme assets
+const tradePhotos: Record<string, string[]> = { 
+  plumbing: [
+    'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=1200&q=90',
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=90'
+  ] 
+};
+
 const parse = (val: string) => {
   if (!val || val.trim() === "") return null;
   const p = val.split(',').map(s => s.trim());
   if (p.length < 4) return null;
-  // FORCE NUMBERS: Ensures SVG doesn't barf on strings
   return {
-    x: parseFloat(p[0]), y: parseFloat(p[1]), w: parseFloat(p[2]), h: parseFloat(p[3]),
+    x: p[0], y: p[1], w: p[2], h: p[3],
     s: { 
-      fontSize: p[4] || '30px', color: p[5] || '#000', fontWeight: p[6] || '400', 
-      fontFamily: p[8] || 'Anton', lineHeight: '1', whiteSpace: 'nowrap',
-      display: 'flex', alignItems: 'center', width: '100%', height: '100%'
+      fontSize: p[4] || '30px', 
+      color: p[5] || '#000', 
+      fontWeight: p[6] || '400', 
+      fontFamily: p[8] || 'Anton',
+      lineHeight: '1',
+      whiteSpace: 'nowrap',
+      display: 'flex',
+      alignItems: 'center', // VERTICAL CENTERING RESTORED
+      width: '100%',
+      height: '100%'
     }
   };
 };
@@ -25,6 +39,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const row = rawDatabase[configKey];
   if (!row) return null;
 
+  // STRICT INDEXING: 2 is Hole 1, 3 is Hole 2
   const p1 = parse(row[2]);
   const p2 = parse(row[3]); 
   const h1 = parse(row[4]);
@@ -35,23 +50,28 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const s4 = parse(row[9]);
   const ph = parse(row[10]);
 
-  const words = (data.businessName || "").split(' ');
-  const first = words[0] || "PRO";
-  const rest = words.slice(1).join(' ') || "SERVICES";
+  const nameParts = (data.businessName || "").split(' ');
+  const first = nameParts[0] || "PRO";
+  const rest = nameParts.slice(1).join(' ') || "SERVICES";
 
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
   const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
 
+  // IMAGE FALLBACK LOGIC
+  const photos = tradePhotos.plumbing;
+  const img1 = photos[0];
+  const img2 = photos[1] || photos[0];
+
   return (
-    <div id={id} className="relative w-full bg-white shadow-xl border border-slate-200">
+    <div id={id} className="relative w-full bg-white shadow-xl">
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
         
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+              <img src={img1} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
@@ -59,7 +79,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1621905231727-07ea374aa53d?w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+              <img src={img2} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
@@ -102,7 +122,7 @@ export default function PreviewPage() {
   if (show) {
     return (
       <main className="min-h-screen bg-slate-50 p-8 text-slate-900">
-        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Back</button>
+        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">← Back to Form</button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
@@ -114,7 +134,7 @@ export default function PreviewPage() {
                   const link = document.createElement('a');
                   link.download = `${s}.png`; link.href = url; link.click();
                 }
-              }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
+              }} className="w-full bg-black text-white py-4 font-black uppercase tracking-widest border-b-4 border-black">Download {s}</button>
             </div>
           ))}
         </div>
@@ -123,7 +143,7 @@ export default function PreviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900">
+    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900 font-sans">
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
         <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
@@ -141,7 +161,7 @@ export default function PreviewPage() {
           <select value={form.themeColor} onChange={(e) => setForm({...form, themeColor: e.target.value})} className="w-full border-2 p-4 border-black font-bold uppercase bg-white">
             {THEME_COLORS.map(c => <option key={c} value={c}>{c} edition</option>)}
           </select>
-          <button type="submit" className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800">Preview</button>
+          <button type="submit" className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800">Preview Layouts</button>
         </form>
       </div>
     </main>
