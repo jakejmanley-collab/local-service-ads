@@ -19,7 +19,11 @@ const parse = (val: string) => {
       fontFamily: p[8] || 'Anton',
       lineHeight: '1',
       whiteSpace: 'nowrap',
-      display: 'block'
+      // SWITCHED TO GRID: Perfect centering without the Hex-wrap bug
+      display: 'grid',
+      placeItems: 'center start', 
+      width: '100%',
+      height: '100%'
     }
   };
 };
@@ -55,7 +59,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
@@ -63,7 +67,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              <img src="https://images.unsplash.com/photo-1621905231727-07ea374aa53d?w=800&q=80" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
