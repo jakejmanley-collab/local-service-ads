@@ -6,10 +6,10 @@ import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
 
-// Simple parser: no magic, just splits by comma
 const parse = (val: string) => {
-  if (!val) return null;
+  if (!val || val.trim() === "") return null;
   const p = val.split(',').map(s => s.trim());
+  if (p.length < 4) return null;
   return {
     x: p[0], y: p[1], w: p[2], h: p[3],
     s: { 
@@ -26,16 +26,15 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const row = rawDatabase[configKey];
   if (!row) return null;
 
-  // DIRECT MAPPING - ZERO ABSTRACTION
-  const p1 = parse(row['Photo Hole']);
-  const p2 = parse(row['Photo Hole 2']);
-  const h1 = parse(row['Header Top']);
-  const h2 = parse(row['Header Bottom']);
-  const ph = parse(row['Phone']);
-  const s1 = parse(row['Service 1']);
-  const s2 = parse(row['Service 2']);
-  const s3 = parse(row['Service 3']);
-  const s4 = parse(row['Service 4']);
+  const p1 = parse(row[2]);
+  const p2 = parse(row[3]); 
+  const h1 = parse(row[4]);
+  const h2 = parse(row[5]);
+  const s1 = parse(row[6]);
+  const s2 = parse(row[7]);
+  const s3 = parse(row[8]);
+  const s4 = parse(row[9]);
+  const ph = parse(row[10]);
 
   const name = data.businessName || "";
   const words = name.split(' ');
@@ -51,7 +50,6 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
         
-        {/* PHOTO 1 */}
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
@@ -60,16 +58,15 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
           </foreignObject>
         )}
 
-        {/* PHOTO 2 - THE ONE THAT WAS FAILING */}
+        {/* DEBUG MODE: If p2 exists, it will have a bright pink border to show us where it is */}
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
-            <div style={{ width: '100%', height: '100%', ...clip }}>
+            <div style={{ width: '100%', height: '100%', border: '4px solid #ff00ff', boxSizing: 'border-box', ...clip }}>
               <img src="https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
 
-        {/* TEXT FIELDS */}
         {[
           { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
           { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
@@ -91,15 +88,24 @@ export default function PreviewPage() {
   const [form, setForm] = useState({ businessName: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
   const [show, setShow] = useState(false);
 
+  // PERSISTENCE: Load from local storage on mount
   useEffect(() => {
+    const saved = localStorage.getItem('flyer_form_data');
+    if (saved) setForm(JSON.parse(saved));
+
     fetch(`/templates.csv?v=${Date.now()}`).then(r => r.text()).then(txt => {
-      Papa.parse(txt, { header: true, skipEmptyLines: true, complete: (res) => {
+      Papa.parse(txt, { header: false, skipEmptyLines: true, complete: (res) => {
           const map: Record<string, any> = {};
-          res.data.forEach((r: any) => { if (r['Template ID']) map[r['Template ID']] = r; });
+          res.data.forEach((r: any) => { if (r[0] && r[0] !== 'Template ID') map[r[0]] = r; });
           setDb(map);
       }});
     });
   }, []);
+
+  // PERSISTENCE: Save to local storage on change
+  useEffect(() => {
+    localStorage.setItem('flyer_form_data', JSON.stringify(form));
+  }, [form]);
 
   if (show) {
     return (
@@ -107,7 +113,7 @@ export default function PreviewPage() {
         <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic">← Back</button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
-            <div key={s} className="space-y-4 text-center">
+            <div key={s} className="space-y-4">
               <MasterTemplate id={`f-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} />
               <button onClick={async () => {
                 const el = document.getElementById(`f-${s}`);
@@ -116,7 +122,7 @@ export default function PreviewPage() {
                   const link = document.createElement('a');
                   link.download = `${s}.png`; link.href = url; link.click();
                 }
-              }} className="w-full bg-black text-white py-4 font-black uppercase tracking-tighter">Download {s}</button>
+              }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
             </div>
           ))}
         </div>
@@ -129,13 +135,13 @@ export default function PreviewPage() {
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
         <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
-          <input required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
-          <input required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
+          <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
+          <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input required placeholder="Service 1" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service1: e.target.value})} />
-            <input required placeholder="Service 2" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service2: e.target.value})} />
-            <input placeholder="Service 3" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service3: e.target.value})} />
-            <input placeholder="Service 4" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service4: e.target.value})} />
+            <input value={form.service1} required placeholder="Service 1" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service1: e.target.value})} />
+            <input value={form.service2} required placeholder="Service 2" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service2: e.target.value})} />
+            <input value={form.service3} placeholder="Service 3" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service3: e.target.value})} />
+            <input value={form.service4} placeholder="Service 4" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service4: e.target.value})} />
           </div>
           <select value={form.themeColor} onChange={(e) => setForm({...form, themeColor: e.target.value})} className="w-full border-2 p-4 border-black font-bold uppercase bg-white">
             {THEME_COLORS.map(c => <option key={c} value={c}>{c} edition</option>)}
