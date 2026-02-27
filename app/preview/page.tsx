@@ -156,16 +156,15 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
           </foreignObject>
         )}
         
-        {/* All flex and alignment hacks removed. Follows strict Canva X/Y top-left positioning. */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full h-full uppercase tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
+            <div className="w-full h-full uppercase tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full h-full uppercase tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
+            <div className="w-full h-full uppercase tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
@@ -174,14 +173,14 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div xmlns="http://www.w3.org/1999/xhtml" className="w-full h-full uppercase" style={sConf.style}>✓ {service}</div>
+              <div className="w-full h-full uppercase" style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div xmlns="http://www.w3.org/1999/xhtml" className="w-full h-full" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
+            <div className="w-full h-full" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
       </svg>
