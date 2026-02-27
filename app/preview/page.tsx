@@ -68,9 +68,9 @@ const parseZone = (csvString: any) => {
       fontWeight: parts[6] || '400', 
       fontStyle: parts[7] || 'normal', 
       fontFamily: parts[8] || 'Anton',
-      lineHeight: '1', // FORCE NO EXTRA SPACE
+      lineHeight: '1',
       display: 'flex',
-      alignItems: 'center' // FORCE VERTICAL CENTERING
+      alignItems: 'center'
     }
   };
 };
@@ -133,13 +133,13 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
         
         {zones.headerTop && (
           <foreignObject x={zones.headerTop.x} y={zones.headerTop.y} width={zones.headerTop.width} height={zones.headerTop.height}>
-            <div className="w-full h-full flex items-center uppercase tracking-tighter" style={zones.headerTop.style}>{firstWord}</div>
+            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={zones.headerTop.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {zones.headerBottom && (
           <foreignObject x={zones.headerBottom.x} y={zones.headerBottom.y} width={zones.headerBottom.width} height={zones.headerBottom.height}>
-            <div className="w-full h-full flex items-center uppercase tracking-tighter" style={zones.headerBottom.style}>{remainingWords}</div>
+            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={zones.headerBottom.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
@@ -239,20 +239,41 @@ export default function PreviewPage() {
     return (
       <main className="min-h-screen bg-slate-50 py-12 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-900">Choose Your Layout</h2>
-            <button onClick={() => setShowPreview(false)} className="bg-white border-2 border-slate-900 text-slate-900 font-bold py-2 px-6 rounded-lg hover:bg-slate-100 transition-colors">← Edit Details</button>
+          <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 bg-white p-6 rounded-2xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setShowPreview(false)} className="bg-slate-100 text-slate-900 font-bold py-2 px-4 rounded-lg hover:bg-slate-200 transition-colors border border-slate-200">← Back</button>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Custom Designs</h2>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-black uppercase text-slate-500">Live Theme Switcher:</label>
+              <select 
+                name="themeColor" 
+                onChange={handleInputChange} 
+                value={formData.themeColor} 
+                className="bg-slate-900 text-white font-bold py-2 px-6 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+                {THEME_COLORS.map(color => (
+                  <option key={color} value={color}>{color.toUpperCase()} EDITION</option>
+                ))}
+              </select>
+            </div>
           </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {shapes.map((shape) => {
               const configKey = `${shape}-${formData.themeColor}`;
               const elementId = `flyer-${shape}`;
               if (!rawDatabase[configKey]) return null;
               return (
-                <div key={shape} className="flex flex-col gap-6">
+                <div key={shape} className="flex flex-col gap-6 group">
                   <MasterTemplate id={elementId} data={parsedData} photoUrl={selectedPhoto} photoUrl2={selectedPhoto2} configKey={configKey} rawDatabase={rawDatabase} />
-                  <button onClick={() => downloadFlyer(elementId, shape)} disabled={downloadingId !== null} className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50 hover:bg-slate-800 transition-colors shadow-lg">
-                    {downloadingId === elementId ? 'Downloading...' : `Download ${shape} Layout`}
+                  <button 
+                    onClick={() => downloadFlyer(elementId, shape)} 
+                    disabled={downloadingId !== null} 
+                    className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50 hover:bg-blue-600 transition-all shadow-lg active:translate-y-1"
+                  >
+                    {downloadingId === elementId ? 'Generating HD File...' : `Download ${shape.toUpperCase()}`}
                   </button>
                 </div>
               );
@@ -268,24 +289,24 @@ export default function PreviewPage() {
       <div className="bg-white max-w-xl w-full p-8 rounded-2xl border-2 border-slate-900 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
         <h1 className="text-3xl font-black mb-8 uppercase italic tracking-tighter border-b pb-4">Aretifi Studio</h1>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Business Name" />
+          <input required name="businessName" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg font-medium" placeholder="Business Name" value={formData.businessName} />
           <div className="grid grid-cols-2 gap-5">
-            <input required name="field" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Trade (e.g. Plumbing)" />
-            <input required name="phone" minLength={9} onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Phone Number" />
+            <input required name="field" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg font-medium" placeholder="Trade (e.g. Plumbing)" value={formData.field} />
+            <input required name="phone" minLength={9} onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg font-medium" placeholder="Phone Number" value={formData.phone} />
           </div>
           <div className="pt-2 pb-2">
             <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Services Offered</label>
             <div className="grid grid-cols-2 gap-3">
-              <input required name="service1" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm" placeholder="Service 1" />
-              <input required name="service2" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm" placeholder="Service 2" />
-              <input name="service3" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm" placeholder="Service 3" />
-              <input name="service4" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm" placeholder="Service 4" />
+              <input required name="service1" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm font-medium" placeholder="Service 1" value={formData.service1} />
+              <input required name="service2" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm font-medium" placeholder="Service 2" value={formData.service2} />
+              <input name="service3" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm font-medium" placeholder="Service 3" value={formData.service3} />
+              <input name="service4" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg text-sm font-medium" placeholder="Service 4" value={formData.service4} />
             </div>
           </div>
-          <select name="themeColor" onChange={handleInputChange} value={formData.themeColor} className="w-full border-2 p-3 rounded-lg bg-white">
+          <select name="themeColor" onChange={handleInputChange} value={formData.themeColor} className="w-full border-2 p-3 rounded-lg bg-white font-bold cursor-pointer">
             {THEME_COLORS.map(color => <option key={color} value={color}>{color.charAt(0).toUpperCase() + color.slice(1)} Theme</option>)}
           </select>
-          <button type="submit" disabled={Object.keys(rawDatabase).length === 0} className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50 mt-4">Generate</button>
+          <button type="submit" disabled={Object.keys(rawDatabase).length === 0} className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50 mt-4 hover:bg-slate-800 transition-colors">Start Design</button>
         </form>
       </div>
     </main>
