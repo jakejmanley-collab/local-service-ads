@@ -14,7 +14,7 @@ const tradePhotos: Record<string, string[]> = {
 };
 
 const CSV_COLUMNS = ["Template ID", "Canvas Dimensions", "Photo Hole", "Photo Hole 2", "Header Top", "Header Bottom", "Service 1", "Service 2", "Service 3", "Service 4", "Phone", "Website", "Location"];
-const EDITABLE_ZONES = ["Header Top", "Header Bottom", "Service 1", "Service 2", "Service 3", "Service 4", "Phone"];
+const EDITABLE_ZONES = ["Header Top", "Header Bottom", "Service 1", "Service 2", "Service 3", "Service 4", "Phone", "Website", "Location"];
 
 const parseZone = (csvString: any) => {
   if (!csvString || typeof csvString !== 'string') return null;
@@ -28,17 +28,36 @@ const parseZone = (csvString: any) => {
 
   return {
     x: parts[0], y: parts[1], width: parts[2], height: parts[3],
-    style: { fontSize, color, fontWeight: parts[6] || '400', fontStyle: parts[7] || 'normal', fontFamily: parts[8] || 'Anton' }
+    style: { 
+      fontSize, 
+      color, 
+      fontWeight: parts[6] || '400', 
+      fontStyle: parts[7] || 'normal', 
+      fontFamily: parts[8] || 'Anton',
+      lineHeight: '1',
+      display: 'flex',
+      alignItems: 'center'
+    }
   };
 };
 
 const LiveTemplate = ({ data, fieldName, photoUrl, configKey, configRow }: any) => {
   if (!configRow) return null;
-  const photoConfig = parseZone(configRow['Photo Hole']);
-  const headerTopConfig = parseZone(configRow['Header Top']);
-  const headerBottomConfig = parseZone(configRow['Header Bottom']);
-  const phoneConfig = parseZone(configRow['Phone']);
-  const serviceConfigs = [parseZone(configRow['Service 1']), parseZone(configRow['Service 2']), parseZone(configRow['Service 3']), parseZone(configRow['Service 4'])];
+  
+  const zones = {
+    photo: parseZone(configRow['Photo Hole']),
+    headerTop: parseZone(configRow['Header Top']),
+    headerBottom: parseZone(configRow['Header Bottom']),
+    phone: parseZone(configRow['Phone']),
+    website: parseZone(configRow['Website']),
+    location: parseZone(configRow['Location']),
+    services: [
+      parseZone(configRow['Service 1']), 
+      parseZone(configRow['Service 2']), 
+      parseZone(configRow['Service 3']), 
+      parseZone(configRow['Service 4'])
+    ]
+  };
 
   const mainTitle = data.businessName || fieldName || 'PROFESSIONAL';
   const firstWord = mainTitle.split(' ')[0];
@@ -48,15 +67,24 @@ const LiveTemplate = ({ data, fieldName, photoUrl, configKey, configRow }: any) 
     <div className="relative w-full bg-white overflow-hidden shadow-2xl border-4 border-slate-200">
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
-        {photoConfig && (
-          <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
+        
+        {zones.photo && (
+          <foreignObject x={zones.photo.x} y={zones.photo.y} width={zones.photo.width} height={zones.photo.height}>
             <img src={photoUrl} alt="Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
           </foreignObject>
         )}
-        {[headerTopConfig, headerBottomConfig, phoneConfig, ...serviceConfigs].map((conf, i) => conf && (
-          <foreignObject key={i} x={conf.x} y={conf.y} width={conf.width} height={conf.height}>
-            <div className="w-full h-full flex items-center border-2 border-red-500 bg-red-500/20 uppercase leading-none" style={conf.style}>
-              {i === 0 ? firstWord : i === 1 ? remainingWords : i === 2 ? data.phone : `✓ Service`}
+
+        {[
+          { conf: zones.headerTop, text: firstWord },
+          { conf: zones.headerBottom, text: remainingWords },
+          { conf: zones.phone, text: data.phone },
+          { conf: zones.website, text: 'WWW.ARETIFI.COM' },
+          { conf: zones.location, text: 'LOCAL AREA' },
+          ...zones.services.map(s => ({ conf: s, text: '✓ SERVICE' }))
+        ].map((item, i) => item.conf && (
+          <foreignObject key={i} x={item.conf.x} y={item.conf.y} width={item.conf.width} height={item.conf.height}>
+            <div className="w-full h-full flex items-center border-2 border-red-500 bg-red-500/20 uppercase" style={item.conf.style}>
+              {item.text}
             </div>
           </foreignObject>
         ))}
@@ -87,12 +115,14 @@ export default function NudgeToolPage() {
   }, []);
 
   const updateCoordinate = (zoneName: string, index: number, newValue: any) => {
+    if (!activeRow[zoneName]) return;
     const parts = activeRow[zoneName].split(',').map((s: string) => s.trim());
     parts[index] = newValue.toString();
     setActiveRow({ ...activeRow, [zoneName]: parts.join(', ') });
   };
 
   const getCoordinate = (zoneName: string, index: number) => {
+    if (!activeRow || !activeRow[zoneName]) return 0;
     const parts = activeRow[zoneName].split(',').map((s: string) => s.trim());
     return index === 4 ? parseInt(parts[index]) || 30 : parseFloat(parts[index]) || 0;
   };
@@ -115,7 +145,7 @@ export default function NudgeToolPage() {
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
             {EDITABLE_ZONES.map(zone => (
               <div key={zone} className="bg-slate-100 p-4 rounded-xl border">
-                <h3 className="font-bold text-sm mb-3">{zone}</h3>
+                <h3 className="font-bold text-sm mb-3 uppercase tracking-wider">{zone}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {['X', 'Y', 'W', 'H', 'Size'].map((label, i) => (
                     <div key={label}>
