@@ -1,19 +1,76 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Papa from 'papaparse';
 
 const DUMMY_DATA = {
   businessName: 'APEX PROFESSIONAL',
-  field: 'Plumbing',
   services: ['Water Heater Repair', 'Pipe Replacement', 'Drain Cleaning', '24/7 Emergency'],
   phone: '519-555-0199'
 };
 
-const DUMMY_PHOTOS = [
-  'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80'
-];
+const tradePhotos: Record<string, string[]> = {
+  plumbing: [
+    'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?auto=format&fit=crop&w=800&q=80'
+  ],
+  hvac: [
+    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80'
+  ],
+  landscaping: [
+    'https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1592424001807-6c2e361239c4?auto=format&fit=crop&w=800&q=80'
+  ],
+  cleaning: [
+    'https://images.unsplash.com/photo-1581578731117-104f2a863a39?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80'
+  ],
+  drywall: [
+    'https://images.unsplash.com/photo-1505082823024-00d346e9dd98?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'
+  ],
+  electrical: [
+    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=800&q=80'
+  ],
+  roofing: [
+    'https://images.unsplash.com/photo-1632758999321-df621a50a1eb?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80'
+  ],
+  painting: [
+    'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'
+  ],
+  welding: [
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1533552755457-5b481238fb01?auto=format&fit=crop&w=800&q=80'
+  ],
+  carpentry: [
+    'https://images.unsplash.com/photo-1584999970366-eb1fc677f594?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1505015920881-0f83c2f7c95e?auto=format&fit=crop&w=800&q=80'
+  ],
+  moving: [
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1582269438706-93049b106e2c?auto=format&fit=crop&w=800&q=80'
+  ],
+  pool: [
+    'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=800&q=80'
+  ],
+  pest: [
+    'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1558223616-566b6c7ec2af?auto=format&fit=crop&w=800&q=80'
+  ],
+  tree: [
+    'https://images.unsplash.com/photo-1596708453535-c38c11bb8d96?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1542385151-efd9000785a0?auto=format&fit=crop&w=800&q=80'
+  ],
+  concrete: [
+    'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1590483861877-c9de32f8ebf9?auto=format&fit=crop&w=800&q=80'
+  ]
+};
 
 const parseZone = (csvString: any) => {
   if (!csvString || typeof csvString !== 'string') return null;
@@ -42,7 +99,7 @@ const parseZone = (csvString: any) => {
   };
 };
 
-const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase }: any) => {
+const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, rawDatabase }: any) => {
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
 
@@ -60,7 +117,7 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
     parseZone(rawConfig['Service 4'])
   ];
 
-  const mainTitle = data.businessName || data.field || 'PROFESSIONAL';
+  const mainTitle = data.businessName || fieldName || 'PROFESSIONAL';
   const tradeWords = mainTitle.split(' ');
   const firstWord = tradeWords[0];
   const remainingWords = tradeWords.slice(1).join(' ');
@@ -133,6 +190,7 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
 
 export default function TestTemplatesPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
+  const [selectedTrade, setSelectedTrade] = useState('plumbing');
   
   useEffect(() => {
     fetch('/templates.csv')
@@ -155,6 +213,12 @@ export default function TestTemplatesPage() {
 
   const templateKeys = Object.keys(rawDatabase);
 
+  // Grab the photos for the currently selected trade
+  const activePhotos = useMemo(() => {
+    const photos = tradePhotos[selectedTrade] || tradePhotos['plumbing'];
+    return [...photos].sort(() => 0.5 - Math.random());
+  }, [selectedTrade]);
+
   if (templateKeys.length === 0) {
     return <div className="p-12 text-center text-xl font-bold">Loading templates from CSV...</div>;
   }
@@ -162,9 +226,25 @@ export default function TestTemplatesPage() {
   return (
     <main className="min-h-screen bg-slate-50 py-12 px-6">
       <div className="max-w-[1600px] mx-auto">
-        <div className="mb-12 border-b-2 border-slate-900 pb-6">
-          <h1 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900">Template Test Dashboard</h1>
-          <p className="text-slate-600 mt-2 font-medium">Viewing {templateKeys.length} templates. Edit your CSV and refresh this page to see changes instantly.</p>
+        <div className="mb-12 border-b-2 border-slate-900 pb-6 flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900">Template Test Dashboard</h1>
+            <p className="text-slate-600 mt-2 font-medium">Viewing {templateKeys.length} templates. Edit your CSV and refresh this page to see changes instantly.</p>
+          </div>
+          
+          {/* New Dropdown to Test Different Trades */}
+          <div className="w-64">
+            <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Test Photo Trade</label>
+            <select 
+              value={selectedTrade} 
+              onChange={(e) => setSelectedTrade(e.target.value)}
+              className="w-full border-2 border-slate-900 p-3 rounded-lg bg-white font-bold cursor-pointer shadow-sm"
+            >
+              {Object.keys(tradePhotos).map(trade => (
+                <option key={trade} value={trade}>{trade.charAt(0).toUpperCase() + trade.slice(1)}</option>
+              ))}
+            </select>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
@@ -176,8 +256,9 @@ export default function TestTemplatesPage() {
               <MasterTemplate 
                 id={`test-${key}`} 
                 data={DUMMY_DATA} 
-                photoUrl={DUMMY_PHOTOS[0]} 
-                photoUrl2={DUMMY_PHOTOS[1]}
+                fieldName={selectedTrade.toUpperCase()}
+                photoUrl={activePhotos[0]} 
+                photoUrl2={activePhotos[1] || activePhotos[0]}
                 configKey={key} 
                 rawDatabase={rawDatabase} 
               />
