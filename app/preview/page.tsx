@@ -6,21 +6,16 @@ import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
 
-const parseToPercent = (val: string) => {
+const parse = (val: string) => {
   if (!val || val.trim() === "") return null;
   const p = val.split(',').map(s => s.trim());
   if (p.length < 4) return null;
-  
   return {
-    left: `${(parseFloat(p[0]) / 1080) * 100}%`,
-    top: `${(parseFloat(p[1]) / 1080) * 100}%`,
-    width: `${(parseFloat(p[2]) / 1080) * 100}%`,
-    height: `${(parseFloat(p[3]) / 1080) * 100}%`,
-    // Use raw px from CSV, then scale based on container width later
-    fontSizePx: parseFloat(p[4]) || 30,
-    color: p[5] || '#000',
-    fontWeight: p[6] || '400',
-    fontFamily: p[8] || 'Anton'
+    x: p[0], y: p[1], w: p[2], h: p[3],
+    s: { 
+      fontSize: p[4] || '30px', color: p[5] || '#000', fontWeight: p[6] || '400', 
+      fontFamily: p[8] || 'Anton', lineHeight: '1', display: 'flex', alignItems: 'center'
+    }
   };
 };
 
@@ -28,15 +23,16 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const row = rawDatabase[configKey];
   if (!row) return null;
 
-  const p1 = parseToPercent(row[2]);
-  const p2 = parseToPercent(row[3]); 
-  const h1 = parseToPercent(row[4]);
-  const h2 = parseToPercent(row[5]);
-  const s1 = parseToPercent(row[6]);
-  const s2 = parseToPercent(row[7]);
-  const s3 = parseToPercent(row[8]);
-  const s4 = parseToPercent(row[9]);
-  const ph = parseToPercent(row[10]);
+  // Manual mapping - exactly how we did it when Hole 1 worked
+  const p1 = parse(row['Photo Hole']);
+  const p2 = parse(row['Photo Hole 2']); 
+  const h1 = parse(row['Header Top']);
+  const h2 = parse(row['Header Bottom']);
+  const s1 = parse(row['Service 1']);
+  const s2 = parse(row['Service 2']);
+  const s3 = parse(row['Service 3']);
+  const s4 = parse(row['Service 4']);
+  const ph = parse(row['Phone']);
 
   const name = data.businessName || "";
   const first = name.split(' ')[0] || "PRO";
@@ -44,59 +40,43 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
 
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
-  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%' } : {};
+  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
 
   return (
-    <div id={id} className="relative w-full aspect-square bg-white overflow-hidden border border-black shadow-2xl">
-      {/* LAYER 0: BG */}
-      <img src={`/${configKey}.png`} className="absolute inset-0 w-full h-full z-0 pointer-events-none" alt="" />
+    <div id={id} className="relative w-full bg-white">
+      <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+        <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
+        
+        {/* HOLE 1 */}
+        {p1 && (
+          <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
+            <div style={{ width: '100%', height: '100%', ...clip }}>
+              <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            </div>
+          </foreignObject>
+        )}
 
-      {/* LAYER 1: PHOTOS */}
-      {[p1, p2].map((p, i) => p && (
-        <div key={i} style={{ 
-          position: 'absolute', left: p.left, top: p.top, width: p.width, height: p.height, 
-          ...clip, overflow: 'hidden', zIndex: 10 
-        }}>
-          <img 
-            src={i === 0 ? "https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=1000" : "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1000"} 
-            className="w-full h-full object-cover" 
-            crossOrigin="anonymous" 
-          />
-        </div>
-      ))}
+        {/* HOLE 2 - DUMB COPY OF HOLE 1 LOGIC */}
+        {p2 && (
+          <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
+            <div style={{ width: '100%', height: '100%', ...clip }}>
+              <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            </div>
+          </foreignObject>
+        )}
 
-      {/* LAYER 2: TEXT - EXACT PLACEMENT */}
-      {[
-        { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
-        { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
-        { c: s2, t: data.service2 ? `✓ ${data.service2}` : '' },
-        { c: s3, t: data.service3 ? `✓ ${data.service3}` : '' },
-        { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }
-      ].map((item, i) => item.c && item.t && (
-        <div 
-          key={i} 
-          style={{ 
-            position: 'absolute', 
-            left: item.c.left, 
-            top: item.c.top, 
-            width: item.c.width, 
-            height: item.c.height,
-            color: item.c.color,
-            fontWeight: item.c.fontWeight,
-            fontFamily: item.c.fontFamily,
-            // Calculate dynamic font size based on container width (roughly 1080px base)
-            fontSize: `calc(${item.c.fontSizePx} * (100cqw / 1080))`,
-            zIndex: 20,
-            display: 'flex',
-            alignItems: 'flex-end', // Snap to bottom of the box
-            lineHeight: '0.8', // Tighten baseline
-            whiteSpace: 'nowrap',
-            textTransform: 'uppercase'
-          }}
-        >
-          {item.t}
-        </div>
-      ))}
+        {[
+          { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
+          { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
+          { c: s2, t: data.service2 ? `✓ ${data.service2}` : '' },
+          { c: s3, t: data.service3 ? `✓ ${data.service3}` : '' },
+          { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }
+        ].map((item, i) => item.c && item.t && (
+          <foreignObject key={i} x={item.c.x} y={item.c.y} width={item.c.w} height={item.c.h}>
+            <div style={item.c.s} className="w-full h-full uppercase whitespace-nowrap">{item.t}</div>
+          </foreignObject>
+        ))}
+      </svg>
     </div>
   );
 };
@@ -110,21 +90,19 @@ export default function PreviewPage() {
     const saved = localStorage.getItem('flyer_form_data');
     if (saved) setForm(JSON.parse(saved));
     fetch(`/templates.csv?v=${Date.now()}`).then(r => r.text()).then(txt => {
-      Papa.parse(txt, { header: false, skipEmptyLines: true, complete: (res) => {
+      Papa.parse(txt, { header: true, skipEmptyLines: true, complete: (res) => {
           const map: Record<string, any> = {};
-          res.data.forEach((r: any) => { if (r[0] && r[0] !== 'Template ID') map[r[0]] = r; });
+          res.data.forEach((r: any) => { if (r['Template ID']) map[r['Template ID']] = r; });
           setDb(map);
       }});
     });
   }, []);
 
-  useEffect(() => { localStorage.setItem('flyer_form_data', JSON.stringify(form)); }, [form]);
-
   if (show) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8 text-slate-900 font-sans">
-        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Back</button>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto container-type-size">
+      <main className="min-h-screen p-8 bg-slate-50">
+        <button onClick={() => setShow(false)} className="mb-8 px-6 py-2 bg-black text-white font-bold uppercase italic">← Edit</button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
               <MasterTemplate id={`f-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} />
@@ -144,9 +122,9 @@ export default function PreviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900 font-sans">
+    <main className="min-h-screen flex items-center justify-center bg-slate-100 p-6">
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
-        <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
+        <h1 className="text-4xl font-black uppercase text-center mb-8 italic">Aretifi Studio</h1>
         <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
