@@ -68,9 +68,11 @@ const parseZone = (csvString: any) => {
       fontWeight: parts[6] || '400', 
       fontStyle: parts[7] || 'normal', 
       fontFamily: parts[8] || 'Anton',
-      lineHeight: '1',
+      lineHeight: '1.1',
       display: 'flex',
-      alignItems: 'center'
+      alignItems: 'center',
+      overflow: 'visible', // Ensure large fonts don't disappear
+      whiteSpace: 'nowrap'
     }
   };
 };
@@ -132,13 +134,13 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
         )}
         
         {zones.headerTop && (
-          <foreignObject x={zones.headerTop.x} y={zones.headerTop.y} width={zones.headerTop.width} height={zones.headerTop.height}>
+          <foreignObject x={zones.headerTop.x} y={zones.headerTop.y} width={zones.headerTop.width} height={zones.headerTop.height} style={{ overflow: 'visible' }}>
             <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={zones.headerTop.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {zones.headerBottom && (
-          <foreignObject x={zones.headerBottom.x} y={zones.headerBottom.y} width={zones.headerBottom.width} height={zones.headerBottom.height}>
+          <foreignObject x={zones.headerBottom.x} y={zones.headerBottom.y} width={zones.headerBottom.width} height={zones.headerBottom.height} style={{ overflow: 'visible' }}>
             <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={zones.headerBottom.style}>{remainingWords}</div>
           </foreignObject>
         )}
@@ -147,26 +149,26 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
           const sConf = zones.services[index];
           if (!sConf || !service) return null;
           return (
-            <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
+            <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height} style={{ overflow: 'visible' }}>
               <div className="w-full h-full flex items-center uppercase" style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
         {zones.phone && (
-          <foreignObject x={zones.phone.x} y={zones.phone.y} width={zones.phone.width} height={zones.phone.height}>
+          <foreignObject x={zones.phone.x} y={zones.phone.y} width={zones.phone.width} height={zones.phone.height} style={{ overflow: 'visible' }}>
             <div className="w-full h-full flex items-center" style={zones.phone.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
 
         {zones.website && (
-          <foreignObject x={zones.website.x} y={zones.website.y} width={zones.website.width} height={zones.website.height}>
+          <foreignObject x={zones.website.x} y={zones.website.y} width={zones.website.width} height={zones.website.height} style={{ overflow: 'visible' }}>
             <div className="w-full h-full flex items-center" style={zones.website.style}>WWW.ARETIFI.COM</div>
           </foreignObject>
         )}
 
         {zones.location && (
-          <foreignObject x={zones.location.x} y={zones.location.y} width={zones.location.width} height={zones.location.height}>
+          <foreignObject x={zones.location.x} y={zones.location.y} width={zones.location.width} height={zones.location.height} style={{ overflow: 'visible' }}>
             <div className="w-full h-full flex items-center font-bold" style={zones.location.style}>LOCAL SERVICE AREA</div>
           </foreignObject>
         )}
@@ -246,16 +248,9 @@ export default function PreviewPage() {
             </div>
             
             <div className="flex items-center gap-3">
-              <label className="text-sm font-black uppercase text-slate-500">Live Theme Switcher:</label>
-              <select 
-                name="themeColor" 
-                onChange={handleInputChange} 
-                value={formData.themeColor} 
-                className="bg-slate-900 text-white font-bold py-2 px-6 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                {THEME_COLORS.map(color => (
-                  <option key={color} value={color}>{color.toUpperCase()} EDITION</option>
-                ))}
+              <label className="text-sm font-black uppercase text-slate-500">Theme:</label>
+              <select name="themeColor" onChange={handleInputChange} value={formData.themeColor} className="bg-slate-900 text-white font-bold py-2 px-6 rounded-lg cursor-pointer outline-none">
+                {THEME_COLORS.map(color => <option key={color} value={color}>{color.toUpperCase()}</option>)}
               </select>
             </div>
           </div>
@@ -266,14 +261,10 @@ export default function PreviewPage() {
               const elementId = `flyer-${shape}`;
               if (!rawDatabase[configKey]) return null;
               return (
-                <div key={shape} className="flex flex-col gap-6 group">
+                <div key={shape} className="flex flex-col gap-6">
                   <MasterTemplate id={elementId} data={parsedData} photoUrl={selectedPhoto} photoUrl2={selectedPhoto2} configKey={configKey} rawDatabase={rawDatabase} />
-                  <button 
-                    onClick={() => downloadFlyer(elementId, shape)} 
-                    disabled={downloadingId !== null} 
-                    className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50 hover:bg-blue-600 transition-all shadow-lg active:translate-y-1"
-                  >
-                    {downloadingId === elementId ? 'Generating HD File...' : `Download ${shape.toUpperCase()}`}
+                  <button onClick={() => downloadFlyer(elementId, shape)} disabled={downloadingId !== null} className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50 hover:bg-blue-600 transition-all shadow-lg active:translate-y-1">
+                    {downloadingId === elementId ? 'Generating...' : `Download ${shape.toUpperCase()}`}
                   </button>
                 </div>
               );
