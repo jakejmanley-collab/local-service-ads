@@ -17,7 +17,9 @@ const parse = (val: string) => {
       color: p[5] || '#000', 
       fontWeight: p[6] || '400', 
       fontFamily: p[8] || 'Anton',
-      lineHeight: '1', display: 'flex', alignItems: 'center', overflow: 'visible'
+      lineHeight: '1', 
+      whiteSpace: 'nowrap', // STOPS THE SPLIT
+      overflow: 'visible'
     }
   };
 };
@@ -43,25 +45,36 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
 
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
-  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
+  
+  const clip = isHex 
+    ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } 
+    : isCircle ? { borderRadius: '50%', overflow: 'hidden', WebkitMaskImage: '-webkit-radial-gradient(white, black)' } : {};
 
   return (
-    <div id={id} className="relative w-full bg-white shadow-xl border border-slate-200">
+    <div id={id} className="relative w-full bg-white shadow-xl">
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
         
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
-            <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            <div style={{ width: '100%', height: '100%', position: 'relative', ...clip }}>
+              <img 
+                src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                crossOrigin="anonymous" 
+              />
             </div>
           </foreignObject>
         )}
 
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
-            <div style={{ width: '100%', height: '100%', border: '4px solid #ff00ff', boxSizing: 'border-box', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            <div style={{ width: '100%', height: '100%', position: 'relative', border: '6px solid #ff00ff', boxSizing: 'border-box', ...clip }}>
+              <img 
+                src="https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?w=800" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                crossOrigin="anonymous" 
+              />
             </div>
           </foreignObject>
         )}
@@ -74,7 +87,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
           { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }
         ].map((item, i) => item.c && item.t && (
           <foreignObject key={i} x={item.c.x} y={item.c.y} width={item.c.w} height={item.c.h} style={{ overflow: 'visible' }}>
-            <div className="w-full h-full flex items-center uppercase" style={item.c.s}>{item.t}</div>
+            <div style={item.c.s}>{item.t}</div>
           </foreignObject>
         ))}
       </svg>
@@ -115,7 +128,7 @@ export default function PreviewPage() {
 
   if (show) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8 text-slate-900 font-sans">
+      <main className="min-h-screen bg-slate-50 p-8 text-slate-900">
         <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic">← Back</button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
@@ -137,13 +150,13 @@ export default function PreviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900 font-sans">
+    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900">
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
         <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Business Type (e.g. Plumbing)" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.field} required placeholder="Trade" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
             <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
