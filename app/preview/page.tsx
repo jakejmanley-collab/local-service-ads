@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
+const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
+
 // Expanded image library to ensure two distinct photos for the circle templates
 const tradePhotos: Record<string, string[]> = {
   plumbing: [
@@ -76,7 +78,7 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
   if (!rawConfig) return null;
 
   const photoConfig = parseZone(rawConfig['Photo Hole']);
-  const photoConfig2 = parseZone(rawConfig['Photo Hole 2']); // New second photo hole
+  const photoConfig2 = parseZone(rawConfig['Photo Hole 2']);
   
   const headerTopConfig = parseZone(rawConfig['Header Top']);
   const headerBottomConfig = parseZone(rawConfig['Header Bottom']);
@@ -98,7 +100,7 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
 
   const viewBoxStr = rawConfig['Canvas Dimensions'] ? `0 0 ${rawConfig['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080";
 
-  // Auto-detect the shape based on the template name to apply the correct cropping
+  // Auto-detect shape for perfect photo cropping
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
   
@@ -106,44 +108,30 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
     ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } 
     : isCircle 
       ? { borderRadius: '50%', overflow: 'hidden' } 
-      : {}; // Square gets no clip path
+      : {};
 
   return (
     <div id={id} className="relative w-full bg-white overflow-hidden shadow-2xl">
       <svg viewBox={viewBoxStr} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         
-        {/* BOTTOM LAYER: Base Template PNG */}
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {/* MIDDLE LAYER 1: First Dynamic Trade Photo (Back Circle/Hex/Square) */}
         {photoConfig && (
           <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
             <div style={{ width: '100%', height: '100%', ...clipStyle }}>
-              <img 
-                src={photoUrl} 
-                alt="Trade 1" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                crossOrigin="anonymous" 
-              />
+              <img src={photoUrl} alt="Trade 1" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
 
-        {/* MIDDLE LAYER 2: Second Dynamic Trade Photo (Front Circle) */}
         {photoConfig2 && (
           <foreignObject x={photoConfig2.x} y={photoConfig2.y} width={photoConfig2.width} height={photoConfig2.height}>
             <div style={{ width: '100%', height: '100%', ...clipStyle }}>
-              <img 
-                src={photoUrl2} 
-                alt="Trade 2" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                crossOrigin="anonymous" 
-              />
+              <img src={photoUrl2} alt="Trade 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
         
-        {/* TOP LAYER: Text Elements */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
             <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
@@ -191,10 +179,11 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
 export default function PreviewPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
   const [formData, setFormData] = useState({
-    businessName: '', field: '', services: '', phone: '', website: '', location: '', serviceArea: '', selectedTemplate: ''
+    businessName: '', field: '', services: '', phone: '', website: '', location: '', serviceArea: '', themeColor: 'red'
   });
   const [showPreview, setShowPreview] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  
   const [selectedPhoto, setSelectedPhoto] = useState<string>('');
   const [selectedPhoto2, setSelectedPhoto2] = useState<string>('');
 
@@ -212,8 +201,6 @@ export default function PreviewPage() {
               if (row['Template ID']) newDb[row['Template ID']] = row;
             });
             setRawDatabase(newDb);
-            const keys = Object.keys(newDb);
-            if (keys.length > 0) setFormData(p => ({ ...p, selectedTemplate: keys[0] }));
           }
         });
       });
@@ -234,36 +221,61 @@ export default function PreviewPage() {
     setShowPreview(true);
   };
 
-  const downloadFlyer = useCallback(async () => {
-    setIsDownloading(true);
-    const el = document.getElementById('flyer-master');
+  const downloadFlyer = useCallback(async (elementId: string, shapeName: string) => {
+    setDownloadingId(elementId);
+    const el = document.getElementById(elementId);
     if (el) {
       const url = await toPng(el, { quality: 1.0, pixelRatio: 2 });
       const link = document.createElement('a');
-      link.download = `${formData.businessName || 'flyer'}.png`;
+      link.download = `${formData.businessName || 'flyer'}-${shapeName}.png`;
       link.href = url;
       link.click();
     }
-    setIsDownloading(false);
+    setDownloadingId(null);
   }, [formData]);
 
   const parsedData = { ...formData, services: formData.services.split(',').map(s => s.trim()).filter(Boolean) };
 
   if (showPreview) {
+    const shapes = ['circle', 'square', 'hex'];
+
     return (
       <main className="min-h-screen bg-slate-50 py-12 px-6">
-        <div className="max-w-md mx-auto">
-          <MasterTemplate 
-            id="flyer-master" 
-            data={parsedData} 
-            photoUrl={selectedPhoto} 
-            photoUrl2={selectedPhoto2}
-            configKey={formData.selectedTemplate} 
-            rawDatabase={rawDatabase} 
-          />
-          <div className="flex gap-4 mt-6">
-            <button onClick={() => setShowPreview(false)} className="flex-1 bg-white border-2 border-slate-900 font-bold py-4 rounded-lg">Edit</button>
-            <button onClick={downloadFlyer} disabled={isDownloading} className="flex-1 bg-slate-900 text-white font-bold py-4 rounded-lg">{isDownloading ? 'Downloading...' : 'Download'}</button>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-900">Choose Your Layout</h2>
+            <button onClick={() => setShowPreview(false)} className="bg-white border-2 border-slate-900 text-slate-900 font-bold py-2 px-6 rounded-lg hover:bg-slate-100 transition-colors">← Edit Details</button>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {shapes.map((shape) => {
+              const configKey = `${shape}-${formData.themeColor}-url`;
+              const elementId = `flyer-${shape}`;
+              const isDownloadingThis = downloadingId === elementId;
+              
+              // Only render if the template exists in the CSV database
+              if (!rawDatabase[configKey]) return null;
+
+              return (
+                <div key={shape} className="flex flex-col gap-6">
+                  <MasterTemplate 
+                    id={elementId} 
+                    data={parsedData} 
+                    photoUrl={selectedPhoto} 
+                    photoUrl2={selectedPhoto2}
+                    configKey={configKey} 
+                    rawDatabase={rawDatabase} 
+                  />
+                  <button 
+                    onClick={() => downloadFlyer(elementId, shape)} 
+                    disabled={downloadingId !== null} 
+                    className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50 hover:bg-slate-800 transition-colors shadow-lg"
+                  >
+                    {isDownloadingThis ? 'Downloading...' : `Download ${shape} Layout`}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </main>
@@ -285,8 +297,10 @@ export default function PreviewPage() {
             <input name="website" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Website" />
             <input name="location" onChange={handleInputChange} className="w-full border-2 p-3 rounded-lg" placeholder="Address/Location" />
           </div>
-          <select name="selectedTemplate" onChange={handleInputChange} value={formData.selectedTemplate} className="w-full border-2 p-3 rounded-lg bg-white">
-            {Object.keys(rawDatabase).map(id => <option key={id} value={id}>{id}</option>)}
+          <select name="themeColor" onChange={handleInputChange} value={formData.themeColor} className="w-full border-2 p-3 rounded-lg bg-white">
+            {THEME_COLORS.map(color => (
+              <option key={color} value={color}>{color.charAt(0).toUpperCase() + color.slice(1)} Theme</option>
+            ))}
           </select>
           <button type="submit" disabled={Object.keys(rawDatabase).length === 0} className="w-full bg-slate-900 text-white font-black py-4 rounded-lg uppercase tracking-widest disabled:opacity-50">Generate</button>
         </form>
