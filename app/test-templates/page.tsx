@@ -37,6 +37,42 @@ const tradePhotos: Record<string, string[]> = {
   roofing: [
     'https://images.unsplash.com/photo-1632758999321-df621a50a1eb?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80'
+  ],
+  painting: [
+    'https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'
+  ],
+  welding: [
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1533552755457-5b481238fb01?auto=format&fit=crop&w=800&q=80'
+  ],
+  carpentry: [
+    'https://images.unsplash.com/photo-1584999970366-eb1fc677f594?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1505015920881-0f83c2f7c95e?auto=format&fit=crop&w=800&q=80'
+  ],
+  moving: [
+    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1582269438706-93049b106e2c?auto=format&fit=crop&w=800&q=80'
+  ],
+  pool: [
+    'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=800&q=80'
+  ],
+  pest: [
+    'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1558223616-566b6c7ec2af?auto=format&fit=crop&w=800&q=80'
+  ],
+  tree: [
+    'https://images.unsplash.com/photo-1596708453535-c38c11bb8d96?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1542385151-efd9000785a0?auto=format&fit=crop&w=800&q=80'
+  ],
+  concrete: [
+    'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1590483861877-c9de32f8ebf9?auto=format&fit=crop&w=800&q=80'
+  ],
+  default: [
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80'
   ]
 };
 
@@ -165,15 +201,16 @@ export default function NudgeToolPage() {
       .then(csvText => {
         Papa.parse(csvText, {
           header: true, skipEmptyLines: true, transformHeader: (h) => h.trim(),
-          complete: (results) => {
+          complete: (results: any) => {
             const newDb: Record<string, any> = {};
-            results.data.forEach((row: any) => {
+            const data = results.data as any[];
+            data.forEach((row: any) => {
               if (row['Template ID']) newDb[row['Template ID']] = row;
             });
             setRawDatabase(newDb);
-            if (results.data.length > 0) {
-              setSelectedTemplate(results.data[0]['Template ID']);
-              setActiveRow(results.data[0]);
+            if (data.length > 0) {
+              setSelectedTemplate(data[0]['Template ID']);
+              setActiveRow(data[0]);
             }
           }
         });
