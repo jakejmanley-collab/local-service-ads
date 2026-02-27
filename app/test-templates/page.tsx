@@ -10,45 +10,11 @@ const DUMMY_DATA = {
 };
 
 const tradePhotos: Record<string, string[]> = {
-  plumbing: [
-    'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?auto=format&fit=crop&w=800&q=80'
-  ],
-  hvac: [
-    'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80'
-  ],
-  landscaping: [
-    'https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1592424001807-6c2e361239c4?auto=format&fit=crop&w=800&q=80'
-  ],
-  cleaning: [
-    'https://images.unsplash.com/photo-1581578731117-104f2a863a39?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=800&q=80'
-  ],
-  drywall: [
-    'https://images.unsplash.com/photo-1505082823024-00d346e9dd98?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800&q=80'
-  ],
-  electrical: [
-    'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&w=800&q=80'
-  ],
-  roofing: [
-    'https://images.unsplash.com/photo-1632758999321-df621a50a1eb?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80'
-  ]
+  plumbing: ['https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=800&q=80']
 };
 
-const CSV_COLUMNS = [
-  "Template ID", "Canvas Dimensions", "Photo Hole", "Photo Hole 2", 
-  "Header Top", "Header Bottom", "Service 1", "Service 2", "Service 3", "Service 4", 
-  "Phone", "Website", "Location"
-];
-
-const EDITABLE_ZONES = [
-  "Header Top", "Header Bottom", "Service 1", "Service 2", "Service 3", "Service 4", "Phone"
-];
+const CSV_COLUMNS = ["Template ID", "Canvas Dimensions", "Photo Hole", "Photo Hole 2", "Header Top", "Header Bottom", "Service 1", "Service 2", "Service 3", "Service 4", "Phone", "Website", "Location"];
+const EDITABLE_ZONES = ["Header Top", "Header Bottom", "Service 1", "Service 2", "Service 3", "Service 4", "Phone"];
 
 const parseZone = (csvString: any) => {
   if (!csvString || typeof csvString !== 'string') return null;
@@ -62,90 +28,38 @@ const parseZone = (csvString: any) => {
 
   return {
     x: parts[0], y: parts[1], width: parts[2], height: parts[3],
-    style: { 
-      fontSize, color, 
-      fontWeight: parts[6] || '400', fontStyle: parts[7] || 'normal', fontFamily: parts[8] || 'Anton' 
-    }
+    style: { fontSize, color, fontWeight: parts[6] || '400', fontStyle: parts[7] || 'normal', fontFamily: parts[8] || 'Anton' }
   };
 };
 
-const LiveTemplate = ({ data, fieldName, photoUrl, photoUrl2, configKey, configRow }: any) => {
+const LiveTemplate = ({ data, fieldName, photoUrl, configKey, configRow }: any) => {
   if (!configRow) return null;
-
   const photoConfig = parseZone(configRow['Photo Hole']);
-  const photoConfig2 = parseZone(configRow['Photo Hole 2']);
   const headerTopConfig = parseZone(configRow['Header Top']);
   const headerBottomConfig = parseZone(configRow['Header Bottom']);
   const phoneConfig = parseZone(configRow['Phone']);
-  const serviceConfigs = [
-    parseZone(configRow['Service 1']), parseZone(configRow['Service 2']),
-    parseZone(configRow['Service 3']), parseZone(configRow['Service 4'])
-  ];
+  const serviceConfigs = [parseZone(configRow['Service 1']), parseZone(configRow['Service 2']), parseZone(configRow['Service 3']), parseZone(configRow['Service 4'])];
 
   const mainTitle = data.businessName || fieldName || 'PROFESSIONAL';
-  const tradeWords = mainTitle.split(' ');
-  const firstWord = tradeWords[0];
-  const remainingWords = tradeWords.slice(1).join(' ');
-
-  const viewBoxStr = configRow['Canvas Dimensions'] ? `0 0 ${configRow['Canvas Dimensions'].replace('x', ' ')}` : "0 0 1080 1080";
-  const isHex = configKey.includes('hex');
-  const isCircle = configKey.includes('circle');
-  
-  const clipStyle = isHex 
-    ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } 
-    : isCircle 
-      ? { borderRadius: '50%', overflow: 'hidden' } 
-      : {};
-
-  const debugBox = "border-2 border-red-500 bg-red-500/20";
+  const firstWord = mainTitle.split(' ')[0];
+  const remainingWords = mainTitle.split(' ').slice(1).join(' ');
 
   return (
     <div className="relative w-full bg-white overflow-hidden shadow-2xl border-4 border-slate-200">
-      <svg viewBox={viewBoxStr} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
-        
         {photoConfig && (
           <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
-            <div style={{ width: '100%', height: '100%', ...clipStyle }}>
-              <img src={photoUrl} alt="Trade 1" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+            <img src={photoUrl} alt="Trade" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+          </foreignObject>
+        )}
+        {[headerTopConfig, headerBottomConfig, phoneConfig, ...serviceConfigs].map((conf, i) => conf && (
+          <foreignObject key={i} x={conf.x} y={conf.y} width={conf.width} height={conf.height}>
+            <div className="w-full h-full flex items-center border-2 border-red-500 bg-red-500/20 uppercase leading-none" style={conf.style}>
+              {i === 0 ? firstWord : i === 1 ? remainingWords : i === 2 ? data.phone : `✓ Service`}
             </div>
           </foreignObject>
-        )}
-        {photoConfig2 && (
-          <foreignObject x={photoConfig2.x} y={photoConfig2.y} width={photoConfig2.width} height={photoConfig2.height}>
-            <div style={{ width: '100%', height: '100%', ...clipStyle }}>
-              <img src={photoUrl2} alt="Trade 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
-            </div>
-          </foreignObject>
-        )}
-        
-        {headerTopConfig && (
-          <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className={`w-full h-full uppercase tracking-tighter ${debugBox}`} style={headerTopConfig.style}>{firstWord}</div>
-          </foreignObject>
-        )}
-        
-        {headerBottomConfig && (
-          <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className={`w-full h-full uppercase tracking-tighter ${debugBox}`} style={headerBottomConfig.style}>{remainingWords}</div>
-          </foreignObject>
-        )}
-        
-        {data.services.slice(0, 4).map((service: string, index: number) => {
-          const sConf = serviceConfigs[index];
-          if (!sConf || !service) return null;
-          return (
-            <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className={`w-full h-full uppercase ${debugBox}`} style={sConf.style}>✓ {service}</div>
-            </foreignObject>
-          );
-        })}
-        
-        {phoneConfig && (
-          <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className={`w-full h-full ${debugBox}`} style={phoneConfig.style}>{data.phone}</div>
-          </foreignObject>
-        )}
+        ))}
       </svg>
     </div>
   );
@@ -153,172 +67,72 @@ const LiveTemplate = ({ data, fieldName, photoUrl, photoUrl2, configKey, configR
 
 export default function NudgeToolPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
-  const [selectedTrade, setSelectedTrade] = useState('plumbing');
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [activeRow, setActiveRow] = useState<any>(null);
 
   useEffect(() => {
-    fetch('/templates.csv?v=' + new Date().getTime())
+    fetch(`/templates.csv?v=${new Date().getTime()}`)
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
           header: true, skipEmptyLines: true, transformHeader: (h) => h.trim(),
           complete: (results: any) => {
             const newDb: Record<string, any> = {};
-            const data = results.data as any[];
-            data.forEach((row: any) => {
-              if (row['Template ID']) newDb[row['Template ID']] = row;
-            });
+            results.data.forEach((row: any) => { if (row['Template ID']) newDb[row['Template ID']] = row; });
             setRawDatabase(newDb);
-            if (data.length > 0) {
-              setSelectedTemplate(data[0]['Template ID']);
-              setActiveRow(data[0]);
-            }
+            if (results.data[0]) { setSelectedTemplate(results.data[0]['Template ID']); setActiveRow(results.data[0]); }
           }
         });
       });
   }, []);
 
-  const templateKeys = Object.keys(rawDatabase);
-
-  const activePhotos = useMemo(() => {
-    const photos = tradePhotos[selectedTrade] || tradePhotos['plumbing'];
-    return [...photos].sort(() => 0.5 - Math.random());
-  }, [selectedTrade]);
-
-  const handleTemplateChange = (e: any) => {
-    const id = e.target.value;
-    setSelectedTemplate(id);
-    setActiveRow(rawDatabase[id]);
-  };
-
   const updateCoordinate = (zoneName: string, index: number, newValue: any) => {
-    if (!activeRow[zoneName]) return;
     const parts = activeRow[zoneName].split(',').map((s: string) => s.trim());
     parts[index] = newValue.toString();
     setActiveRow({ ...activeRow, [zoneName]: parts.join(', ') });
   };
 
   const getCoordinate = (zoneName: string, index: number) => {
-    if (!activeRow || !activeRow[zoneName]) return 0;
     const parts = activeRow[zoneName].split(',').map((s: string) => s.trim());
-    if (index === 4) return parseInt(parts[index]) || 0; // Font Size
-    return parseFloat(parts[index]) || 0;
+    return index === 4 ? parseInt(parts[index]) || 30 : parseFloat(parts[index]) || 0;
   };
 
-  const generateOutputCsv = () => {
-    if (!activeRow) return '';
-    const rowString = CSV_COLUMNS.map(col => {
-      let val = activeRow[col] || '';
-      if (val.includes(',')) return `"${val}"`;
-      return val;
-    }).join(',');
-    return rowString;
-  };
-
-  if (templateKeys.length === 0 || !activeRow) {
-    return <div className="p-12 text-center text-xl font-bold">Loading templates from CSV...</div>;
-  }
+  if (!activeRow) return <div className="p-12 text-center font-bold">Loading...</div>;
 
   return (
     <main className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-[1600px] mx-auto bg-white p-8 rounded-2xl shadow-xl border-2 border-slate-900">
-        
-        <div className="flex flex-col lg:flex-row gap-6 mb-8 border-b-2 border-slate-200 pb-6">
-          <div className="flex-1">
-            <h1 className="text-3xl font-black uppercase italic tracking-tighter text-slate-900">Visual Nudge Tool</h1>
-            <p className="text-slate-600 font-medium">Align text and adjust font sizes, then copy the generated CSV row.</p>
-          </div>
-          <div className="flex gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase">Test Trade</label>
-              <select value={selectedTrade} onChange={(e) => setSelectedTrade(e.target.value)} className="border-2 border-slate-300 p-2 rounded-lg font-bold">
-                {Object.keys(tradePhotos).map(t => <option key={t} value={t}>{t.toUpperCase()}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase">Template</label>
-              <select value={selectedTemplate} onChange={handleTemplateChange} className="border-2 border-slate-900 bg-slate-900 text-white p-2 rounded-lg font-bold">
-                {templateKeys.map(k => <option key={k} value={k}>{k}</option>)}
-              </select>
-            </div>
-          </div>
+        <div className="flex justify-between mb-8 border-b pb-4">
+          <h1 className="text-3xl font-black uppercase italic tracking-tighter">Visual Nudge Tool</h1>
+          <select value={selectedTemplate} onChange={(e) => { setSelectedTemplate(e.target.value); setActiveRow(rawDatabase[e.target.value]); }} className="border-2 border-slate-900 bg-slate-900 text-white p-2 rounded-lg font-bold">
+            {Object.keys(rawDatabase).map(k => <option key={k} value={k}>{k}</option>)}
+          </select>
         </div>
-        
-        <div className="flex flex-col lg:flex-row gap-12">
-          <div className="flex-1 lg:max-w-[800px]">
-            <div className="sticky top-10">
-              <LiveTemplate 
-                data={DUMMY_DATA} fieldName={selectedTrade.toUpperCase()} 
-                photoUrl={activePhotos[0]} photoUrl2={activePhotos[1] || activePhotos[0]}
-                configKey={selectedTemplate} configRow={activeRow} 
-              />
-            </div>
+        <div className="flex gap-12">
+          <div className="flex-1 max-w-[800px]">
+            <LiveTemplate data={DUMMY_DATA} photoUrl={tradePhotos.plumbing[0]} configKey={selectedTemplate} configRow={activeRow} />
           </div>
-
-          <div className="flex-1 flex flex-col gap-6">
-            <h2 className="text-xl font-bold border-b pb-2">Nudge & Size</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {EDITABLE_ZONES.map(zone => {
-                if (!activeRow[zone]) return null;
-                const x = getCoordinate(zone, 0);
-                const y = getCoordinate(zone, 1);
-                const w = getCoordinate(zone, 2);
-                const h = getCoordinate(zone, 3);
-                const size = getCoordinate(zone, 4);
-                
-                return (
-                  <div key={zone} className="bg-slate-100 p-4 rounded-xl border border-slate-200">
-                    <h3 className="font-bold text-slate-800 uppercase text-sm mb-3">{zone}</h3>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                      {/* X/Y Nudge */}
-                      <div>
-                        <span className="text-[10px] text-slate-500 font-black uppercase">X (Left/Right)</span>
-                        <div className="flex items-center gap-1 mt-1">
-                          <button onClick={() => updateCoordinate(zone, 0, x - 2)} className="bg-slate-300 w-6 h-6 rounded text-xs font-bold hover:bg-slate-400">-</button>
-                          <input type="number" value={x} onChange={e => updateCoordinate(zone, 0, parseFloat(e.target.value) || 0)} className="w-full text-center p-1 rounded border font-mono text-xs" />
-                          <button onClick={() => updateCoordinate(zone, 0, x + 2)} className="bg-slate-300 w-6 h-6 rounded text-xs font-bold hover:bg-slate-400">+</button>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-slate-500 font-black uppercase">Y (Up/Down)</span>
-                        <div className="flex items-center gap-1 mt-1">
-                          <button onClick={() => updateCoordinate(zone, 1, y - 2)} className="bg-slate-300 w-6 h-6 rounded text-xs font-bold hover:bg-slate-400">-</button>
-                          <input type="number" value={y} onChange={e => updateCoordinate(zone, 1, parseFloat(e.target.value) || 0)} className="w-full text-center p-1 rounded border font-mono text-xs" />
-                          <button onClick={() => updateCoordinate(zone, 1, y + 2)} className="bg-slate-300 w-6 h-6 rounded text-xs font-bold hover:bg-slate-400">+</button>
-                        </div>
-                      </div>
-                      
-                      {/* Width/Size Nudge */}
-                      <div>
-                        <span className="text-[10px] text-slate-500 font-black uppercase">Box Width</span>
-                        <div className="flex items-center gap-1 mt-1">
-                          <button onClick={() => updateCoordinate(zone, 2, w - 5)} className="bg-slate-300 w-6 h-6 rounded text-xs font-bold hover:bg-slate-400">-</button>
-                          <input type="number" value={w} onChange={e => updateCoordinate(zone, 2, parseFloat(e.target.value) || 0)} className="w-full text-center p-1 rounded border font-mono text-xs" />
-                          <button onClick={() => updateCoordinate(zone, 2, w + 5)} className="bg-slate-300 w-6 h-6 rounded text-xs font-bold hover:bg-slate-400">+</button>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-blue-600 font-black uppercase underline">Font Size (px)</span>
-                        <div className="flex items-center gap-1 mt-1">
-                          <button onClick={() => updateCoordinate(zone, 4, `${size - 1}px`)} className="bg-blue-200 w-6 h-6 rounded text-xs font-bold hover:bg-blue-300 text-blue-800">-</button>
-                          <input type="number" value={size} onChange={e => updateCoordinate(zone, 4, `${parseInt(e.target.value) || 0}px`)} className="w-full text-center p-1 rounded border border-blue-300 font-mono text-xs font-bold text-blue-900 bg-blue-50" />
-                          <button onClick={() => updateCoordinate(zone, 4, `${size + 1}px`)} className="bg-blue-200 w-6 h-6 rounded text-xs font-bold hover:bg-blue-300 text-blue-800">+</button>
-                        </div>
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {EDITABLE_ZONES.map(zone => (
+              <div key={zone} className="bg-slate-100 p-4 rounded-xl border">
+                <h3 className="font-bold text-sm mb-3">{zone}</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {['X', 'Y', 'W', 'H', 'Size'].map((label, i) => (
+                    <div key={label}>
+                      <span className="text-[10px] font-black uppercase text-slate-500">{label}</span>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => updateCoordinate(zone, i, (getCoordinate(zone, i) - (i === 4 ? 1 : 2)) + (i === 4 ? 'px' : ''))} className="bg-slate-300 w-6 h-6 rounded text-xs">-</button>
+                        <input type="number" value={getCoordinate(zone, i)} onChange={e => updateCoordinate(zone, i, e.target.value + (i === 4 ? 'px' : ''))} className="w-full text-center p-1 rounded border text-xs" />
+                        <button onClick={() => updateCoordinate(zone, i, (getCoordinate(zone, i) + (i === 4 ? 1 : 2)) + (i === 4 ? 'px' : ''))} className="bg-slate-300 w-6 h-6 rounded text-xs">+</button>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-8 bg-slate-900 p-6 rounded-xl shadow-inner">
-              <h2 className="text-white font-bold mb-2 flex justify-between">
-                <span>Updated CSV Row</span>
-                <span className="text-slate-400 text-xs font-normal">Editing: {selectedTemplate}</span>
-              </h2>
-              <textarea readOnly value={generateOutputCsv()} className="w-full h-32 bg-slate-800 text-green-400 font-mono text-xs p-4 rounded-lg focus:outline-none" />
-              <button onClick={() => navigator.clipboard.writeText(generateOutputCsv())} className="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-colors">Copy Row to Clipboard</button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div className="col-span-2 mt-4 bg-slate-900 p-6 rounded-xl">
+              <textarea readOnly value={CSV_COLUMNS.map(col => activeRow[col]?.includes(',') ? `"${activeRow[col]}"` : activeRow[col]).join(',')} className="w-full h-24 bg-slate-800 text-green-400 font-mono text-xs p-4 rounded focus:outline-none" />
+              <button onClick={() => navigator.clipboard.writeText(CSV_COLUMNS.map(col => activeRow[col]?.includes(',') ? `"${activeRow[col]}"` : activeRow[col]).join(','))} className="w-full mt-4 bg-blue-600 text-white font-bold py-3 rounded hover:bg-blue-500">Copy New CSV Row</button>
             </div>
           </div>
         </div>
