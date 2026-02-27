@@ -34,9 +34,11 @@ const parseZone = (csvString: any) => {
       fontWeight: parts[6] || '400', 
       fontStyle: parts[7] || 'normal', 
       fontFamily: parts[8] || 'Anton',
-      lineHeight: '1',
+      lineHeight: '1.1',
       display: 'flex',
-      alignItems: 'center'
+      alignItems: 'center',
+      overflow: 'visible',
+      whiteSpace: 'nowrap'
     }
   };
 };
@@ -82,7 +84,7 @@ const LiveTemplate = ({ data, fieldName, photoUrl, configKey, configRow }: any) 
           { conf: zones.location, text: 'LOCAL AREA' },
           ...zones.services.map(s => ({ conf: s, text: '✓ SERVICE' }))
         ].map((item, i) => item.conf && (
-          <foreignObject key={i} x={item.conf.x} y={item.conf.y} width={item.conf.width} height={item.conf.height}>
+          <foreignObject key={i} x={item.conf.x} y={item.conf.y} width={item.conf.width} height={item.conf.height} style={{ overflow: 'visible' }}>
             <div className="w-full h-full flex items-center border-2 border-red-500 bg-red-500/20 uppercase" style={item.conf.style}>
               {item.text}
             </div>
