@@ -6,12 +6,16 @@ import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
 
-// FIXED: Added a second high-res photo for plumbing
+// Expanded asset library to ensure we always have images
 const tradePhotos: Record<string, string[]> = { 
   plumbing: [
     'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=1200&q=90',
-    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=90'
-  ] 
+    'https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?auto=format&fit=crop&w=1200&q=90'
+  ],
+  default: [
+    'https://images.unsplash.com/photo-1581578731117-104f2a863a39?auto=format&fit=crop&w=1200&q=90',
+    'https://images.unsplash.com/photo-1521207418485-99c705420785?auto=format&fit=crop&w=1200&q=90'
+  ]
 };
 
 const parseZone = (csvString: any) => {
@@ -43,38 +47,41 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
     services: [parseZone(rawConfig['Service 1']), parseZone(rawConfig['Service 2']), parseZone(rawConfig['Service 3']), parseZone(rawConfig['Service 4'])]
   };
 
-  const tradeWords = (data.businessName || "").split(' ');
-  const firstWord = tradeWords[0] || "PROFESSIONAL";
-  const remainingWords = tradeWords.slice(1).join(' ') || "SERVICES";
+  const firstWord = (data.businessName || "").split(' ')[0] || "PROFESSIONAL";
+  const remainingWords = (data.businessName || "").split(' ').slice(1).join(' ') || "SERVICES";
 
-  // CLIPPING LOGIC
+  // Robust Image Selection
+  const tradeKey = Object.keys(tradePhotos).find(k => data.field?.toLowerCase().includes(k)) || 'default';
+  const photos = tradePhotos[tradeKey];
+  const img1 = photos[0];
+  const img2 = photos[1] || photos[0];
+
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
-  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
-
-  // PHOTO SELECTION LOGIC
-  const photos = tradePhotos.plumbing; 
-  const img1 = photos[0];
-  const img2 = photos[1] || photos[0]; // Fallback to first photo if second doesn't exist
+  
+  // Stronger clipping for the circles
+  const clipStyle: any = isHex 
+    ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } 
+    : isCircle ? { borderRadius: '1000px', overflow: 'hidden', WebkitMaskImage: '-webkit-radial-gradient(white, black)' } : {};
 
   return (
     <div id={id} className="relative w-full bg-white shadow-2xl overflow-hidden rounded-sm">
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
         
-        {/* MAIN PHOTO */}
+        {/* PHOTO 1 */}
         {zones.photo && (
           <foreignObject x={zones.photo.x} y={zones.photo.y} width={zones.photo.width} height={zones.photo.height}>
-            <div style={{ width: '100%', height: '100%', ...clip }}>
+            <div style={{ width: '100%', height: '100%', ...clipStyle }}>
               <img src={img1} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
 
-        {/* FIXED: SECOND PHOTO HOLE RENDERING */}
+        {/* PHOTO 2 */}
         {zones.photo2 && (
           <foreignObject x={zones.photo2.x} y={zones.photo2.y} width={zones.photo2.width} height={zones.photo2.height}>
-            <div style={{ width: '100%', height: '100%', ...clip }}>
+            <div style={{ width: '100%', height: '100%', ...clipStyle }}>
               <img src={img2} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
@@ -117,13 +124,10 @@ export default function PreviewPage() {
       <main className="min-h-screen bg-slate-50 py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 bg-white p-6 border-2 border-slate-900 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <button onClick={() => setShowPreview(false)} className="bg-slate-100 font-bold py-2 px-6 rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors">← Back to Form</button>
-            <div className="flex items-center gap-4">
-               <span className="text-xs font-black uppercase text-slate-400 tracking-widest">Theme:</span>
-               <select value={formData.themeColor} onChange={(e) => setFormData({...formData, themeColor: e.target.value})} className="bg-slate-900 text-white font-bold py-2 px-6 rounded-lg outline-none cursor-pointer">
-                {THEME_COLORS.map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
-              </select>
-            </div>
+            <button onClick={() => setShowPreview(false)} className="bg-slate-100 font-bold py-2 px-6 rounded-lg border border-slate-200 hover:bg-slate-200 transition-colors">← Edit</button>
+            <select value={formData.themeColor} onChange={(e) => setFormData({...formData, themeColor: e.target.value})} className="bg-slate-900 text-white font-bold py-2 px-6 rounded-lg outline-none">
+              {THEME_COLORS.map(c => <option key={c} value={c}>{c.toUpperCase()} THEME</option>)}
+            </select>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {['circle', 'square', 'hex'].map(shape => {
@@ -139,7 +143,7 @@ export default function PreviewPage() {
                     link.href = url;
                     link.click();
                   }
-                }} className="w-full bg-slate-900 text-white font-black py-5 rounded-xl uppercase tracking-widest hover:bg-blue-600 transition-all shadow-lg active:translate-y-1 text-center">
+                }} className="w-full bg-slate-900 text-white font-black py-5 rounded-xl uppercase tracking-widest hover:bg-blue-600 transition-all text-center">
                   Download {shape}
                 </button>
               </div>
@@ -153,46 +157,20 @@ export default function PreviewPage() {
   return (
     <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
       <div className="bg-white max-w-2xl w-full p-10 rounded-3xl border-2 border-slate-900 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900">Aretifi Studio</h1>
-          <p className="text-slate-500 font-bold uppercase text-xs tracking-[0.2em] mt-2">Commercial Flyer Engine</p>
-        </div>
-        
+        <h1 className="text-4xl font-black uppercase text-center mb-10 tracking-tighter italic">Aretifi Studio</h1>
         <form onSubmit={(e) => { e.preventDefault(); setShowPreview(true); }} className="space-y-6">
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Business Name</label>
-            <input required placeholder="Apex Plumbing" className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold focus:border-slate-900 outline-none" onChange={e => setFormData({...formData, businessName: e.target.value})} />
-          </div>
-
+          <input required placeholder="Business Name" className="w-full border-2 p-4 rounded-xl font-bold focus:border-slate-900 outline-none" onChange={e => setFormData({...formData, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Trade</label>
-              <input required placeholder="Plumbing" className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold focus:border-slate-900 outline-none" onChange={e => setFormData({...formData, field: e.target.value})} />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Phone</label>
-              <input required placeholder="555-0123" className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold focus:border-slate-900 outline-none" onChange={e => setFormData({...formData, phone: e.target.value})} />
-            </div>
+            <input required placeholder="Trade (Plumbing)" className="w-full border-2 p-4 rounded-xl font-bold focus:border-slate-900 outline-none" onChange={e => setFormData({...formData, field: e.target.value})} />
+            <input required placeholder="Phone Number" className="w-full border-2 p-4 rounded-xl font-bold focus:border-slate-900 outline-none" onChange={e => setFormData({...formData, phone: e.target.value})} />
           </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Services</label>
-            <div className="grid grid-cols-2 gap-4">
-              <input required placeholder="Service 1" className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service1: e.target.value})} />
-              <input required placeholder="Service 2" className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service2: e.target.value})} />
-              <input placeholder="Service 3" className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service3: e.target.value})} />
-              <input placeholder="Service 4" className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service4: e.target.value})} />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <input required placeholder="Service 1" className="w-full border-2 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service1: e.target.value})} />
+            <input required placeholder="Service 2" className="w-full border-2 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service2: e.target.value})} />
+            <input placeholder="Service 3" className="w-full border-2 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service3: e.target.value})} />
+            <input placeholder="Service 4" className="w-full border-2 p-4 rounded-xl font-bold" onChange={e => setFormData({...formData, service4: e.target.value})} />
           </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Color Theme</label>
-            <select value={formData.themeColor} onChange={(e) => setFormData({...formData, themeColor: e.target.value})} className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold bg-white focus:border-slate-900 outline-none">
-              {THEME_COLORS.map(c => <option key={c} value={c}>{c.toUpperCase()} EDITION</option>)}
-            </select>
-          </div>
-
-          <button type="submit" className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl uppercase tracking-[0.2em] shadow-lg hover:bg-slate-800 transition-all active:translate-y-1 mt-4">
+          <button type="submit" className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl uppercase tracking-widest shadow-lg hover:bg-slate-800 transition-all mt-4">
             Generate Layouts
           </button>
         </form>
