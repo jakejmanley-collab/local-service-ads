@@ -193,7 +193,7 @@ export default function TestTemplatesPage() {
   const [selectedTrade, setSelectedTrade] = useState('plumbing');
   
   useEffect(() => {
-    fetch('/templates.csv')
+    fetch('/templates.csv?v=' + new Date().getTime())
       .then(res => res.text())
       .then(csvText => {
         Papa.parse(csvText, {
