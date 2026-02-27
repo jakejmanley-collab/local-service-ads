@@ -69,6 +69,10 @@ const tradePhotos: Record<string, string[]> = {
   concrete: [
     'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1590483861877-c9de32f8ebf9?auto=format&fit=crop&w=800&q=80'
+  ],
+  default: [
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80'
   ]
 };
 
@@ -157,15 +161,16 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
           </foreignObject>
         )}
         
+        {/* All flex and alignment hacks removed. Follows strict Canva X/Y top-left positioning. */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className={`w-full h-full flex items-center uppercase leading-none tracking-tighter ${debugClasses}`} style={headerTopConfig.style}>{firstWord}</div>
+            <div xmlns="http://www.w3.org/1999/xhtml" className={`w-full h-full uppercase tracking-tighter ${debugClasses}`} style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className={`w-full h-full flex items-center uppercase leading-none tracking-tighter ${debugClasses}`} style={headerBottomConfig.style}>{remainingWords}</div>
+            <div xmlns="http://www.w3.org/1999/xhtml" className={`w-full h-full uppercase tracking-tighter ${debugClasses}`} style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
@@ -174,14 +179,14 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className={`w-full h-full flex items-center uppercase leading-none ${debugClasses}`} style={sConf.style}>✓ {service}</div>
+              <div xmlns="http://www.w3.org/1999/xhtml" className={`w-full h-full uppercase ${debugClasses}`} style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className={`w-full h-full flex items-center leading-none ${debugClasses}`} style={phoneConfig.style}>{data.phone}</div>
+            <div xmlns="http://www.w3.org/1999/xhtml" className={`w-full h-full ${debugClasses}`} style={phoneConfig.style}>{data.phone}</div>
           </foreignObject>
         )}
         
