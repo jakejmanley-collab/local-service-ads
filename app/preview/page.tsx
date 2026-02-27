@@ -10,11 +10,13 @@ const parse = (val: string) => {
   if (!val || val.trim() === "") return null;
   const p = val.split(',').map(s => s.trim());
   if (p.length < 4) return null;
+  // FORCE NUMBERS: Ensures SVG doesn't barf on strings
   return {
     x: parseFloat(p[0]), y: parseFloat(p[1]), w: parseFloat(p[2]), h: parseFloat(p[3]),
     s: { 
       fontSize: p[4] || '30px', color: p[5] || '#000', fontWeight: p[6] || '400', 
-      fontFamily: p[8] || 'Anton', lineHeight: '1', whiteSpace: 'nowrap'
+      fontFamily: p[8] || 'Anton', lineHeight: '1', whiteSpace: 'nowrap',
+      display: 'flex', alignItems: 'center', width: '100%', height: '100%'
     }
   };
 };
@@ -39,48 +41,29 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
 
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
+  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
 
   return (
-    <div id={id} className="relative w-full bg-white shadow-xl">
+    <div id={id} className="relative w-full bg-white shadow-xl border border-slate-200">
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          {/* Native SVG Clipping - NO CSS REQUIRED */}
-          {isCircle && p1 && (
-            <clipPath id="clip1"><circle cx={p1.x + p1.w/2} cy={p1.y + p1.h/2} r={p1.w/2} /></clipPath>
-          )}
-          {isCircle && p2 && (
-            <clipPath id="clip2"><circle cx={p2.x + p2.w/2} cy={p2.y + p2.h/2} r={p2.w/2} /></clipPath>
-          )}
-          {isHex && (
-            <clipPath id="clipHex"><polygon points="540,0 1080,270 1080,810 540,1080 0,810 0,270" /></clipPath>
-          )}
-        </defs>
-
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
         
-        {/* IMAGE 1 */}
         {p1 && (
-          <image 
-            href="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800"
-            x={p1.x} y={p1.y} width={p1.w} height={p1.h}
-            preserveAspectRatio="xMidYMid slice"
-            clipPath={isCircle ? "url(#clip1)" : ""}
-            crossOrigin="anonymous"
-          />
+          <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
+            <div style={{ width: '100%', height: '100%', ...clip }}>
+              <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            </div>
+          </foreignObject>
         )}
 
-        {/* IMAGE 2 */}
         {p2 && (
-          <image 
-            href="https://images.unsplash.com/photo-1621905231727-07ea374aa53d?w=800"
-            x={p2.x} y={p2.y} width={p2.w} height={p2.h}
-            preserveAspectRatio="xMidYMid slice"
-            clipPath={isCircle ? "url(#clip2)" : ""}
-            crossOrigin="anonymous"
-          />
+          <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
+            <div style={{ width: '100%', height: '100%', ...clip }}>
+              <img src="https://images.unsplash.com/photo-1621905231727-07ea374aa53d?w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+            </div>
+          </foreignObject>
         )}
 
-        {/* TEXT FIELDS - Fixed alignment via dominant-baseline */}
         {[
           { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
           { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
@@ -88,21 +71,9 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
           { c: s3, t: data.service3 ? `✓ ${data.service3}` : '' },
           { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }
         ].map((item, i) => item.c && item.t && (
-          <text 
-            key={i} 
-            x={item.c.x} 
-            y={item.c.y + (item.c.h / 2)} 
-            fill={item.c.s.color}
-            style={{ 
-              fontSize: item.c.s.fontSize, 
-              fontFamily: item.c.s.fontFamily, 
-              fontWeight: item.c.s.fontWeight,
-              textTransform: 'uppercase'
-            }}
-            dominantBaseline="central"
-          >
-            {item.t}
-          </text>
+          <foreignObject key={i} x={item.c.x} y={item.c.y} width={item.c.w} height={item.c.h} style={{ overflow: 'visible' }}>
+            <div style={item.c.s} className="uppercase">{item.t}</div>
+          </foreignObject>
         ))}
       </svg>
     </div>
@@ -116,12 +87,12 @@ export default function PreviewPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem('flyer_form_data');
-    if (saved) setForm(prev => ({ ...prev, ...JSON.parse(saved) }));
+    if (saved) setForm(JSON.parse(saved));
     fetch(`/templates.csv?v=${Date.now()}`).then(r => r.text()).then(txt => {
       Papa.parse(txt, { header: false, skipEmptyLines: true, complete: (res) => {
-        const map: Record<string, any> = {};
-        res.data.forEach((r: any) => { if (r[0] && r[0] !== 'Template ID') map[r[0]] = r; });
-        setDb(map);
+          const map: Record<string, any> = {};
+          res.data.forEach((r: any) => { if (r[0] && r[0] !== 'Template ID') map[r[0]] = r; });
+          setDb(map);
       }});
     });
   }, []);
@@ -130,7 +101,7 @@ export default function PreviewPage() {
 
   if (show) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8 text-slate-900 font-sans">
+      <main className="min-h-screen bg-slate-50 p-8 text-slate-900">
         <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Back</button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
@@ -152,7 +123,7 @@ export default function PreviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900 font-sans">
+    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900">
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
         <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
