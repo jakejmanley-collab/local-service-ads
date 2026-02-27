@@ -99,7 +99,7 @@ const parseZone = (csvString: any) => {
   };
 };
 
-const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, rawDatabase }: any) => {
+const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, rawDatabase, isDebug }: any) => {
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
 
@@ -133,6 +133,8 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
       ? { borderRadius: '50%', overflow: 'hidden' } 
       : {};
 
+  const debugClasses = isDebug ? "border-2 border-red-500 bg-red-500/20" : "";
+
   return (
     <div id={id} className="relative w-full bg-white overflow-hidden shadow-2xl border-4 border-slate-200">
       <svg viewBox={viewBoxStr} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
@@ -157,13 +159,13 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
         
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
+            <div className={`w-full h-full flex items-center uppercase leading-none tracking-tighter ${debugClasses}`} style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
+            <div className={`w-full h-full flex items-center uppercase leading-none tracking-tighter ${debugClasses}`} style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
@@ -172,14 +174,14 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className="w-full h-full flex items-center uppercase leading-none" style={sConf.style}>✓ {service}</div>
+              <div className={`w-full h-full flex items-center uppercase leading-none ${debugClasses}`} style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full h-full flex items-center leading-none" style={phoneConfig.style}>{data.phone}</div>
+            <div className={`w-full h-full flex items-center leading-none ${debugClasses}`} style={phoneConfig.style}>{data.phone}</div>
           </foreignObject>
         )}
         
@@ -191,6 +193,7 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
 export default function TestTemplatesPage() {
   const [rawDatabase, setRawDatabase] = useState<Record<string, any>>({});
   const [selectedTrade, setSelectedTrade] = useState('plumbing');
+  const [isDebug, setIsDebug] = useState(false);
   
   useEffect(() => {
     fetch('/templates.csv?v=' + new Date().getTime())
@@ -229,6 +232,12 @@ export default function TestTemplatesPage() {
           <div>
             <h1 className="text-4xl font-black uppercase italic tracking-tighter text-slate-900">Template Test Dashboard</h1>
             <p className="text-slate-600 mt-2 font-medium">Viewing {templateKeys.length} templates. Edit your CSV and refresh this page to see changes instantly.</p>
+            <button 
+              onClick={() => setIsDebug(!isDebug)}
+              className={`mt-4 px-4 py-2 font-bold rounded-lg transition-colors ${isDebug ? 'bg-red-500 text-white' : 'bg-slate-200 text-slate-900'}`}
+            >
+              {isDebug ? 'Hide Debug Boxes' : 'Show Debug Boxes'}
+            </button>
           </div>
           
           <div className="w-64">
@@ -258,7 +267,8 @@ export default function TestTemplatesPage() {
                 photoUrl={activePhotos[0]} 
                 photoUrl2={activePhotos[1] || activePhotos[0]}
                 configKey={key} 
-                rawDatabase={rawDatabase} 
+                rawDatabase={rawDatabase}
+                isDebug={isDebug}
               />
             </div>
           ))}
