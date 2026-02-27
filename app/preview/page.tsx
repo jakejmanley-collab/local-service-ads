@@ -17,9 +17,9 @@ const parse = (val: string) => {
       color: p[5] || '#000', 
       fontWeight: p[6] || '400', 
       fontFamily: p[8] || 'Anton',
-      lineHeight: '1', // Restored to your original baseline
+      lineHeight: '1',
       whiteSpace: 'nowrap',
-      display: 'block' // Removed Flexbox to stop alignment shifts
+      display: 'block'
     }
   };
 };
@@ -91,7 +91,7 @@ export default function PreviewPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem('flyer_form_data');
-    if (saved) setForm(JSON.parse(saved));
+    if (saved) setForm(prev => ({ ...prev, ...JSON.parse(saved) }));
 
     fetch(`/templates.csv?v=${Date.now()}`).then(r => r.text()).then(txt => {
       Papa.parse(txt, { header: false, skipEmptyLines: true, complete: (res) => {
@@ -133,7 +133,7 @@ export default function PreviewPage() {
     <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900 font-sans">
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
-        <form onSubmit={(e) => { e.preventDefault(); setShowPreview(true); }} className="space-y-4">
+        <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
             <input value={form.field} required placeholder="Trade" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
