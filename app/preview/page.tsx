@@ -67,7 +67,10 @@ const parseZone = (csvString: any) => {
       color: color, 
       fontWeight: parts[6] || '400', 
       fontStyle: parts[7] || 'normal', 
-      fontFamily: parts[8] || 'Anton' 
+      fontFamily: parts[8] || 'Anton',
+      lineHeight: '1', // FORCE NO EXTRA SPACE
+      display: 'flex',
+      alignItems: 'center' // FORCE VERTICAL CENTERING
     }
   };
 };
@@ -76,18 +79,21 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
   const rawConfig = rawDatabase[configKey];
   if (!rawConfig) return null;
 
-  const photoConfig = parseZone(rawConfig['Photo Hole']);
-  const photoConfig2 = parseZone(rawConfig['Photo Hole 2']);
-  const headerTopConfig = parseZone(rawConfig['Header Top']);
-  const headerBottomConfig = parseZone(rawConfig['Header Bottom']);
-  const phoneConfig = parseZone(rawConfig['Phone']);
-  
-  const serviceConfigs = [
-    parseZone(rawConfig['Service 1']), 
-    parseZone(rawConfig['Service 2']),
-    parseZone(rawConfig['Service 3']), 
-    parseZone(rawConfig['Service 4'])
-  ];
+  const zones = {
+    photo: parseZone(rawConfig['Photo Hole']),
+    photo2: parseZone(rawConfig['Photo Hole 2']),
+    headerTop: parseZone(rawConfig['Header Top']),
+    headerBottom: parseZone(rawConfig['Header Bottom']),
+    phone: parseZone(rawConfig['Phone']),
+    website: parseZone(rawConfig['Website']),
+    location: parseZone(rawConfig['Location']),
+    services: [
+      parseZone(rawConfig['Service 1']), 
+      parseZone(rawConfig['Service 2']),
+      parseZone(rawConfig['Service 3']), 
+      parseZone(rawConfig['Service 4'])
+    ]
+  };
 
   const mainTitle = data.businessName || data.field || 'PROFESSIONAL';
   const tradeWords = mainTitle.split(' ');
@@ -109,47 +115,59 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
       <svg viewBox={viewBoxStr} className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" preserveAspectRatio="xMidYMid slice" />
         
-        {photoConfig && (
-          <foreignObject x={photoConfig.x} y={photoConfig.y} width={photoConfig.width} height={photoConfig.height}>
+        {zones.photo && (
+          <foreignObject x={zones.photo.x} y={zones.photo.y} width={zones.photo.width} height={zones.photo.height}>
             <div style={{ width: '100%', height: '100%', ...clipStyle }}>
               <img src={photoUrl} alt="Trade 1" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
 
-        {photoConfig2 && (
-          <foreignObject x={photoConfig2.x} y={photoConfig2.y} width={photoConfig2.width} height={photoConfig2.height}>
+        {zones.photo2 && (
+          <foreignObject x={zones.photo2.x} y={zones.photo2.y} width={zones.photo2.width} height={zones.photo2.height}>
             <div style={{ width: '100%', height: '100%', ...clipStyle }}>
               <img src={photoUrl2} alt="Trade 2" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
         
-        {headerTopConfig && (
-          <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
+        {zones.headerTop && (
+          <foreignObject x={zones.headerTop.x} y={zones.headerTop.y} width={zones.headerTop.width} height={zones.headerTop.height}>
+            <div className="w-full h-full flex items-center uppercase tracking-tighter" style={zones.headerTop.style}>{firstWord}</div>
           </foreignObject>
         )}
         
-        {headerBottomConfig && (
-          <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
+        {zones.headerBottom && (
+          <foreignObject x={zones.headerBottom.x} y={zones.headerBottom.y} width={zones.headerBottom.width} height={zones.headerBottom.height}>
+            <div className="w-full h-full flex items-center uppercase tracking-tighter" style={zones.headerBottom.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
         {data.services.slice(0, 4).map((service: string, index: number) => {
-          const sConf = serviceConfigs[index];
+          const sConf = zones.services[index];
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className="w-full h-full flex items-center uppercase leading-none" style={sConf.style}>✓ {service}</div>
+              <div className="w-full h-full flex items-center uppercase" style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
-        {phoneConfig && (
-          <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full h-full flex items-center leading-none" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
+        {zones.phone && (
+          <foreignObject x={zones.phone.x} y={zones.phone.y} width={zones.phone.width} height={zones.phone.height}>
+            <div className="w-full h-full flex items-center" style={zones.phone.style}>{data.phone || '555-0123'}</div>
+          </foreignObject>
+        )}
+
+        {zones.website && (
+          <foreignObject x={zones.website.x} y={zones.website.y} width={zones.website.width} height={zones.website.height}>
+            <div className="w-full h-full flex items-center" style={zones.website.style}>WWW.ARETIFI.COM</div>
+          </foreignObject>
+        )}
+
+        {zones.location && (
+          <foreignObject x={zones.location.x} y={zones.location.y} width={zones.location.width} height={zones.location.height}>
+            <div className="w-full h-full flex items-center font-bold" style={zones.location.style}>LOCAL SERVICE AREA</div>
           </foreignObject>
         )}
       </svg>
@@ -164,12 +182,10 @@ export default function PreviewPage() {
   });
   const [showPreview, setShowPreview] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  
   const [selectedPhoto, setSelectedPhoto] = useState<string>('');
   const [selectedPhoto2, setSelectedPhoto2] = useState<string>('');
 
   useEffect(() => {
-    // Cache buster forces fresh CSV load
     fetch(`/templates.csv?v=${new Date().getTime()}`)
       .then(res => res.text())
       .then(csvText => {
