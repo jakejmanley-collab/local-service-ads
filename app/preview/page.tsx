@@ -66,10 +66,6 @@ const tradePhotos: Record<string, string[]> = {
   concrete: [
     'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1590483861877-c9de32f8ebf9?auto=format&fit=crop&w=800&q=80'
-  ],
-  default: [
-    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1541888087519-9ee146f8fb01?auto=format&fit=crop&w=800&q=80'
   ]
 };
 
@@ -158,13 +154,13 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
         
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={headerTopConfig.style}>{firstWord}</div>
+            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={headerBottomConfig.style}>{remainingWords}</div>
+            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
@@ -173,14 +169,14 @@ const MasterTemplate = ({ id, data, photoUrl, photoUrl2, configKey, rawDatabase 
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={sConf.style}>✓ {service}</div>
+              <div className="w-full h-full flex items-center uppercase leading-none" style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full h-full flex items-start leading-none pt-1" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
+            <div className="w-full h-full flex items-center leading-none" style={phoneConfig.style}>{data.phone || '555-0123'}</div>
           </foreignObject>
         )}
       </svg>
@@ -200,7 +196,6 @@ export default function PreviewPage() {
   const [selectedPhoto2, setSelectedPhoto2] = useState<string>('');
 
   useEffect(() => {
-    // Cache buster appended to fetch
     fetch('/templates.csv?v=' + new Date().getTime())
       .then(res => res.text())
       .then(csvText => {
@@ -264,7 +259,6 @@ export default function PreviewPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {shapes.map((shape) => {
-              // Now pointing to exact file name without -url
               const configKey = `${shape}-${formData.themeColor}`;
               const elementId = `flyer-${shape}`;
               const isDownloadingThis = downloadingId === elementId;
