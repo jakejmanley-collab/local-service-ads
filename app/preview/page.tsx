@@ -58,7 +58,6 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
           </foreignObject>
         )}
 
-        {/* DEBUG MODE: If p2 exists, it will have a bright pink border to show us where it is */}
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
             <div style={{ width: '100%', height: '100%', border: '4px solid #ff00ff', boxSizing: 'border-box', ...clip }}>
@@ -85,10 +84,18 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
 
 export default function PreviewPage() {
   const [db, setDb] = useState<Record<string, any>>({});
-  const [form, setForm] = useState({ businessName: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
+  const [form, setForm] = useState({ 
+    businessName: '', 
+    field: '', 
+    phone: '', 
+    service1: '', 
+    service2: '', 
+    service3: '', 
+    service4: '', 
+    themeColor: 'red' 
+  });
   const [show, setShow] = useState(false);
 
-  // PERSISTENCE: Load from local storage on mount
   useEffect(() => {
     const saved = localStorage.getItem('flyer_form_data');
     if (saved) setForm(JSON.parse(saved));
@@ -102,7 +109,6 @@ export default function PreviewPage() {
     });
   }, []);
 
-  // PERSISTENCE: Save to local storage on change
   useEffect(() => {
     localStorage.setItem('flyer_form_data', JSON.stringify(form));
   }, [form]);
@@ -136,7 +142,10 @@ export default function PreviewPage() {
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
         <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
-          <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
+          <div className="grid grid-cols-2 gap-4">
+            <input value={form.field} required placeholder="Business Type (e.g. Plumbing)" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <input value={form.service1} required placeholder="Service 1" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service1: e.target.value})} />
             <input value={form.service2} required placeholder="Service 2" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service2: e.target.value})} />
