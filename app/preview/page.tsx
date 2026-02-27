@@ -5,10 +5,12 @@ import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
+
+// FIXED: Added a second high-res photo for plumbing
 const tradePhotos: Record<string, string[]> = { 
   plumbing: [
     'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=1200&q=90',
-    'https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?auto=format&fit=crop&w=1200&q=90'
+    'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1200&q=90'
   ] 
 };
 
@@ -45,9 +47,15 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const firstWord = tradeWords[0] || "PROFESSIONAL";
   const remainingWords = tradeWords.slice(1).join(' ') || "SERVICES";
 
+  // CLIPPING LOGIC
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
   const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
+
+  // PHOTO SELECTION LOGIC
+  const photos = tradePhotos.plumbing; 
+  const img1 = photos[0];
+  const img2 = photos[1] || photos[0]; // Fallback to first photo if second doesn't exist
 
   return (
     <div id={id} className="relative w-full bg-white shadow-2xl overflow-hidden rounded-sm">
@@ -58,16 +66,16 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         {zones.photo && (
           <foreignObject x={zones.photo.x} y={zones.photo.y} width={zones.photo.width} height={zones.photo.height}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src={tradePhotos.plumbing[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              <img src={img1} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
 
-        {/* SECOND PHOTO HOLE */}
+        {/* FIXED: SECOND PHOTO HOLE RENDERING */}
         {zones.photo2 && (
           <foreignObject x={zones.photo2.x} y={zones.photo2.y} width={zones.photo2.width} height={zones.photo2.height}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src={tradePhotos.plumbing[1] || tradePhotos.plumbing[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
+              <img src={img2} style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
@@ -180,12 +188,12 @@ export default function PreviewPage() {
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Color Theme</label>
             <select value={formData.themeColor} onChange={(e) => setFormData({...formData, themeColor: e.target.value})} className="w-full border-2 border-slate-200 p-4 rounded-xl font-bold bg-white focus:border-slate-900 outline-none">
-              {THEME_COLORS.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)} Edition</option>)}
+              {THEME_COLORS.map(c => <option key={c} value={c}>{c.toUpperCase()} EDITION</option>)}
             </select>
           </div>
 
           <button type="submit" className="w-full bg-slate-900 text-white font-black py-5 rounded-2xl uppercase tracking-[0.2em] shadow-lg hover:bg-slate-800 transition-all active:translate-y-1 mt-4">
-            Preview Layouts
+            Generate Layouts
           </button>
         </form>
       </div>
