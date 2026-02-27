@@ -11,19 +11,10 @@ const parse = (val: string) => {
   const p = val.split(',').map(s => s.trim());
   if (p.length < 4) return null;
   return {
-    x: p[0], y: p[1], w: p[2], h: p[3],
+    x: parseFloat(p[0]), y: parseFloat(p[1]), w: parseFloat(p[2]), h: parseFloat(p[3]),
     s: { 
-      fontSize: p[4] || '30px', 
-      color: p[5] || '#000', 
-      fontWeight: p[6] || '400', 
-      fontFamily: p[8] || 'Anton',
-      lineHeight: '1',
-      whiteSpace: 'nowrap',
-      // SWITCHED TO GRID: Perfect centering without the Hex-wrap bug
-      display: 'grid',
-      placeItems: 'center start', 
-      width: '100%',
-      height: '100%'
+      fontSize: p[4] || '30px', color: p[5] || '#000', fontWeight: p[6] || '400', 
+      fontFamily: p[8] || 'Anton', lineHeight: '1', whiteSpace: 'nowrap'
     }
   };
 };
@@ -42,36 +33,54 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
   const s4 = parse(row[9]);
   const ph = parse(row[10]);
 
-  const name = data.businessName || "";
-  const words = name.split(' ');
+  const words = (data.businessName || "").split(' ');
   const first = words[0] || "PRO";
   const rest = words.slice(1).join(' ') || "SERVICES";
 
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
-  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
 
   return (
     <div id={id} className="relative w-full bg-white shadow-xl">
       <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          {/* Native SVG Clipping - NO CSS REQUIRED */}
+          {isCircle && p1 && (
+            <clipPath id="clip1"><circle cx={p1.x + p1.w/2} cy={p1.y + p1.h/2} r={p1.w/2} /></clipPath>
+          )}
+          {isCircle && p2 && (
+            <clipPath id="clip2"><circle cx={p2.x + p2.w/2} cy={p2.y + p2.h/2} r={p2.w/2} /></clipPath>
+          )}
+          {isHex && (
+            <clipPath id="clipHex"><polygon points="540,0 1080,270 1080,810 540,1080 0,810 0,270" /></clipPath>
+          )}
+        </defs>
+
         <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
         
+        {/* IMAGE 1 */}
         {p1 && (
-          <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
-            <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
-            </div>
-          </foreignObject>
+          <image 
+            href="https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800"
+            x={p1.x} y={p1.y} width={p1.w} height={p1.h}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={isCircle ? "url(#clip1)" : ""}
+            crossOrigin="anonymous"
+          />
         )}
 
+        {/* IMAGE 2 */}
         {p2 && (
-          <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
-            <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1621905231727-07ea374aa53d?w=800&q=80" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
-            </div>
-          </foreignObject>
+          <image 
+            href="https://images.unsplash.com/photo-1621905231727-07ea374aa53d?w=800"
+            x={p2.x} y={p2.y} width={p2.w} height={p2.h}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={isCircle ? "url(#clip2)" : ""}
+            crossOrigin="anonymous"
+          />
         )}
 
+        {/* TEXT FIELDS - Fixed alignment via dominant-baseline */}
         {[
           { c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone },
           { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' },
@@ -79,9 +88,21 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
           { c: s3, t: data.service3 ? `✓ ${data.service3}` : '' },
           { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }
         ].map((item, i) => item.c && item.t && (
-          <foreignObject key={i} x={item.c.x} y={item.c.y} width={item.c.w} height={item.c.h} style={{ overflow: 'visible' }}>
-            <div style={item.c.s}>{item.t}</div>
-          </foreignObject>
+          <text 
+            key={i} 
+            x={item.c.x} 
+            y={item.c.y + (item.c.h / 2)} 
+            fill={item.c.s.color}
+            style={{ 
+              fontSize: item.c.s.fontSize, 
+              fontFamily: item.c.s.fontFamily, 
+              fontWeight: item.c.s.fontWeight,
+              textTransform: 'uppercase'
+            }}
+            dominantBaseline="central"
+          >
+            {item.t}
+          </text>
         ))}
       </svg>
     </div>
@@ -96,19 +117,16 @@ export default function PreviewPage() {
   useEffect(() => {
     const saved = localStorage.getItem('flyer_form_data');
     if (saved) setForm(prev => ({ ...prev, ...JSON.parse(saved) }));
-
     fetch(`/templates.csv?v=${Date.now()}`).then(r => r.text()).then(txt => {
       Papa.parse(txt, { header: false, skipEmptyLines: true, complete: (res) => {
-          const map: Record<string, any> = {};
-          res.data.forEach((r: any) => { if (r[0] && r[0] !== 'Template ID') map[r[0]] = r; });
-          setDb(map);
+        const map: Record<string, any> = {};
+        res.data.forEach((r: any) => { if (r[0] && r[0] !== 'Template ID') map[r[0]] = r; });
+        setDb(map);
       }});
     });
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('flyer_form_data', JSON.stringify(form));
-  }, [form]);
+  useEffect(() => { localStorage.setItem('flyer_form_data', JSON.stringify(form)); }, [form]);
 
   if (show) {
     return (
