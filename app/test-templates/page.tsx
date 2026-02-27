@@ -155,16 +155,15 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
           </foreignObject>
         )}
         
-        {/* Adjusted items-start and leading-none to perfectly align top with Canva coordinates */}
         {headerTopConfig && (
           <foreignObject x={headerTopConfig.x} y={headerTopConfig.y} width={headerTopConfig.width} height={headerTopConfig.height}>
-            <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={headerTopConfig.style}>{firstWord}</div>
+            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerTopConfig.style}>{firstWord}</div>
           </foreignObject>
         )}
         
         {headerBottomConfig && (
           <foreignObject x={headerBottomConfig.x} y={headerBottomConfig.y} width={headerBottomConfig.width} height={headerBottomConfig.height}>
-            <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={headerBottomConfig.style}>{remainingWords}</div>
+            <div className="w-full h-full flex items-center uppercase leading-none tracking-tighter" style={headerBottomConfig.style}>{remainingWords}</div>
           </foreignObject>
         )}
         
@@ -173,14 +172,14 @@ const MasterTemplate = ({ id, data, fieldName, photoUrl, photoUrl2, configKey, r
           if (!sConf || !service) return null;
           return (
             <foreignObject key={index} x={sConf.x} y={sConf.y} width={sConf.width} height={sConf.height}>
-              <div className="w-full h-full flex items-start uppercase leading-none pt-1" style={sConf.style}>✓ {service}</div>
+              <div className="w-full h-full flex items-center uppercase leading-none" style={sConf.style}>✓ {service}</div>
             </foreignObject>
           );
         })}
         
         {phoneConfig && (
           <foreignObject x={phoneConfig.x} y={phoneConfig.y} width={phoneConfig.width} height={phoneConfig.height}>
-            <div className="w-full h-full flex items-start leading-none pt-1" style={phoneConfig.style}>{data.phone}</div>
+            <div className="w-full h-full flex items-center leading-none" style={phoneConfig.style}>{data.phone}</div>
           </foreignObject>
         )}
         
@@ -194,7 +193,6 @@ export default function TestTemplatesPage() {
   const [selectedTrade, setSelectedTrade] = useState('plumbing');
   
   useEffect(() => {
-    // Appended Cache Buster so it forces fetch of fresh CSV coordinates!
     fetch('/templates.csv?v=' + new Date().getTime())
       .then(res => res.text())
       .then(csvText => {
