@@ -17,9 +17,9 @@ const parse = (val: string) => {
       color: p[5] || '#000', 
       fontWeight: p[6] || '400', 
       fontFamily: p[8] || 'Anton',
-      lineHeight: '1', 
-      whiteSpace: 'nowrap', // STOPS THE SPLIT
-      overflow: 'visible'
+      lineHeight: '1', // Restored to your original baseline
+      whiteSpace: 'nowrap',
+      display: 'block' // Removed Flexbox to stop alignment shifts
     }
   };
 };
@@ -45,10 +45,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
 
   const isHex = configKey.includes('hex');
   const isCircle = configKey.includes('circle');
-  
-  const clip = isHex 
-    ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } 
-    : isCircle ? { borderRadius: '50%', overflow: 'hidden', WebkitMaskImage: '-webkit-radial-gradient(white, black)' } : {};
+  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
 
   return (
     <div id={id} className="relative w-full bg-white shadow-xl">
@@ -57,24 +54,16 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
-            <div style={{ width: '100%', height: '100%', position: 'relative', ...clip }}>
-              <img 
-                src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                crossOrigin="anonymous" 
-              />
+            <div style={{ width: '100%', height: '100%', ...clip }}>
+              <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
 
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
-            <div style={{ width: '100%', height: '100%', position: 'relative', border: '6px solid #ff00ff', boxSizing: 'border-box', ...clip }}>
-              <img 
-                src="https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?w=800" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                crossOrigin="anonymous" 
-              />
+            <div style={{ width: '100%', height: '100%', ...clip }}>
+              <img src="https://images.unsplash.com/photo-1607472586893-edb57cbce4ea?w=800" style={{ width: '100%', height: '100%', objectFit: 'cover' }} crossOrigin="anonymous" />
             </div>
           </foreignObject>
         )}
@@ -97,16 +86,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
 
 export default function PreviewPage() {
   const [db, setDb] = useState<Record<string, any>>({});
-  const [form, setForm] = useState({ 
-    businessName: '', 
-    field: '', 
-    phone: '', 
-    service1: '', 
-    service2: '', 
-    service3: '', 
-    service4: '', 
-    themeColor: 'red' 
-  });
+  const [form, setForm] = useState({ businessName: '', field: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -128,8 +108,8 @@ export default function PreviewPage() {
 
   if (show) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8 text-slate-900">
-        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic">← Back</button>
+      <main className="min-h-screen bg-slate-50 p-8 text-slate-900 font-sans">
+        <button onClick={() => setShow(false)} className="mb-8 bg-black text-white px-8 py-3 font-bold uppercase italic border-2 border-black">← Back</button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
@@ -150,10 +130,10 @@ export default function PreviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900">
+    <main className="min-h-screen bg-slate-100 flex items-center justify-center p-6 text-slate-900 font-sans">
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
-        <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
+        <form onSubmit={(e) => { e.preventDefault(); setShowPreview(true); }} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
             <input value={form.field} required placeholder="Trade" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
