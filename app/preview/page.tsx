@@ -51,7 +51,13 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: an
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src={photo1} className="w-full h-full object-cover" crossOrigin="anonymous" alt="Service 1" />
+              <img 
+                src={photo1} 
+                className="w-full h-full object-cover" 
+                crossOrigin="anonymous" 
+                alt="Service 1"
+                onError={(e) => { e.currentTarget.src = FALLBACK_1; }} 
+              />
             </div>
           </foreignObject>
         )}
@@ -59,7 +65,13 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: an
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src={photo2} className="w-full h-full object-cover" crossOrigin="anonymous" alt="Service 2" />
+              <img 
+                src={photo2} 
+                className="w-full h-full object-cover" 
+                crossOrigin="anonymous" 
+                alt="Service 2"
+                onError={(e) => { e.currentTarget.src = FALLBACK_2; }}
+              />
             </div>
           </foreignObject>
         )}
@@ -119,7 +131,7 @@ export default function PreviewPage() {
     localStorage.setItem('flyer_form_data', JSON.stringify(form));
   }, [form]);
 
-const handlePreview = async (e: React.FormEvent) => {
+  const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsFetching(true);
     
@@ -146,10 +158,6 @@ const handlePreview = async (e: React.FormEvent) => {
     setIsFetching(false);
     setShow(true);
   };
-    
-setIsFetching(false);
-    setShow(true);
-  }; // <--- This brace MUST be here to close handlePreview
 
   if (show) {
     return (
@@ -189,7 +197,7 @@ setIsFetching(false);
         <form onSubmit={handlePreview} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Trade (e.g. Landscaping)" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.field} required placeholder="Trade (e.g. Roofing)" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
             <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -202,7 +210,7 @@ setIsFetching(false);
             {THEME_COLORS.map(c => <option key={c} value={c}>{c} edition</option>)}
           </select>
           <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50">
-            {isFetching ? 'Fetching Photos...' : 'Preview'}
+            {isFetching ? 'Generating Photos...' : 'Preview'}
           </button>
         </form>
       </div>
