@@ -149,8 +149,8 @@ export default function PreviewPage() {
         <form onSubmit={handlePreview} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Trade" className="w-full border-4 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
-            <input value={form.phone} required placeholder="Phone" className="w-full border-4 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
+            <input value={form.field} required placeholder="Trade" className="w-full border-4 p-4 border-black font-bold uppercase placeholder:text-gray-400" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.phone} required placeholder="Phone" className="w-full border-4 p-4 border-black font-bold uppercase placeholder:text-gray-400" onChange={e => setForm({...form, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <input value={form.service1} required placeholder="Service 1" className="w-full border-4 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service1: e.target.value})} />
