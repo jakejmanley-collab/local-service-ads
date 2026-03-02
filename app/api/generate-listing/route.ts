@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// Ensure the API Key is loaded
+// We initialize without the 'v1beta' prefix to use the stable production API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
@@ -9,12 +9,13 @@ export async function POST(req: Request) {
     const { businessName, trade, services } = await req.json();
     
     if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: "API Key missing in Vercel" }, { status: 500 });
+      return NextResponse.json({ error: "API Key is missing from Vercel environment" }, { status: 500 });
     }
 
-    // Changing the model name to the most stable string
-    // 'gemini-1.5-flash' is correct, but 'gemini-1.5-flash-latest' often resolves 404s
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Using the 'latest' alias specifically to resolve 404/Not Found errors
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash-latest" 
+    });
 
     const prompt = `
       Write 3 distinct Facebook Marketplace listings for:
@@ -29,25 +30,22 @@ export async function POST(req: Request) {
       "tags": "tag1, tag2, tag3"
     `;
 
-    // Added a timeout/abort signal to prevent the "Hanging" issue
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
-    // Clean JSON extraction
+    // Improved Regex to handle potential AI chatter
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("AI Response was not JSON:", text);
-      throw new Error("AI returned text instead of data");
-    }
+    if (!jsonMatch) throw new Error("AI did not return valid JSON");
     
     return NextResponse.json(JSON.parse(jsonMatch[0]));
 
   } catch (error: any) {
-    console.error("Listing Gen Error Details:", error);
+    console.error("DETAILED_ERROR:", error.message);
+    // If it still fails, we want to know if it's still a 404 or a different error
     return NextResponse.json({ 
-      error: "Model connection error", 
-      details: error.message 
+      error: "Listing generation failed", 
+      message: error.message 
     }, { status: 500 });
   }
 }
