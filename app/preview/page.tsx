@@ -5,7 +5,6 @@ import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
-// Neutral, high-end abstract textures so it never clashes with the user's trade
 const FALLBACK_1 = "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800"; 
 const FALLBACK_2 = "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=800";
 
@@ -126,9 +125,10 @@ export default function PreviewPage() {
     
     let finalPhoto1 = null;
     let finalPhoto2 = null;
-    const query = encodeURIComponent(`${form.field} service`);
+    
+    // Removed " service" from the query to stop triggering call-center photos
+    const query = encodeURIComponent(form.field);
 
-    // 1. Try Pexels
     try {
       const pexelsRes = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=2&orientation=square`, {
         headers: { Authorization: process.env.NEXT_PUBLIC_PEXELS_API_KEY || '' }
@@ -143,7 +143,6 @@ export default function PreviewPage() {
       console.error("Pexels failed, moving to fallback API");
     }
 
-    // 2. Try Pixabay if Pexels missed any photos
     if (!finalPhoto1 || !finalPhoto2) {
       try {
         const pixabayRes = await fetch(`https://pixabay.com/api/?key=${process.env.NEXT_PUBLIC_PIXABAY_API_KEY}&q=${query}&image_type=photo&per_page=3`);
@@ -158,7 +157,6 @@ export default function PreviewPage() {
       }
     }
 
-    // 3. Final Static Fallback
     setPhotos([
       finalPhoto1 || FALLBACK_1,
       finalPhoto2 || FALLBACK_2
