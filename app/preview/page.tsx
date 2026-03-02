@@ -146,17 +146,43 @@ export default function PreviewPage() {
   if (show) {
     return (
       <main className="min-h-screen p-8 bg-slate-50">
-        <button onClick={() => setShow(false)} className="mb-8 px-6 py-2 bg-black text-white font-bold uppercase italic">← Edit</button>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic self-start">← Edit Info</button>
+          
+          {/* THEME SELECTOR MOVED TO TOP OF PREVIEW PAGE */}
+          <div className="bg-white p-4 border-2 border-black flex items-center gap-4">
+            <span className="font-black uppercase text-xs italic">Change Edition:</span>
+            <div className="flex gap-2">
+              {THEME_COLORS.map(color => (
+                <button 
+                  key={color} 
+                  onClick={() => setForm({...form, themeColor: color})}
+                  className={`w-8 h-8 border-2 border-black transition-transform hover:scale-110 ${form.themeColor === color ? 'ring-2 ring-offset-2 ring-black' : ''}`}
+                  style={{ backgroundColor: color === 'gold' ? '#D4AF37' : color }}
+                  title={color}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
-              <MasterTemplate id={`f-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} photo1={photos[0]} photo2={photos[1]} />
+              <MasterTemplate 
+                id={`f-${s}`} 
+                data={form} 
+                configKey={`${s}-${form.themeColor}`} 
+                rawDatabase={db} 
+                photo1={photos[0]} 
+                photo2={photos[1]} 
+              />
               <button onClick={async () => {
                 const el = document.getElementById(`f-${s}`);
                 if (el) {
                   const url = await toPng(el, { pixelRatio: 2 });
                   const link = document.createElement('a');
-                  link.download = `${form.businessName.replace(/\s+/g, '_')}_${s}.png`; 
+                  link.download = `${form.businessName.replace(/\s+/g, '_')}_${s}_${form.themeColor}.png`; 
                   link.href = url; link.click();
                 }
               }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
@@ -184,23 +210,6 @@ export default function PreviewPage() {
             <input value={form.service4} placeholder="Service 4" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service4: e.target.value})} />
           </div>
           
-          {/* THEME COLOR SELECTOR RESTORED HERE */}
-          <div className="space-y-2">
-            <label className="block font-black uppercase text-xs italic">Select Flyer Edition</label>
-            <div className="grid grid-cols-5 gap-2">
-              {THEME_COLORS.map(color => (
-                <button 
-                  key={color} 
-                  type="button" 
-                  onClick={() => setForm({...form, themeColor: color})}
-                  className={`py-2 border-2 border-black font-bold uppercase text-[10px] ${form.themeColor === color ? 'bg-black text-white' : 'bg-white text-black'}`}
-                >
-                  {color}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50">
             {isFetching ? 'Generating Commercial Assets...' : 'Preview Flyers'}
           </button>
