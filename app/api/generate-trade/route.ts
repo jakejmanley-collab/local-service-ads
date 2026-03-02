@@ -10,17 +10,22 @@ export async function POST(req: Request) {
 
     if (!trade) return NextResponse.json({ error: 'Trade required' }, { status: 400 });
 
+    // Slugify the trade name
     const slug = trade.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const filename1 = `${slug}-1.jpg`;
-    const filename2 = `${slug}-2.jpg`;
+    
+    // Using v2 in the filename to force-update from the old "brass fitting" versions
+    const filename1 = `${slug}-v2-1.jpg`;
+    const filename2 = `${slug}-v2-2.jpg`;
 
-    // 1. Check if images already exist in Supabase Storage
+    // 1. Check if high-end images already exist in Supabase Storage
     const { data: existingFiles } = await adminSupabase.storage.from('trades').list('', {
       search: slug
     });
 
-    // If both files exist, return them immediately ($0 cost)
-    if (existingFiles && existingFiles.length >= 2) {
+    // If these specific v2 files exist, return them immediately ($0 cost)
+    const hasFiles = existingFiles?.some(f => f.name === filename1) && existingFiles?.some(f => f.name === filename2);
+
+    if (hasFiles) {
       const img1 = adminSupabase.storage.from('trades').getPublicUrl(filename1).data.publicUrl;
       const img2 = adminSupabase.storage.from('trades').getPublicUrl(filename2).data.publicUrl;
       return NextResponse.json({ photo1: img1, photo2: img2 });
@@ -29,7 +34,7 @@ export async function POST(req: Request) {
     // 2. Simple Rate Limiting (3 fresh generations per IP)
     const ip = req.headers.get('x-forwarded-for') || 'unknown';
     const usage = rateLimitMap.get(ip) || 0;
-    if (usage >= 3) return NextResponse.json({ error: 'Generation limit reached for this session.' }, { status: 429 });
+    if (usage >= 3) return NextResponse.json({ error: 'Limit reached for this session.' }, { status: 429 });
     rateLimitMap.set(ip, usage + 1);
 
     // 3. Helper to Generate (Fal.ai) and Upload (Supabase)
@@ -53,12 +58,12 @@ export async function POST(req: Request) {
       
       const imageUrl = data.images[0].url;
 
-      // Fetch the image from Fal.ai and convert to blob for Supabase
+      // Fetch image and convert to buffer for Supabase
       const imgRes = await fetch(imageUrl);
       const arrayBuffer = await imgRes.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
-      // Upload to Supabase using the Admin Client
+      // Upload using Admin Client
       const { error: uploadError } = await adminSupabase.storage
         .from('trades')
         .upload(name, buffer, { 
@@ -71,10 +76,20 @@ export async function POST(req: Request) {
       return adminSupabase.storage.from('trades').getPublicUrl(name).data.publicUrl;
     };
 
-    // 4. Run both generations
-    console.log(`Generating new assets for: ${trade}`);
-    const photo1 = await generateAndUpload(`high-end commercial photography, close-up of hands using professional tools for ${trade}, clean, bright, macro detail --ar 1:1`, filename1);
-    const photo2 = await generateAndUpload(`high-end commercial photography, professional technician performing ${trade} service, bright professional lighting, clean environment --ar 1:1`, filename2);
+    // 4. Run High-End Brand Generations
+    console.log(`Generating high-end assets for: ${trade}`);
+    
+    // PROMPT 1: The "Hero" (Cinematic, clean uniform, professional lighting)
+    const photo1 = await generateAndUpload(
+      `high-end commercial brand photography, professional ${trade} technician wearing a clean modern uniform performing expert service, bright airy professional lighting, cinematic depth of field with blurred background, minimalist aesthetic, 8k resolution, premium advertising style --ar 1:1`, 
+      filename1
+    );
+
+    // PROMPT 2: The "Premium Layout" (Clean tools, organized, bright natural light)
+    const photo2 = await generateAndUpload(
+      `commercial product photography, close-up of high-end professional tools for ${trade} arranged neatly and artistically, bright natural lighting, soft shadows, professional color grading, minimalist clean background, advertising quality --ar 1:1`, 
+      filename2
+    );
 
     return NextResponse.json({ photo1, photo2 });
 
