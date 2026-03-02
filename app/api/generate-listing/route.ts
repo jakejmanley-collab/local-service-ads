@@ -1,51 +1,49 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-// We initialize without the 'v1beta' prefix to use the stable production API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function POST(req: Request) {
   try {
     const { businessName, trade, services } = await req.json();
     
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: "API Key is missing from Vercel environment" }, { status: 500 });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "API Key missing in Vercel settings" }, { status: 500 });
     }
 
-    // Using the 'latest' alias specifically to resolve 404/Not Found errors
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash-latest" 
-    });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // We attempt to get the model. We use gemini-1.5-flash-latest for best compatibility.
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
     const prompt = `
-      Write 3 distinct Facebook Marketplace listings for:
+      Write 3 professional Facebook Marketplace listings for:
       Business: ${businessName}
       Trade: ${trade}
       Services: ${services.join(", ")}
 
-      Return ONLY a JSON object with these keys:
-      "professional": { "headline": "...", "description": "..." },
-      "friendly": { "headline": "...", "description": "..." },
-      "aggressive": { "headline": "...", "description": "..." },
-      "tags": "tag1, tag2, tag3"
+      Return ONLY a JSON object. No markdown. No backticks.
+      {
+        "professional": { "headline": "string", "description": "string" },
+        "friendly": { "headline": "string", "description": "string" },
+        "aggressive": { "headline": "string", "description": "string" },
+        "tags": "string"
+      }
     `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
-    // Improved Regex to handle potential AI chatter
+    // Hardened JSON extraction
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("AI did not return valid JSON");
-    
-    return NextResponse.json(JSON.parse(jsonMatch[0]));
+    if (!jsonMatch) {
+      console.error("Raw AI Output:", text);
+      throw new Error("AI failed to return a data object");
+    }
 
+    return NextResponse.json(JSON.parse(jsonMatch[0]));
   } catch (error: any) {
-    console.error("DETAILED_ERROR:", error.message);
-    // If it still fails, we want to know if it's still a 404 or a different error
-    return NextResponse.json({ 
-      error: "Listing generation failed", 
-      message: error.message 
-    }, { status: 500 });
+    console.error("SERVER_ERROR:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
