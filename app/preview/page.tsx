@@ -74,16 +74,27 @@ export default function PreviewPage() {
   const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsFetching(true);
+    setCopy(null); // Clear previous copy
     try {
       const [imgRes, copyRes] = await Promise.all([
         fetch('/api/generate-trade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trade: form.field }) }),
         fetch('/api/generate-listing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ businessName: form.businessName, trade: form.field, services: [form.service1, form.service2, form.service3, form.service4].filter(Boolean) }) })
       ]);
+
       const imgData = await imgRes.json();
       const copyData = await copyRes.json();
+
       if (imgRes.ok) setPhotos([imgData.photo1, imgData.photo2]);
-      if (copyRes.ok) setCopy(copyData);
-    } catch (err) { console.error(err); }
+      
+      if (copyRes.ok) {
+        console.log("SUCCESS: Copy received", copyData);
+        setCopy(copyData);
+      } else {
+        console.error("API ERROR: Copy failed", copyData);
+      }
+    } catch (err) { 
+      console.error("NETWORK ERROR:", err); 
+    }
     setIsFetching(false);
     setShow(true);
   };
@@ -122,11 +133,13 @@ export default function PreviewPage() {
 
           <div className="bg-white p-6 border-4 border-black h-fit shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
             <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2">Marketplace Copy</h2>
+            
             <div className="flex mb-4 border-2 border-black overflow-hidden">
               {['professional', 'friendly', 'aggressive'].map(t => (
                 <button key={t} onClick={() => setActiveTone(t)} className={`flex-1 py-1 text-[8px] font-black uppercase border-r last:border-0 ${activeTone === t ? 'bg-black text-white' : 'bg-white text-black'}`}>{t}</button>
               ))}
             </div>
+
             {copy ? (
               <div className="space-y-4">
                 <p className="font-bold border-2 border-black border-dashed p-2 text-sm bg-slate-50">{copy[activeTone]?.headline}</p>
@@ -134,7 +147,9 @@ export default function PreviewPage() {
                 <button onClick={() => { navigator.clipboard.writeText(copy[activeTone]?.description); alert('Copied!'); }} className="w-full bg-black text-white py-3 font-black uppercase italic text-sm">Copy Text</button>
               </div>
             ) : (
-              <div className="py-10 text-center animate-pulse font-black uppercase text-xs italic">Writing copy...</div>
+              <div className="py-20 text-center animate-pulse font-black uppercase text-xs italic bg-gray-50 border-2 border-black border-dashed">
+                Writing sales copy...
+              </div>
             )}
           </div>
         </div>
