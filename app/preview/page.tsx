@@ -147,9 +147,9 @@ const handlePreview = async (e: React.FormEvent) => {
     setShow(true);
   };
     
-    setIsFetching(false);
+setIsFetching(false);
     setShow(true);
-  };
+  }; // <--- This brace MUST be here to close handlePreview
 
   if (show) {
     return (
