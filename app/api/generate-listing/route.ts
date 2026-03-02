@@ -6,11 +6,10 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      console.error("CRITICAL ERROR: GEMINI_API_KEY is missing in Vercel environment variables.");
-      return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
+      return NextResponse.json({ error: "Environment variable GEMINI_API_KEY is not set." }, { status: 500 });
     }
 
-    // 2026 Production Endpoint for Gemini 3 Flash
+    // Direct REST call to the 2026 Gemini 3 production endpoint
     const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
@@ -19,17 +18,18 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Write 3 professional Facebook Marketplace listings for a ${trade} business named ${businessName}. 
-            Services offered: ${services.join(", ")}.
-            
-            Strictly return ONLY a JSON object with this structure:
+            text: `Return ONLY a JSON object for:
+            Business: ${businessName}
+            Trade: ${trade}
+            Services: ${services.join(", ")}
+
+            Required JSON keys:
             {
               "professional": { "headline": "...", "description": "..." },
               "friendly": { "headline": "...", "description": "..." },
               "aggressive": { "headline": "...", "description": "..." },
-              "tags": "tag1, tag2, tag3"
-            }
-            Do not include markdown, backticks, or any text before or after the JSON.`
+              "tags": "..."
+            }`
           }]
         }]
       })
@@ -38,22 +38,21 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Google API Response Error:", data);
-      return NextResponse.json({ error: data.error?.message || "Upstream API Error" }, { status: response.status });
+      return NextResponse.json({ 
+        error: data.error?.message || "Google API Response Error",
+        status: response.status 
+      }, { status: response.status });
     }
 
-    // Defensive parsing: Ensure we extract JSON even if the model adds fluff
+    // Extraction logic to handle potential model chatter
     const rawText = data.candidates[0].content.parts[0].text;
     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
     
-    if (!jsonMatch) {
-      throw new Error("AI failed to return a parseable JSON object.");
-    }
-
+    if (!jsonMatch) throw new Error("AI output was not parseable JSON.");
+    
     return NextResponse.json(JSON.parse(jsonMatch[0]));
 
   } catch (error: any) {
-    console.error("Internal Server Error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
