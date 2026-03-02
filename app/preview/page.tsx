@@ -102,6 +102,7 @@ export default function PreviewPage() {
   const [form, setForm] = useState({ businessName: '', field: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
   const [show, setShow] = useState(false);
   const [photos, setPhotos] = useState([FALLBACK_1, FALLBACK_2]);
+  const [copy, setCopy] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
@@ -124,20 +125,32 @@ export default function PreviewPage() {
     e.preventDefault();
     setIsFetching(true);
     try {
-      const res = await fetch('/api/generate-trade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trade: form.field })
-      });
-      const data = await res.json();
-      if (res.ok && data.photo1 && data.photo2) {
-        setPhotos([data.photo1, data.photo2]);
-      } else {
-        console.error(data.error);
-        setPhotos([FALLBACK_1, FALLBACK_2]);
-      }
+      // Run both Image generation and Text generation in parallel
+      const [imgRes, copyRes] = await Promise.all([
+        fetch('/api/generate-trade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ trade: form.field })
+        }),
+        fetch('/api/generate-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            businessName: form.businessName, 
+            trade: form.field, 
+            services: [form.service1, form.service2, form.service3, form.service4].filter(Boolean)
+          })
+        })
+      ]);
+
+      const imgData = await imgRes.json();
+      const copyData = await copyRes.json();
+
+      if (imgRes.ok) setPhotos([imgData.photo1, imgData.photo2]);
+      if (copyRes.ok) setCopy(copyData);
+
     } catch (err) {
-      setPhotos([FALLBACK_1, FALLBACK_2]);
+      console.error(err);
     }
     setIsFetching(false);
     setShow(true);
@@ -147,9 +160,8 @@ export default function PreviewPage() {
     return (
       <main className="min-h-screen p-8 bg-slate-50">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic self-start">← Edit Info</button>
+          <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic">← Edit Info</button>
           
-          {/* THEME SELECTOR MOVED TO TOP OF PREVIEW PAGE */}
           <div className="bg-white p-4 border-2 border-black flex items-center gap-4">
             <span className="font-black uppercase text-xs italic">Change Edition:</span>
             <div className="flex gap-2">
@@ -159,35 +171,53 @@ export default function PreviewPage() {
                   onClick={() => setForm({...form, themeColor: color})}
                   className={`w-8 h-8 border-2 border-black transition-transform hover:scale-110 ${form.themeColor === color ? 'ring-2 ring-offset-2 ring-black' : ''}`}
                   style={{ backgroundColor: color === 'gold' ? '#D4AF37' : color }}
-                  title={color}
                 />
               ))}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {['circle', 'square', 'hex'].map(s => (
-            <div key={s} className="space-y-4">
-              <MasterTemplate 
-                id={`f-${s}`} 
-                data={form} 
-                configKey={`${s}-${form.themeColor}`} 
-                rawDatabase={db} 
-                photo1={photos[0]} 
-                photo2={photos[1]} 
-              />
-              <button onClick={async () => {
-                const el = document.getElementById(`f-${s}`);
-                if (el) {
-                  const url = await toPng(el, { pixelRatio: 2 });
-                  const link = document.createElement('a');
-                  link.download = `${form.businessName.replace(/\s+/g, '_')}_${s}_${form.themeColor}.png`; 
-                  link.href = url; link.click();
-                }
-              }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
-            </div>
-          ))}
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          {/* FLYERS SECTION */}
+          <div className="xl:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
+            {['circle', 'square', 'hex'].map(s => (
+              <div key={s} className="space-y-4">
+                <MasterTemplate id={`f-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} photo1={photos[0]} photo2={photos[1]} />
+                <button onClick={async () => {
+                  const el = document.getElementById(`f-${s}`);
+                  if (el) {
+                    const url = await toPng(el, { pixelRatio: 2 });
+                    const link = document.createElement('a');
+                    link.download = `${form.businessName.replace(/\s+/g, '_')}_${s}.png`; 
+                    link.href = url; link.click();
+                  }
+                }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
+              </div>
+            ))}
+          </div>
+
+          {/* LISTING COPY SECTION */}
+          <div className="bg-white p-6 border-4 border-black h-fit shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <h2 className="text-xl font-black uppercase italic border-b-2 border-black mb-4 pb-2">Listing Details</h2>
+            {copy ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase text-gray-500">Suggested Headline</label>
+                  <p className="font-bold border p-2 bg-gray-50">{copy.headline}</p>
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase text-gray-500">Description</label>
+                  <textarea readOnly className="w-full h-64 text-sm border p-2 bg-gray-50 font-sans" value={copy.description} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase text-gray-500">Tags</label>
+                  <p className="text-xs italic bg-gray-50 p-2 border">{copy.tags}</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm italic">Loading AI copy...</p>
+            )}
+          </div>
         </div>
       </main>
     );
@@ -209,9 +239,8 @@ export default function PreviewPage() {
             <input value={form.service3} placeholder="Service 3" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service3: e.target.value})} />
             <input value={form.service4} placeholder="Service 4" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service4: e.target.value})} />
           </div>
-          
           <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50">
-            {isFetching ? 'Generating Commercial Assets...' : 'Preview Flyers'}
+            {isFetching ? 'Processing AI Magic...' : 'Generate Full Kit'}
           </button>
         </form>
       </div>
