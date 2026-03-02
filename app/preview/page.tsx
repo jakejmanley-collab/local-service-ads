@@ -119,48 +119,33 @@ export default function PreviewPage() {
     localStorage.setItem('flyer_form_data', JSON.stringify(form));
   }, [form]);
 
-  const handlePreview = async (e: React.FormEvent) => {
+const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsFetching(true);
     
-    let finalPhoto1 = null;
-    let finalPhoto2 = null;
-    
-    // Removed " service" from the query to stop triggering call-center photos
-    const query = encodeURIComponent(form.field);
-
     try {
-      const pexelsRes = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=2&orientation=square`, {
-        headers: { Authorization: process.env.NEXT_PUBLIC_PEXELS_API_KEY || '' }
+      const res = await fetch('/api/generate-trade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trade: form.field })
       });
-      const pexelsData = await pexelsRes.json();
       
-      if (pexelsData.photos && pexelsData.photos.length > 0) {
-        finalPhoto1 = pexelsData.photos[0]?.src?.large;
-        finalPhoto2 = pexelsData.photos[1]?.src?.large;
+      const data = await res.json();
+      
+      if (res.ok && data.photo1 && data.photo2) {
+        setPhotos([data.photo1, data.photo2]);
+      } else {
+        alert(data.error || "Failed to load images.");
+        setPhotos([FALLBACK_1, FALLBACK_2]);
       }
     } catch (err) {
-      console.error("Pexels failed, moving to fallback API");
+      console.error(err);
+      setPhotos([FALLBACK_1, FALLBACK_2]);
     }
-
-    if (!finalPhoto1 || !finalPhoto2) {
-      try {
-        const pixabayRes = await fetch(`https://pixabay.com/api/?key=${process.env.NEXT_PUBLIC_PIXABAY_API_KEY}&q=${query}&image_type=photo&per_page=3`);
-        const pixabayData = await pixabayRes.json();
-
-        if (pixabayData.hits && pixabayData.hits.length > 0) {
-          if (!finalPhoto1) finalPhoto1 = pixabayData.hits[0]?.largeImageURL;
-          if (!finalPhoto2) finalPhoto2 = pixabayData.hits[1]?.largeImageURL || pixabayData.hits[0]?.largeImageURL;
-        }
-      } catch (err) {
-        console.error("Pixabay failed, using static fallbacks");
-      }
-    }
-
-    setPhotos([
-      finalPhoto1 || FALLBACK_1,
-      finalPhoto2 || FALLBACK_2
-    ]);
+    
+    setIsFetching(false);
+    setShow(true);
+  };
     
     setIsFetching(false);
     setShow(true);
