@@ -110,7 +110,11 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: an
 
 export default function PreviewPage() {
   const [db, setDb] = useState<Record<string, any>>({});
-  const [form, setForm] = useState({ businessName: '', field: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
+  const [form, setForm] = useState({ 
+    businessName: '', field: '', phone: '', 
+    service1: '', service2: '', service3: '', service4: '', 
+    themeColor: 'red' 
+  });
   const [show, setShow] = useState(false);
   const [photos, setPhotos] = useState([FALLBACK_1, FALLBACK_2]);
   const [isFetching, setIsFetching] = useState(false);
@@ -136,6 +140,7 @@ export default function PreviewPage() {
     setIsFetching(true);
     
     try {
+      // Calling our internal API route that handles Supabase Check + Fal.ai Generation
       const res = await fetch('/api/generate-trade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -147,11 +152,11 @@ export default function PreviewPage() {
       if (res.ok && data.photo1 && data.photo2) {
         setPhotos([data.photo1, data.photo2]);
       } else {
-        alert(data.error || "Failed to load images.");
+        console.error("API Error:", data.error);
         setPhotos([FALLBACK_1, FALLBACK_2]);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Connection failed:", err);
       setPhotos([FALLBACK_1, FALLBACK_2]);
     }
     
@@ -195,22 +200,70 @@ export default function PreviewPage() {
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic">Aretifi Studio</h1>
         <form onSubmit={handlePreview} className="space-y-4">
-          <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
+          <input 
+            value={form.businessName} 
+            required 
+            placeholder="Business Name" 
+            className="w-full border-2 p-4 border-black font-bold uppercase" 
+            onChange={e => setForm({...form, businessName: e.target.value})} 
+          />
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Trade (e.g. Roofing)" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
-            <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
+            <input 
+              value={form.field} 
+              required 
+              placeholder="Trade (e.g. Plumbing)" 
+              className="w-full border-2 p-4 border-black font-bold uppercase" 
+              onChange={e => setForm({...form, field: e.target.value})} 
+            />
+            <input 
+              value={form.phone} 
+              required 
+              placeholder="Phone" 
+              className="w-full border-2 p-4 border-black font-bold uppercase" 
+              onChange={e => setForm({...form, phone: e.target.value})} 
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.service1} required placeholder="Service 1" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service1: e.target.value})} />
-            <input value={form.service2} required placeholder="Service 2" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service2: e.target.value})} />
-            <input value={form.service3} placeholder="Service 3" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service3: e.target.value})} />
-            <input value={form.service4} placeholder="Service 4" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service4: e.target.value})} />
+            <input 
+              value={form.service1} 
+              required 
+              placeholder="Service 1" 
+              className="w-full border-2 p-4 border-black font-bold text-xs" 
+              onChange={e => setForm({...form, service1: e.target.value})} 
+            />
+            <input 
+              value={form.service2} 
+              required 
+              placeholder="Service 2" 
+              className="w-full border-2 p-4 border-black font-bold text-xs" 
+              onChange={e => setForm({...form, service2: e.target.value})} 
+            />
+            <input 
+              value={form.service3} 
+              placeholder="Service 3" 
+              className="w-full border-2 p-4 border-black font-bold text-xs" 
+              onChange={e => setForm({...form, service3: e.target.value})} 
+            />
+            <input 
+              value={form.service4} 
+              placeholder="Service 4" 
+              className="w-full border-2 p-4 border-black font-bold text-xs" 
+              onChange={e => setForm({...form, service4: e.target.value})} 
+            />
           </div>
-          <select value={form.themeColor} onChange={(e) => setForm({...form, themeColor: e.target.value})} className="w-full border-2 p-4 border-black font-bold uppercase bg-white">
+          <select 
+            value={form.themeColor} 
+            onChange={(e) => setForm({...form, themeColor: e.target.value})} 
+            className="w-full border-2 p-4 border-black font-bold uppercase bg-white"
+          >
             {THEME_COLORS.map(c => <option key={c} value={c}>{c} edition</option>)}
           </select>
-          <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50">
-            {isFetching ? 'Generating Photos...' : 'Preview'}
+          <button 
+            type="submit" 
+            disabled={isFetching} 
+            className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50"
+          >
+            {isFetching ? 'Generating Photos (FLUX)...' : 'Preview'}
           </button>
         </form>
       </div>
