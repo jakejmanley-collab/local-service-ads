@@ -76,7 +76,7 @@ export default function PreviewPage() {
     e.preventDefault();
     setIsFetching(true);
     setCopy(null);
-    setLoadStatus('Fetching Photos...');
+    setLoadStatus('Requesting Images...');
 
     try {
       const imgRes = await fetch('/api/generate-trade', { 
@@ -84,10 +84,13 @@ export default function PreviewPage() {
         headers: { 'Content-Type': 'application/json' }, 
         body: JSON.stringify({ trade: form.field }) 
       });
-      const imgData = await imgRes.json();
-      if (imgRes.ok) setPhotos([imgData.photo1, imgData.photo2]);
+      
+      if (imgRes.ok) {
+        const imgData = await imgRes.json();
+        setPhotos([imgData.photo1, imgData.photo2]);
+      }
 
-      setLoadStatus('Generating Ad Copy...');
+      setLoadStatus('Requesting Ad Copy...');
       
       const copyRes = await fetch('/api/generate-listing', { 
         method: 'POST', 
@@ -102,16 +105,13 @@ export default function PreviewPage() {
       if (copyRes.ok) {
         const copyData = await copyRes.json();
         setCopy(copyData);
-        setLoadStatus('Success!');
+        setLoadStatus('Success');
         setShow(true);
       } else {
-        const errorData = await copyRes.json();
         setLoadStatus(`Error: ${copyRes.status}`);
-        console.error("Copy Error:", errorData);
-        setShow(true); // Still show the flyers even if text fails
+        setShow(true); 
       }
     } catch (err) { 
-      console.error(err);
       setLoadStatus('Network Error');
       setShow(true);
     }
@@ -122,9 +122,9 @@ export default function PreviewPage() {
     return (
       <main className="min-h-screen p-8 bg-slate-50 font-sans">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic self-start border-b-4 border-gray-700">← Back</button>
+          <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic border-b-4 border-gray-700">← Back</button>
           <div className="bg-white p-4 border-2 border-black flex items-center gap-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <span className="font-black uppercase text-xs italic">Flyer Edition:</span>
+            <span className="font-black uppercase text-xs italic">Theme Color:</span>
             <div className="flex gap-2">
               {THEME_COLORS.map(color => (
                 <button key={color} onClick={() => setForm({...form, themeColor: color})} className={`w-8 h-8 border-2 border-black ${form.themeColor === color ? 'ring-2 ring-black ring-offset-2 scale-110' : ''}`} style={{ backgroundColor: color === 'gold' ? '#D4AF37' : color }} />
@@ -151,7 +151,7 @@ export default function PreviewPage() {
           </div>
 
           <div className="bg-white p-6 border-4 border-black h-fit shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
-            <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2">Marketplace Copy</h2>
+            <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2">Listing Copy</h2>
             <div className="flex mb-4 border-2 border-black overflow-hidden">
               {['professional', 'friendly', 'aggressive'].map(t => (
                 <button key={t} onClick={() => setActiveTone(t)} className={`flex-1 py-1 text-[8px] font-black uppercase border-r last:border-0 ${activeTone === t ? 'bg-black text-white' : 'bg-white text-black'}`}>{t}</button>
@@ -164,8 +164,8 @@ export default function PreviewPage() {
                 <button onClick={() => { navigator.clipboard.writeText(copy[activeTone]?.description); alert('Copied!'); }} className="w-full bg-black text-white py-3 font-black uppercase italic text-sm">Copy Text</button>
               </div>
             ) : (
-              <div className="py-10 text-center animate-pulse font-black uppercase text-xs italic">
-                {isFetching ? 'Generating...' : 'Copy Failed to Load'}
+              <div className="py-10 text-center font-black uppercase text-xs italic border-2 border-black border-dashed">
+                {isFetching ? 'Updating Content...' : 'Failed to Load Content'}
               </div>
             )}
           </div>
@@ -181,8 +181,8 @@ export default function PreviewPage() {
         <form onSubmit={handlePreview} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Trade" className="w-full border-4 p-4 border-black font-bold uppercase placeholder:text-gray-400" onChange={e => setForm({...form, field: e.target.value})} />
-            <input value={form.phone} required placeholder="Phone" className="w-full border-4 p-4 border-black font-bold uppercase placeholder:text-gray-400" onChange={e => setForm({...form, phone: e.target.value})} />
+            <input value={form.field} required placeholder="Trade" className="w-full border-4 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.phone} required placeholder="Phone" className="w-full border-4 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <input value={form.service1} required placeholder="Service 1" className="w-full border-4 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service1: e.target.value})} />
@@ -191,7 +191,7 @@ export default function PreviewPage() {
             <input value={form.service4} placeholder="Service 4" className="w-full border-4 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service4: e.target.value})} />
           </div>
           <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-6 uppercase text-2xl italic border-b-8 border-gray-800 active:translate-y-2 active:border-b-0 transition-all">
-            {loadStatus}
+            {isFetching ? loadStatus : 'Generate Assets'}
           </button>
         </form>
       </div>
