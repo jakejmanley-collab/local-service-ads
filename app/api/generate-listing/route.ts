@@ -9,29 +9,33 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
-      Write 3 distinct Facebook Marketplace listings for:
+      Write 3 Facebook Marketplace listings for:
       Business: ${businessName}
       Trade: ${trade}
       Services: ${services.join(", ")}
 
-      Return ONLY a JSON object with these keys:
-      "professional": { "headline": "string", "description": "string" },
-      "friendly": { "headline": "string", "description": "string" },
-      "aggressive": { "headline": "string", "description": "string" },
-      "tags": "string of 10 tags"
-
-      Tone Guide:
-      - Professional: Trustworthy, corporate, expert.
-      - Friendly: Neighborly, approachable, local vibe.
-      - Aggressive: High urgency, "Don't Wait", "Best Prices", heavy CTAs.
+      You must return ONLY a raw JSON object. No markdown, no backticks.
+      Structure:
+      {
+        "professional": { "headline": "...", "description": "..." },
+        "friendly": { "headline": "...", "description": "..." },
+        "aggressive": { "headline": "...", "description": "..." },
+        "tags": "tag1, tag2, tag3"
+      }
     `;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
     
+    // This regex removes everything except the actual JSON brackets
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON found in AI response");
+    
+    const cleanJson = jsonMatch[0];
     return NextResponse.json(JSON.parse(cleanJson));
+
   } catch (error: any) {
+    console.error("Gemini Error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
