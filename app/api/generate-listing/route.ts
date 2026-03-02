@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -10,34 +9,40 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "API Key missing in Vercel" }, { status: 500 });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    // Explicitly use the stable production model name
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Direct fetch to the stable v1 production endpoint (Bypassing SDK bugs)
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    const prompt = `
-      Write 3 Facebook Marketplace listings for:
-      Business: ${businessName}
-      Trade: ${trade}
-      Services: ${services.join(", ")}
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `Write 3 Facebook Marketplace listings for:
+            Business: ${businessName}
+            Trade: ${trade}
+            Services: ${services.join(", ")}
+            Return ONLY a JSON object with keys: "professional", "friendly", "aggressive", "tags".
+            Each tone needs a "headline" and "description" key.`
+          }]
+        }]
+      })
+    });
 
-      Return ONLY a JSON object with these keys:
-      "professional": { "headline": "...", "description": "..." },
-      "friendly": { "headline": "...", "description": "..." },
-      "aggressive": { "headline": "...", "description": "..." },
-      "tags": "..."
-    `;
+    const data = await response.json();
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    
-    // Extract JSON even if the AI adds markdown backticks
+    if (!response.ok) {
+      return NextResponse.json({ error: data.error?.message || "Google API Error" }, { status: response.status });
+    }
+
+    const text = data.candidates[0].content.parts[0].text;
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("AI returned invalid format");
+    
+    if (!jsonMatch) throw new Error("Invalid AI response format");
     
     return NextResponse.json(JSON.parse(jsonMatch[0]));
 
   } catch (error: any) {
-    console.error("API_FAILURE:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
