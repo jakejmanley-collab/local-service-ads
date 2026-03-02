@@ -5,6 +5,9 @@ import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
+// Neutral, high-end abstract textures so it never clashes with the user's trade
+const FALLBACK_1 = "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800"; 
+const FALLBACK_2 = "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=800";
 
 const parse = (val: string) => {
   if (!val || val.trim() === "") return null;
@@ -19,7 +22,7 @@ const parse = (val: string) => {
   };
 };
 
-const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
+const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: any) => {
   const row = rawDatabase[configKey];
   if (!row) return null;
 
@@ -49,7 +52,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         {p1 && (
           <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+              <img src={photo1} className="w-full h-full object-cover" crossOrigin="anonymous" alt="Service 1" />
             </div>
           </foreignObject>
         )}
@@ -57,7 +60,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         {p2 && (
           <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}>
             <div style={{ width: '100%', height: '100%', ...clip }}>
-              <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800" className="w-full h-full object-cover" crossOrigin="anonymous" />
+              <img src={photo2} className="w-full h-full object-cover" crossOrigin="anonymous" alt="Service 2" />
             </div>
           </foreignObject>
         )}
@@ -71,10 +74,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase }: any) => {
         ].map((item, i) => {
           if (!item.c || !item.t) return null;
 
-          // Buffer for Hex phone number to prevent last 2 digit clipping
           const widthBuffer = (item.isPhone && isHex) ? 100 : 0;
-          
-          // Visual nudge for circle phone number
           const xOffset = (item.isPhone && isCircle) ? -40 : 0;
 
           return (
@@ -101,6 +101,8 @@ export default function PreviewPage() {
   const [db, setDb] = useState<Record<string, any>>({});
   const [form, setForm] = useState({ businessName: '', field: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
   const [show, setShow] = useState(false);
+  const [photos, setPhotos] = useState([FALLBACK_1, FALLBACK_2]);
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('flyer_form_data');
@@ -118,6 +120,54 @@ export default function PreviewPage() {
     localStorage.setItem('flyer_form_data', JSON.stringify(form));
   }, [form]);
 
+  const handlePreview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsFetching(true);
+    
+    let finalPhoto1 = null;
+    let finalPhoto2 = null;
+    const query = encodeURIComponent(`${form.field} service`);
+
+    // 1. Try Pexels
+    try {
+      const pexelsRes = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=2&orientation=square`, {
+        headers: { Authorization: process.env.NEXT_PUBLIC_PEXELS_API_KEY || '' }
+      });
+      const pexelsData = await pexelsRes.json();
+      
+      if (pexelsData.photos && pexelsData.photos.length > 0) {
+        finalPhoto1 = pexelsData.photos[0]?.src?.large;
+        finalPhoto2 = pexelsData.photos[1]?.src?.large;
+      }
+    } catch (err) {
+      console.error("Pexels failed, moving to fallback API");
+    }
+
+    // 2. Try Pixabay if Pexels missed any photos
+    if (!finalPhoto1 || !finalPhoto2) {
+      try {
+        const pixabayRes = await fetch(`https://pixabay.com/api/?key=${process.env.NEXT_PUBLIC_PIXABAY_API_KEY}&q=${query}&image_type=photo&per_page=3`);
+        const pixabayData = await pixabayRes.json();
+
+        if (pixabayData.hits && pixabayData.hits.length > 0) {
+          if (!finalPhoto1) finalPhoto1 = pixabayData.hits[0]?.largeImageURL;
+          if (!finalPhoto2) finalPhoto2 = pixabayData.hits[1]?.largeImageURL || pixabayData.hits[0]?.largeImageURL;
+        }
+      } catch (err) {
+        console.error("Pixabay failed, using static fallbacks");
+      }
+    }
+
+    // 3. Final Static Fallback
+    setPhotos([
+      finalPhoto1 || FALLBACK_1,
+      finalPhoto2 || FALLBACK_2
+    ]);
+    
+    setIsFetching(false);
+    setShow(true);
+  };
+
   if (show) {
     return (
       <main className="min-h-screen p-8 bg-slate-50">
@@ -125,13 +175,21 @@ export default function PreviewPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
-              <MasterTemplate id={`f-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} />
+              <MasterTemplate 
+                id={`f-${s}`} 
+                data={form} 
+                configKey={`${s}-${form.themeColor}`} 
+                rawDatabase={db} 
+                photo1={photos[0]} 
+                photo2={photos[1]} 
+              />
               <button onClick={async () => {
                 const el = document.getElementById(`f-${s}`);
                 if (el) {
                   const url = await toPng(el, { pixelRatio: 2 });
                   const link = document.createElement('a');
-                  link.download = `${s}.png`; link.href = url; link.click();
+                  link.download = `${form.businessName.replace(/\s+/g, '_')}_${s}.png`; 
+                  link.href = url; link.click();
                 }
               }} className="w-full bg-black text-white py-4 font-black uppercase">Download {s}</button>
             </div>
@@ -145,10 +203,10 @@ export default function PreviewPage() {
     <main className="min-h-screen flex items-center justify-center bg-slate-100 p-6">
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic">Aretifi Studio</h1>
-        <form onSubmit={(e) => { e.preventDefault(); setShow(true); }} className="space-y-4">
+        <form onSubmit={handlePreview} className="space-y-4">
           <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Trade" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.field} required placeholder="Trade (e.g. Landscaping)" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
             <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -160,7 +218,9 @@ export default function PreviewPage() {
           <select value={form.themeColor} onChange={(e) => setForm({...form, themeColor: e.target.value})} className="w-full border-2 p-4 border-black font-bold uppercase bg-white">
             {THEME_COLORS.map(c => <option key={c} value={c}>{c} edition</option>)}
           </select>
-          <button type="submit" className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800">Preview</button>
+          <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50">
+            {isFetching ? 'Fetching Photos...' : 'Preview'}
+          </button>
         </form>
       </div>
     </main>
