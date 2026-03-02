@@ -84,22 +84,11 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: an
           { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }
         ].map((item, i) => {
           if (!item.c || !item.t) return null;
-
           const widthBuffer = (item.isPhone && isHex) ? 100 : 0;
           const xOffset = (item.isPhone && isCircle) ? -40 : 0;
-
           return (
-            <foreignObject 
-              key={i} 
-              x={parseFloat(item.c.x) + xOffset} 
-              y={item.c.y} 
-              width={parseFloat(item.c.w) + widthBuffer} 
-              height={item.c.h}
-              style={{ overflow: 'visible' }}
-            >
-              <div style={item.c.s} className="w-full h-full uppercase whitespace-nowrap">
-                {item.t}
-              </div>
+            <foreignObject key={i} x={parseFloat(item.c.x) + xOffset} y={item.c.y} width={parseFloat(item.c.w) + widthBuffer} height={item.c.h} style={{ overflow: 'visible' }}>
+              <div style={item.c.s} className="w-full h-full uppercase whitespace-nowrap">{item.t}</div>
             </foreignObject>
           );
         })}
@@ -110,11 +99,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: an
 
 export default function PreviewPage() {
   const [db, setDb] = useState<Record<string, any>>({});
-  const [form, setForm] = useState({ 
-    businessName: '', field: '', phone: '', 
-    service1: '', service2: '', service3: '', service4: '', 
-    themeColor: 'red' 
-  });
+  const [form, setForm] = useState({ businessName: '', field: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
   const [show, setShow] = useState(false);
   const [photos, setPhotos] = useState([FALLBACK_1, FALLBACK_2]);
   const [isFetching, setIsFetching] = useState(false);
@@ -138,28 +123,22 @@ export default function PreviewPage() {
   const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsFetching(true);
-    
     try {
-      // Calling our internal API route that handles Supabase Check + Fal.ai Generation
       const res = await fetch('/api/generate-trade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trade: form.field })
       });
-      
       const data = await res.json();
-      
       if (res.ok && data.photo1 && data.photo2) {
         setPhotos([data.photo1, data.photo2]);
       } else {
-        console.error("API Error:", data.error);
+        console.error(data.error);
         setPhotos([FALLBACK_1, FALLBACK_2]);
       }
     } catch (err) {
-      console.error("Connection failed:", err);
       setPhotos([FALLBACK_1, FALLBACK_2]);
     }
-    
     setIsFetching(false);
     setShow(true);
   };
@@ -171,14 +150,7 @@ export default function PreviewPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {['circle', 'square', 'hex'].map(s => (
             <div key={s} className="space-y-4">
-              <MasterTemplate 
-                id={`f-${s}`} 
-                data={form} 
-                configKey={`${s}-${form.themeColor}`} 
-                rawDatabase={db} 
-                photo1={photos[0]} 
-                photo2={photos[1]} 
-              />
+              <MasterTemplate id={`f-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} photo1={photos[0]} photo2={photos[1]} />
               <button onClick={async () => {
                 const el = document.getElementById(`f-${s}`);
                 if (el) {
@@ -200,70 +172,37 @@ export default function PreviewPage() {
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic">Aretifi Studio</h1>
         <form onSubmit={handlePreview} className="space-y-4">
-          <input 
-            value={form.businessName} 
-            required 
-            placeholder="Business Name" 
-            className="w-full border-2 p-4 border-black font-bold uppercase" 
-            onChange={e => setForm({...form, businessName: e.target.value})} 
-          />
+          <input value={form.businessName} required placeholder="Business Name" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input 
-              value={form.field} 
-              required 
-              placeholder="Trade (e.g. Plumbing)" 
-              className="w-full border-2 p-4 border-black font-bold uppercase" 
-              onChange={e => setForm({...form, field: e.target.value})} 
-            />
-            <input 
-              value={form.phone} 
-              required 
-              placeholder="Phone" 
-              className="w-full border-2 p-4 border-black font-bold uppercase" 
-              onChange={e => setForm({...form, phone: e.target.value})} 
-            />
+            <input value={form.field} required placeholder="Trade (e.g. Roofing)" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.phone} required placeholder="Phone" className="w-full border-2 p-4 border-black font-bold uppercase" onChange={e => setForm({...form, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <input 
-              value={form.service1} 
-              required 
-              placeholder="Service 1" 
-              className="w-full border-2 p-4 border-black font-bold text-xs" 
-              onChange={e => setForm({...form, service1: e.target.value})} 
-            />
-            <input 
-              value={form.service2} 
-              required 
-              placeholder="Service 2" 
-              className="w-full border-2 p-4 border-black font-bold text-xs" 
-              onChange={e => setForm({...form, service2: e.target.value})} 
-            />
-            <input 
-              value={form.service3} 
-              placeholder="Service 3" 
-              className="w-full border-2 p-4 border-black font-bold text-xs" 
-              onChange={e => setForm({...form, service3: e.target.value})} 
-            />
-            <input 
-              value={form.service4} 
-              placeholder="Service 4" 
-              className="w-full border-2 p-4 border-black font-bold text-xs" 
-              onChange={e => setForm({...form, service4: e.target.value})} 
-            />
+            <input value={form.service1} required placeholder="Service 1" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service1: e.target.value})} />
+            <input value={form.service2} required placeholder="Service 2" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service2: e.target.value})} />
+            <input value={form.service3} placeholder="Service 3" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service3: e.target.value})} />
+            <input value={form.service4} placeholder="Service 4" className="w-full border-2 p-4 border-black font-bold text-xs" onChange={e => setForm({...form, service4: e.target.value})} />
           </div>
-          <select 
-            value={form.themeColor} 
-            onChange={(e) => setForm({...form, themeColor: e.target.value})} 
-            className="w-full border-2 p-4 border-black font-bold uppercase bg-white"
-          >
-            {THEME_COLORS.map(c => <option key={c} value={c}>{c} edition</option>)}
-          </select>
-          <button 
-            type="submit" 
-            disabled={isFetching} 
-            className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50"
-          >
-            {isFetching ? 'Generating Photos (FLUX)...' : 'Preview'}
+          
+          {/* THEME COLOR SELECTOR RESTORED HERE */}
+          <div className="space-y-2">
+            <label className="block font-black uppercase text-xs italic">Select Flyer Edition</label>
+            <div className="grid grid-cols-5 gap-2">
+              {THEME_COLORS.map(color => (
+                <button 
+                  key={color} 
+                  type="button" 
+                  onClick={() => setForm({...form, themeColor: color})}
+                  className={`py-2 border-2 border-black font-bold uppercase text-[10px] ${form.themeColor === color ? 'bg-black text-white' : 'bg-white text-black'}`}
+                >
+                  {color}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-5 uppercase text-xl italic border-b-8 border-slate-800 disabled:opacity-50">
+            {isFetching ? 'Generating Commercial Assets...' : 'Preview Flyers'}
           </button>
         </form>
       </div>
