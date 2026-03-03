@@ -132,7 +132,6 @@ export default function PreviewPage() {
           </div>
         )}
 
-        {/* Top Instructions Bar */}
         <div className="flex flex-col xl:flex-row justify-between xl:items-center mb-8 gap-6 bg-white p-4 border-4 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
           <div className="flex flex-col md:flex-row md:items-center gap-4 xl:gap-6">
             <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic border-b-4 border-gray-700 active:translate-y-1 active:border-b-0 transition-all w-fit shrink-0">
@@ -140,11 +139,11 @@ export default function PreviewPage() {
             </button>
             
             <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm font-black uppercase tracking-tight text-slate-800">
-              <span className="bg-yellow-200 px-3 py-1.5 border-2 border-black">1. Choose Color</span>
+              <span className="bg-white px-3 py-1.5 border-2 border-black">1. Choose Color</span>
               <span className="text-slate-400 hidden sm:block">→</span>
-              <span className="bg-yellow-200 px-3 py-1.5 border-2 border-black">2. Copy Ad Text</span>
+              <span className="bg-white px-3 py-1.5 border-2 border-black">2. Choose Ad Text</span>
               <span className="text-slate-400 hidden sm:block">→</span>
-              <span className="bg-yellow-200 px-3 py-1.5 border-2 border-black">3. Download Flyer</span>
+              <span className="bg-white px-3 py-1.5 border-2 border-black">3. Download Flyer</span>
             </div>
           </div>
           
