@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
 
@@ -49,6 +50,7 @@ const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: an
 };
 
 export default function PreviewPage() {
+  const router = useRouter();
   const [db, setDb] = useState<Record<string, any>>({});
   const [form, setForm] = useState({ businessName: '', field: '', phone: '', service1: '', service2: '', service3: '', service4: '', themeColor: 'red' });
   const [show, setShow] = useState(false);
@@ -57,6 +59,11 @@ export default function PreviewPage() {
   const [activeTone, setActiveTone] = useState('professional');
   const [isFetching, setIsFetching] = useState(false);
   const [errorStatus, setErrorStatus] = useState('');
+  
+  // Auth Gate State
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
 
   useEffect(() => {
     const saved = localStorage.getItem('flyer_form_data');
@@ -76,8 +83,11 @@ export default function PreviewPage() {
     setErrorStatus('');
     setCopy(null);
     
+    // Save their form data locally so it persists to their dashboard later
+    localStorage.setItem('flyer_form_data', JSON.stringify(form));
+    
     try {
-      // 1. Fetch Images (You confirmed these are working)
+      // 1. Fetch Images
       const imgRes = await fetch('/api/generate-trade', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' }, 
@@ -115,14 +125,64 @@ export default function PreviewPage() {
     setIsFetching(false);
   };
 
+  const handleAuthSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulate user creation and push to the $25 OTO page
+    localStorage.setItem('aretifi_user_email', authEmail);
+    router.push('/upgrade-offer');
+  };
+
   if (show) {
     return (
-      <main className="min-h-screen p-8 bg-slate-50 font-sans">
+      <main className="min-h-screen p-8 bg-slate-50 font-sans relative">
+        
+        {/* Auth Modal Gate */}
+        {showAuthModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+            <div className="bg-white border-4 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] max-w-md w-full p-8 relative">
+              <button 
+                onClick={() => setShowAuthModal(false)} 
+                className="absolute top-4 right-4 font-black text-2xl hover:text-red-600 transition-colors"
+              >
+                ✕
+              </button>
+              <h2 className="text-3xl font-black uppercase italic mb-2 tracking-tight">Save Your Assets</h2>
+              <p className="text-sm font-bold text-slate-600 mb-6">Create your free account to unlock high-res downloads and save your professional ad copy.</p>
+              
+              <form onSubmit={handleAuthSubmit} className="space-y-4">
+                <input 
+                  type="email" 
+                  required 
+                  placeholder="Email Address" 
+                  className="w-full border-4 p-4 border-black font-bold outline-none focus:bg-yellow-50 transition-colors" 
+                  value={authEmail} 
+                  onChange={e => setAuthEmail(e.target.value)} 
+                />
+                <input 
+                  type="password" 
+                  required 
+                  placeholder="Create Password" 
+                  className="w-full border-4 p-4 border-black font-bold outline-none focus:bg-yellow-50 transition-colors" 
+                  value={authPassword} 
+                  onChange={e => setAuthPassword(e.target.value)} 
+                />
+                <button 
+                  type="submit" 
+                  className="w-full bg-blue-600 text-white font-black py-4 uppercase text-xl italic tracking-tight border-b-4 border-blue-800 active:translate-y-1 active:border-b-0 transition-all hover:bg-blue-700"
+                >
+                  Create Free Account
+                </button>
+              </form>
+              <p className="text-center text-xs font-bold text-slate-400 mt-4 uppercase">100% Free • No Credit Card Required</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-between mb-8">
-          <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic border-b-4 border-gray-700">← Edit Info</button>
+          <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic border-b-4 border-gray-700 active:translate-y-1 active:border-b-0 transition-all">← Edit Info</button>
           <div className="flex gap-2">
             {THEME_COLORS.map(color => (
-              <button key={color} onClick={() => setForm({...form, themeColor: color})} className={`w-8 h-8 border-2 border-black ${form.themeColor === color ? 'scale-110 ring-2 ring-black' : ''}`} style={{ backgroundColor: color === 'gold' ? '#D4AF37' : color }} />
+              <button key={color} onClick={() => setForm({...form, themeColor: color})} className={`w-8 h-8 border-2 border-black transition-transform ${form.themeColor === color ? 'scale-110 ring-2 ring-black' : ''}`} style={{ backgroundColor: color === 'gold' ? '#D4AF37' : color }} />
             ))}
           </div>
         </div>
@@ -130,16 +190,14 @@ export default function PreviewPage() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
           <div className="xl:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
             {['circle', 'square', 'hex'].map(s => (
-              <div key={s} id={`f-${s}`} className="border-4 border-black bg-white shadow-lg overflow-hidden">
+              <div key={s} id={`f-${s}`} className="border-4 border-black bg-white shadow-lg overflow-hidden flex flex-col">
                 <MasterTemplate id={`t-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} photo1={photos[0]} photo2={photos[1]} />
-                <button onClick={async () => {
-                  const el = document.getElementById(`f-${s}`);
-                  if (el) {
-                    const url = await toPng(el, { pixelRatio: 2 });
-                    const link = document.createElement('a');
-                    link.download = `${s}.png`; link.href = url; link.click();
-                  }
-                }} className="w-full bg-black text-white py-3 font-black uppercase text-xs">Download {s}</button>
+                <button 
+                  onClick={() => setShowAuthModal(true)} 
+                  className="w-full mt-auto bg-black text-white py-4 font-black uppercase text-sm hover:bg-gray-900 transition-colors"
+                >
+                  Download {s}
+                </button>
               </div>
             ))}
           </div>
@@ -150,12 +208,17 @@ export default function PreviewPage() {
               <div className="space-y-4">
                 <div className="flex border-2 border-black overflow-hidden">
                   {['professional', 'friendly', 'aggressive'].map(t => (
-                    <button key={t} onClick={() => setActiveTone(t)} className={`flex-1 py-1 text-[8px] font-black uppercase ${activeTone === t ? 'bg-black text-white' : ''}`}>{t}</button>
+                    <button key={t} onClick={() => setActiveTone(t)} className={`flex-1 py-2 text-[10px] font-black uppercase transition-colors ${activeTone === t ? 'bg-black text-white' : 'hover:bg-slate-100'}`}>{t}</button>
                   ))}
                 </div>
-                <p className="font-bold border-2 border-black border-dashed p-2 text-sm bg-slate-50">{copy[activeTone]?.headline}</p>
-                <textarea readOnly className="w-full h-80 text-xs border-2 border-black p-2 bg-slate-50 font-sans" value={copy[activeTone]?.description} />
-                <button onClick={() => { navigator.clipboard.writeText(copy[activeTone]?.description); alert('Copied!'); }} className="w-full bg-black text-white py-3 font-black uppercase italic text-sm">Copy Description</button>
+                <p className="font-bold border-2 border-black border-dashed p-3 text-sm bg-slate-50">{copy[activeTone]?.headline}</p>
+                <textarea readOnly className="w-full h-80 text-sm border-2 border-black p-3 bg-slate-50 font-sans outline-none" value={copy[activeTone]?.description} />
+                <button 
+                  onClick={() => setShowAuthModal(true)} 
+                  className="w-full bg-black text-white py-4 font-black uppercase italic text-sm hover:bg-gray-900 transition-colors"
+                >
+                  Copy Description
+                </button>
               </div>
             ) : (
               <div className="py-10 text-center font-black uppercase text-xs italic border-2 border-black border-dashed">
@@ -173,18 +236,18 @@ export default function PreviewPage() {
       <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)]">
         <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
         <form onSubmit={handlePreview} className="space-y-4">
-          <input value={form.businessName} required placeholder="Business Name" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50" onChange={e => setForm({...form, businessName: e.target.value})} />
+          <input value={form.businessName} required placeholder="Business Name" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, businessName: e.target.value})} />
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Trade" className="w-full border-4 p-4 border-black font-bold uppercase outline-none" onChange={e => setForm({...form, field: e.target.value})} />
-            <input value={form.phone} required placeholder="Phone" className="w-full border-4 p-4 border-black font-bold uppercase outline-none" onChange={e => setForm({...form, phone: e.target.value})} />
+            <input value={form.field} required placeholder="Trade" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, field: e.target.value})} />
+            <input value={form.phone} required placeholder="Phone" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, phone: e.target.value})} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <input value={form.service1} required placeholder="Service 1" className="w-full border-4 p-4 border-black font-bold text-xs outline-none" onChange={e => setForm({...form, service1: e.target.value})} />
-            <input value={form.service2} required placeholder="Service 2" className="w-full border-4 p-4 border-black font-bold text-xs outline-none" onChange={e => setForm({...form, service2: e.target.value})} />
-            <input value={form.service3} placeholder="Service 3" className="w-full border-4 p-4 border-black font-bold text-xs outline-none" onChange={e => setForm({...form, service3: e.target.value})} />
-            <input value={form.service4} placeholder="Service 4" className="w-full border-4 p-4 border-black font-bold text-xs outline-none" onChange={e => setForm({...form, service4: e.target.value})} />
+            <input value={form.service1} required placeholder="Service 1" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service1: e.target.value})} />
+            <input value={form.service2} required placeholder="Service 2" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service2: e.target.value})} />
+            <input value={form.service3} placeholder="Service 3" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service3: e.target.value})} />
+            <input value={form.service4} placeholder="Service 4" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service4: e.target.value})} />
           </div>
-          <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-6 uppercase text-2xl italic border-b-8 border-gray-800 active:translate-y-2 active:border-b-0 transition-all">
+          <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-6 uppercase text-2xl italic tracking-tight border-b-8 border-gray-800 active:translate-y-2 active:border-b-0 transition-all">
             {isFetching ? 'Generating...' : 'Generate Assets'}
           </button>
         </form>
