@@ -22,7 +22,7 @@ export default function RootLayout({
           rel="stylesheet" 
         />
       </head>
-      <body className="bg-slate-50 text-slate-900 antialiased">
+      <body className="bg-slate-50 text-slate-900 antialiased flex flex-col min-h-screen">
         <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16 items-center">
@@ -41,7 +41,37 @@ export default function RootLayout({
             </div>
           </div>
         </nav>
-        <main>{children}</main>
+        
+        <main className="flex-grow">{children}</main>
+
+        {/* Global Footer */}
+        <footer className="bg-slate-950 text-slate-400 py-12 border-t-8 border-slate-900">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+            <div>
+              <div className="font-black text-2xl tracking-tighter text-white uppercase italic mb-4">
+                ARETIFI
+              </div>
+              <p className="font-bold">Turn free listings into high-paying clients with commercial-grade ad assets.</p>
+            </div>
+            
+            <div className="flex flex-col space-y-2">
+              <h3 className="font-black text-white uppercase tracking-wider mb-2">Platform</h3>
+              <Link href="/preview" className="hover:text-white transition-colors">Free Generator</Link>
+              <Link href="/dashboard" className="hover:text-white transition-colors">User Dashboard</Link>
+              <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
+            </div>
+
+            <div className="flex flex-col space-y-2">
+              <h3 className="font-black text-white uppercase tracking-wider mb-2">Legal</h3>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            </div>
+          </div>
+          <div className="max-w-7xl mx-auto px-6 mt-12 pt-8 border-t border-slate-800 text-xs font-bold text-center">
+            &copy; {new Date().getFullYear()} Aretifi. All rights reserved.
+          </div>
+        </footer>
+
       </body>
     </html>
   );
