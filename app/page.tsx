@@ -14,7 +14,7 @@ export default function Home() {
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link href="/preview" className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition">
-            Generate Free Assets
+            Generate Free Flyers
           </Link>
           <Link href="#pricing" className="bg-white text-slate-900 px-8 py-4 rounded-lg font-bold text-lg border border-slate-300 hover:bg-slate-100 transition">
             View Website Upgrades
@@ -75,7 +75,7 @@ export default function Home() {
             
             {/* Free Package */}
             <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-              <h3 className="text-2xl font-bold mb-2">Ad Assets</h3>
+              <h3 className="text-2xl font-bold mb-2">Flyer Generator3>
               <div className="text-3xl font-extrabold mb-6">$0<span className="text-lg text-slate-500 font-normal"> forever</span></div>
               <ul className="space-y-3 mb-8 flex-1 text-slate-600">
                 <li className="flex gap-2">✓ <span>Standard professional flyers</span></li>
@@ -83,7 +83,7 @@ export default function Home() {
                 <li className="flex gap-2">✓ <span>Unlimited downloads</span></li>
                 <li className="flex gap-2">✓ <span>No watermarks</span></li>
               </ul>
-              <Link href="/preview" className="w-full bg-slate-100 text-slate-900 font-bold py-3 rounded-lg hover:bg-slate-200 text-center block">Generate Free Account</Link>
+              <Link href="/preview" className="w-full bg-slate-100 text-slate-900 font-bold py-3 rounded-lg hover:bg-slate-200 text-center block">Create Free Account</Link>
             </div>
 
             {/* Network Package */}
