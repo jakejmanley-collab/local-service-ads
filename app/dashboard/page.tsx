@@ -1,97 +1,109 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '../../lib/supabase';
 
 export default function DashboardPage() {
-  const [loading, setLoading] = useState(true);
-  const [userEmail, setUserEmail] = useState<string | undefined>('');
-  const router = useRouter();
+  const [businessName, setBusinessName] = useState('Your Business');
+  const [trade, setTrade] = useState('Service');
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        router.push('/login');
-      } else {
-        setUserEmail(session.user.email);
-        setLoading(false);
-      }
-    };
-    
-    checkUser();
-  }, [router]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
-
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-slate-50 flex justify-center items-center">
-        <div className="text-slate-500 font-bold animate-pulse">Loading Dashboard...</div>
-      </main>
-    );
-  }
+    // Pull the user's data to personalize their dashboard
+    const savedData = localStorage.getItem('flyer_form_data');
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      if (parsed.businessName) setBusinessName(parsed.businessName);
+      if (parsed.field) setTrade(parsed.field);
+    }
+  }, []);
 
   return (
-    <main className="min-h-screen bg-slate-50 py-12 px-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-sm text-slate-500 mt-1">Logged in as {userEmail}</p>
+    <main className="min-h-screen bg-slate-50 font-sans">
+      
+      {/* Top Navigation Bar */}
+      <header className="bg-black text-white p-6 flex justify-between items-center border-b-4 border-slate-800">
+        <h1 className="text-2xl font-black uppercase italic tracking-tighter">Aretifi Studio</h1>
+        <div className="flex items-center gap-4">
+          <div className="font-bold text-sm bg-slate-800 px-4 py-2 uppercase border border-slate-700">
+            {businessName}
           </div>
-          <button 
-            onClick={handleSignOut}
-            className="text-sm font-bold text-slate-600 hover:text-slate-900 border border-slate-300 px-4 py-2 rounded-lg"
-          >
-            Sign Out
-          </button>
+          <Link href="/" className="text-xs font-bold text-slate-400 hover:text-white uppercase transition-colors">
+            Log Out
+          </Link>
         </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto p-6 md:p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Current Plan</h3>
-            <div className="text-2xl font-bold text-slate-900 mb-4">Free Preview</div>
-            <Link href="/#pricing" className="text-blue-600 font-semibold hover:underline">Upgrade Plan &rarr;</Link>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Saved Flyers</h3>
-            <div className="text-2xl font-bold text-slate-900 mb-4">4 Watermarked</div>
-            <Link href="/preview" className="text-blue-600 font-semibold hover:underline">View Flyers &rarr;</Link>
-          </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Websites Active</h3>
-            <div className="text-2xl font-bold text-slate-900 mb-4">0</div>
-            <Link href="/#pricing" className="text-blue-600 font-semibold hover:underline">Build SEO Site &rarr;</Link>
-          </div>
+        {/* Left Column: User Assets & Generation */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          <section className="bg-white border-4 border-black p-8 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-black pb-4 mb-6 gap-4">
+              <div>
+                <h2 className="text-3xl font-black uppercase italic">Your Ad Assets</h2>
+                <p className="text-sm font-bold text-slate-500">Manage your flyers and ad copy</p>
+              </div>
+              <Link href="/preview" className="bg-blue-600 text-white font-black px-6 py-3 uppercase italic hover:bg-blue-700 transition-colors border-b-4 border-blue-900 active:border-b-0 active:translate-y-1">
+                + Generate New Ads
+              </Link>
+            </div>
+            
+            {/* Asset Display Area */}
+            <div className="text-center py-16 bg-slate-50 border-2 border-dashed border-slate-300">
+              <svg className="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <p className="font-bold text-slate-600 text-lg mb-2">No active assets loaded.</p>
+              <p className="text-sm text-slate-500 font-bold max-w-sm mx-auto">
+                Click the button above to launch the Studio and generate a new batch of commercial-grade flyers for your {trade} business.
+              </p>
+            </div>
+          </section>
+
         </div>
 
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Recent Activity</h2>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-sm font-bold text-slate-600">
-                <th className="p-4">Project Name</th>
-                <th className="p-4">Type</th>
-                <th className="p-4">Date</th>
-                <th className="p-4">Status</th>
-              </tr>
-            </thead>
-            <tbody className="text-slate-800 text-sm">
-              <tr className="border-b border-slate-100">
-                <td className="p-4 font-semibold">Apex Plumbing Promo</td>
-                <td className="p-4">Flyer Template</td>
-                <td className="p-4">Today</td>
-                <td className="p-4"><span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-md text-xs font-bold">Watermarked</span></td>
-              </tr>
-            </tbody>
-          </table>
+        {/* Right Column: Website Upgrade Funnel */}
+        <div className="space-y-8">
+          
+          <section className="bg-white border-4 border-black p-6 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
+            <h2 className="text-2xl font-black uppercase italic border-b-2 border-black pb-2 mb-4">Website Upgrades</h2>
+            <p className="text-sm font-bold text-slate-600 mb-6">Stop sending Facebook leads to a blank profile. Upgrade to a professional web presence to increase your booking rate.</p>
+            
+            <div className="space-y-6">
+              
+              {/* Tier 2: Network Site */}
+              <div className="border-4 border-black p-5 bg-slate-50 relative overflow-hidden">
+                <h3 className="font-black uppercase text-xl mb-1">Network Site</h3>
+                <div className="text-3xl font-black text-blue-600 mb-4">$15<span className="text-sm text-black uppercase tracking-widest">/mo</span></div>
+                <ul className="text-sm font-bold space-y-2 mb-6 text-slate-700">
+                  <li className="flex gap-2"><span className="text-blue-600">✓</span> Hosted single-page website</li>
+                  <li className="flex gap-2"><span className="text-blue-600">✓</span> Lead capture contact form</li>
+                  <li className="flex gap-2"><span className="text-blue-600">✓</span> Mobile optimized</li>
+                </ul>
+                <Link href="/checkout?plan=network" className="block w-full text-center bg-black text-white font-black uppercase py-3 hover:bg-slate-800 transition-colors">
+                  Upgrade to Network
+                </Link>
+              </div>
+
+              {/* Tier 3: SEO Dominator */}
+              <div className="border-4 border-black p-5 bg-yellow-400 relative">
+                <div className="absolute top-4 right-4 bg-black text-white text-[10px] font-black uppercase px-2 py-1">Recommended</div>
+                <h3 className="font-black uppercase text-xl mb-1">SEO Dominator</h3>
+                <div className="text-3xl font-black text-black mb-4">$49<span className="text-sm uppercase tracking-widest">/mo</span></div>
+                <ul className="text-sm font-bold space-y-2 mb-6 text-black">
+                  <li className="flex gap-2"><span className="text-slate-800">✓</span> Unique standalone domain</li>
+                  <li className="flex gap-2"><span className="text-slate-800">✓</span> 20 locally optimized pages</li>
+                  <li className="flex gap-2"><span className="text-slate-800">✓</span> Designed to rank on Google</li>
+                </ul>
+                <Link href="/checkout?plan=seo" className="block w-full text-center bg-black text-white font-black uppercase py-3 hover:bg-slate-800 transition-colors shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+                  Upgrade to SEO
+                </Link>
+              </div>
+
+            </div>
+          </section>
+
         </div>
       </div>
     </main>
