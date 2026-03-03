@@ -5,8 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const PLANS = {
-  network: { name: 'Network Site', priceMonthly: 15, priceAnnual: 135 },
-  seo: { name: 'SEO Dominator', priceMonthly: 49, priceAnnual: 441 },
+  network: { name: 'Verified Pro', priceMonthly: 15, priceAnnual: 135 },
+  seo: { name: 'Pro Plus', priceMonthly: 49, priceAnnual: 441 },
 };
 
 function CheckoutContent() {
