@@ -35,8 +35,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-bold mb-2">Higher Click-Through Rate</h3>
-              <p className="text-slate-600 text-sm">Listings that utilize multi-image carousel structures significantly outperform standard single-photo posts.</p>
+              <h3 className="text-lg font-bold mb-2">More Clicks</h3>
+              <p className="text-slate-600 text-sm">Listings with multiple images and a business flyer get far more attention than standard single-photo posts from your competitors.</p>
             </div>
             
             {/* Stat 2: Plus Sign */}
@@ -47,8 +47,8 @@ export default function Home() {
                 </svg>
                 <div className="text-4xl font-extrabold">30%</div>
               </div>
-              <h3 className="text-lg font-bold mb-2">Conversion Increase</h3>
-              <p className="text-slate-600 text-sm">Optimizing ad copy with clear value propositions and localized keywords prevents bounce rates.</p>
+              <h3 className="text-lg font-bold mb-2">More Messages</h3>
+              <p className="text-slate-600 text-sm">Clear, professional ad text stops people from scrolling past and makes them contact you to book a job.</p>
             </div>
             
             {/* Stat 3: Checkmark Circle */}
@@ -59,8 +59,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-bold mb-2">Industry Standard Target</h3>
-              <p className="text-slate-600 text-sm">We format your free, organic posts to match the conversion standards of professional paid lead-generation campaigns.</p>
+              <h3 className="text-lg font-bold mb-2">Pro-Level Quality</h3>
+              <p className="text-slate-600 text-sm">We format your free marketplace posts to look and perform like expensive, professional advertising campaigns.</p>
             </div>
 
           </div>
