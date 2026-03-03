@@ -14,7 +14,7 @@ export default function Home() {
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link href="/preview" className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition">
-            Start Your Free Preview
+            Generate Your Free Flyer
           </Link>
           <Link href="#pricing" className="bg-white text-slate-900 px-8 py-4 rounded-lg font-bold text-lg border border-slate-300 hover:bg-slate-100 transition">
             View Pricing Packages
