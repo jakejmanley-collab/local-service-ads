@@ -109,7 +109,7 @@ export default function PreviewPage() {
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('aretifi_user_email', authEmail);
-    router.push('/upgrade-offer');
+    router.push('/dashboard');
   };
 
   if (show) {
