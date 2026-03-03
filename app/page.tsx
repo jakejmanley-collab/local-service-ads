@@ -26,21 +26,43 @@ export default function Home() {
       <section className="bg-white py-16 border-y border-slate-200">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8 text-center">
+            
+            {/* Stat 1: Trending Up Arrow */}
             <div className="p-6">
-              <div className="text-4xl font-extrabold text-blue-600 mb-2">34%</div>
+              <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
+                <div className="text-4xl font-extrabold">34%</div>
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+              </div>
               <h3 className="text-lg font-bold mb-2">Higher Click-Through Rate</h3>
               <p className="text-slate-600 text-sm">Listings that utilize multi-image carousel structures significantly outperform standard single-photo posts.</p>
             </div>
+            
+            {/* Stat 2: Plus Sign */}
             <div className="p-6">
-              <div className="text-4xl font-extrabold text-blue-600 mb-2">30%</div>
+              <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M12 4v16m8-8H4"></path>
+                </svg>
+                <div className="text-4xl font-extrabold">30%</div>
+              </div>
               <h3 className="text-lg font-bold mb-2">Conversion Increase</h3>
               <p className="text-slate-600 text-sm">Optimizing ad copy with clear value propositions and localized keywords prevents bounce rates.</p>
             </div>
+            
+            {/* Stat 3: Checkmark Circle */}
             <div className="p-6">
-              <div className="text-4xl font-extrabold text-blue-600 mb-2">9.96%</div>
+              <div className="flex items-center justify-center gap-2 text-blue-600 mb-2">
+                <div className="text-4xl font-extrabold">9.96%</div>
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
               <h3 className="text-lg font-bold mb-2">Industry Standard Target</h3>
               <p className="text-slate-600 text-sm">We format your free, organic posts to match the conversion standards of professional paid lead-generation campaigns.</p>
             </div>
+
           </div>
         </div>
       </section>
