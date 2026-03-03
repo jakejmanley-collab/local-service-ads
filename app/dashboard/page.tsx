@@ -172,25 +172,18 @@ export default function DashboardPage() {
 
         <div className="lg:col-span-4 space-y-6">
           
-          <div className="group relative overflow-hidden bg-slate-900 rounded-2xl text-white shadow-xl transition-all hover:scale-[1.02] border border-slate-800 flex flex-col">
-            
-            <div className="w-full bg-slate-800 relative overflow-hidden border-b border-slate-700">
-              <img 
-                src="/premium-flyer.jpg" 
-                alt="Premium Business Flyer Example" 
-                className="w-full h-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
-              />
-              <div className="absolute top-4 left-4 bg-blue-600 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md shadow-md">
+          {/* Reverted Compact OTO Card */}
+          <div className="group relative overflow-hidden bg-slate-900 rounded-2xl p-6 text-white shadow-xl transition-all hover:scale-[1.02] border border-slate-800">
+            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full" />
+            <div className="relative z-10">
+              <div className="inline-block bg-blue-600 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-4 shadow-md">
                 Limited Time Offer
               </div>
-            </div>
-
-            <div className="p-6 relative z-10 flex-1 flex flex-col">
               <h3 className="text-xl font-bold leading-tight mb-2">Get Premium <br/>Business Flyers</h3>
               <p className="text-slate-400 text-xs font-medium mb-6 leading-relaxed">
-                Unlock 5 custom, high-end business flyers for your {trade} business. Stop using standard templates and look like the top Pro in town.
+                Unlock 5 custom, high-end business flyers specifically designed for your {trade} business. Stand out from the competition.
               </p>
-              <div className="flex items-end gap-2 mb-6 mt-auto">
+              <div className="flex items-end gap-2 mb-6">
                 <span className="text-3xl font-black text-white">$25</span>
                 <span className="text-slate-500 text-xs font-bold line-through mb-1">Was $99</span>
               </div>
@@ -204,22 +197,22 @@ export default function DashboardPage() {
             <h3 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-6">Growth Plans</h3>
             <div className="space-y-4">
               <Link href="/checkout?plan=network" className="block group">
-                <div className="p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all">
+                <div className="p-4 rounded-xl border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm">
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-bold">Verified Pro</span>
-                    <span className="text-blue-600 font-black">$15/mo</span>
+                    <span className="font-black text-blue-100">$15/mo</span>
                   </div>
-                  <p className="text-[11px] text-slate-500 font-medium italic">A professional page on our domain</p>
+                  <p className="text-[11px] text-blue-200 font-medium italic">A professional page on our domain</p>
                 </div>
               </Link>
               
               <Link href="/checkout?plan=seo" className="block group">
-                <div className="p-4 rounded-xl border border-slate-900 bg-slate-900 text-white hover:bg-slate-800 transition-all">
+                <div className="p-4 rounded-xl border border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-all">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold text-yellow-400">Pro Plus</span>
-                    <span className="text-white font-black">$49/mo</span>
+                    <span className="font-bold">Pro Plus</span>
+                    <span className="font-black text-slate-900">$49/mo</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 font-medium italic">Your own domain + 20 pages built for Google</p>
+                  <p className="text-[11px] text-slate-500 font-medium italic">Your own domain + 20 pages built for Google</p>
                 </div>
               </Link>
             </div>
