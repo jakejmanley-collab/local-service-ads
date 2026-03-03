@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Papa from 'papaparse';
+import { toPng } from 'html-to-image';
 
 const FALLBACK_1 = "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800"; 
 const FALLBACK_2 = "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=800";
@@ -53,6 +54,7 @@ export default function DashboardPage() {
   const [savedAssets, setSavedAssets] = useState<any>(null);
   const [formData, setFormData] = useState<any>(null);
   const [db, setDb] = useState<Record<string, any>>({});
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     const savedData = localStorage.getItem('flyer_form_data');
@@ -76,6 +78,45 @@ export default function DashboardPage() {
       }});
     });
   }, []);
+
+  const handleDownload = async (elementId: string, shape: string) => {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    setDownloadingId(elementId);
+    
+    try {
+      const dataUrl = await toPng(element, { cacheBust: true, pixelRatio: 2 });
+      const blob = await (await fetch(dataUrl)).blob();
+      const fileName = `${businessName.replace(/\s+/g, '-')}-${shape}.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      // Trigger Mobile Share Sheet (Allows "Save to Photos")
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `${businessName} Flyer`,
+          });
+          setDownloadingId(null);
+          return;
+        } catch (e) {
+          // User canceled share sheet, continue to fallback download
+        }
+      }
+
+      // Fallback for Desktop (Standard Download)
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to download image', err);
+      alert('There was an error saving your flyer. Please try again.');
+    }
+    
+    setDownloadingId(null);
+  };
 
   return (
     <main className="min-h-screen bg-[#f8fafc] font-sans text-slate-900">
@@ -138,7 +179,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {['circle', 'square', 'hex'].map(s => (
-                      <div key={s} className="border border-slate-200 bg-slate-50 shadow-sm overflow-hidden flex flex-col rounded-xl">
+                      <div key={s} className="border border-slate-200 bg-slate-50 shadow-sm overflow-hidden flex flex-col rounded-xl relative">
+                        {downloadingId === `t-${s}` && (
+                          <div className="absolute inset-0 bg-white/80 z-20 flex items-center justify-center backdrop-blur-sm">
+                            <span className="font-bold text-sm animate-pulse">Processing...</span>
+                          </div>
+                        )}
                         <MasterTemplate 
                           id={`t-${s}`} 
                           data={formData} 
@@ -147,8 +193,12 @@ export default function DashboardPage() {
                           photo1={savedAssets.photos?.[0] || FALLBACK_1} 
                           photo2={savedAssets.photos?.[1] || FALLBACK_2} 
                         />
-                        <button onClick={() => alert('To download, wire up html-to-image here.')} className="w-full mt-auto bg-slate-100 text-slate-900 py-3 font-bold text-sm hover:bg-slate-200 transition-colors border-t border-slate-200">
-                          Download Image
+                        <button 
+                          onClick={() => handleDownload(`t-${s}`, s)} 
+                          disabled={downloadingId !== null}
+                          className="w-full mt-auto bg-slate-100 text-slate-900 py-3 font-bold text-sm hover:bg-slate-200 transition-colors border-t border-slate-200 disabled:opacity-50"
+                        >
+                          Save to Device
                         </button>
                       </div>
                     ))}
@@ -172,7 +222,6 @@ export default function DashboardPage() {
 
         <div className="lg:col-span-4 space-y-6">
           
-          {/* Reverted Compact OTO Card */}
           <div className="group relative overflow-hidden bg-slate-900 rounded-2xl p-6 text-white shadow-xl transition-all hover:scale-[1.02] border border-slate-800">
             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full" />
             <div className="relative z-10">
@@ -185,7 +234,7 @@ export default function DashboardPage() {
               </p>
               <div className="flex items-end gap-2 mb-6">
                 <span className="text-3xl font-black text-white">$25</span>
-                <span className="text-slate-500 text-xs font-bold line-through mb-1">Was $99</span>
+                <span className="text-slate-500 text-xs font-bold line-through mb-1">Was $59</span>
               </div>
               <Link href="/checkout?oto=true" className="block w-full text-center bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-100 transition-colors shadow-lg">
                 Upgrade My Flyers
