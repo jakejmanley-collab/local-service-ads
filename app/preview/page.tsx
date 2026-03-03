@@ -127,9 +127,9 @@ export default function PreviewPage() {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate user creation and push to the $25 OTO page
+    // Simulate user creation and push directly to dashboard
     localStorage.setItem('aretifi_user_email', authEmail);
-    router.push('/upgrade-offer');
+    router.push('/dashboard');
   };
 
   if (show) {
@@ -205,53 +205,4 @@ export default function PreviewPage() {
           <div className="bg-white p-6 border-4 border-black h-fit shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
             <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2">Listing Copy</h2>
             {copy ? (
-              <div className="space-y-4">
-                <div className="flex border-2 border-black overflow-hidden">
-                  {['professional', 'friendly', 'aggressive'].map(t => (
-                    <button key={t} onClick={() => setActiveTone(t)} className={`flex-1 py-2 text-[10px] font-black uppercase transition-colors ${activeTone === t ? 'bg-black text-white' : 'hover:bg-slate-100'}`}>{t}</button>
-                  ))}
-                </div>
-                <p className="font-bold border-2 border-black border-dashed p-3 text-sm bg-slate-50">{copy[activeTone]?.headline}</p>
-                <textarea readOnly className="w-full h-80 text-sm border-2 border-black p-3 bg-slate-50 font-sans outline-none" value={copy[activeTone]?.description} />
-                <button 
-                  onClick={() => setShowAuthModal(true)} 
-                  className="w-full bg-black text-white py-4 font-black uppercase italic text-sm hover:bg-gray-900 transition-colors"
-                >
-                  Copy Description
-                </button>
-              </div>
-            ) : (
-              <div className="py-10 text-center font-black uppercase text-xs italic border-2 border-black border-dashed">
-                {errorStatus ? `Failed: ${errorStatus}` : 'Generating Ad Copy...'}
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-100 p-6">
-      <div className="bg-white max-w-xl w-full p-10 border-4 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)]">
-        <h1 className="text-4xl font-black uppercase text-center mb-8 italic tracking-tighter">Aretifi Studio</h1>
-        <form onSubmit={handlePreview} className="space-y-4">
-          <input value={form.businessName} required placeholder="Business Name" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, businessName: e.target.value})} />
-          <div className="grid grid-cols-2 gap-4">
-            <input value={form.field} required placeholder="Trade" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, field: e.target.value})} />
-            <input value={form.phone} required placeholder="Phone" className="w-full border-4 p-4 border-black font-bold uppercase outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, phone: e.target.value})} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <input value={form.service1} required placeholder="Service 1" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service1: e.target.value})} />
-            <input value={form.service2} required placeholder="Service 2" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service2: e.target.value})} />
-            <input value={form.service3} placeholder="Service 3" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service3: e.target.value})} />
-            <input value={form.service4} placeholder="Service 4" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service4: e.target.value})} />
-          </div>
-          <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-6 uppercase text-2xl italic tracking-tight border-b-8 border-gray-800 active:translate-y-2 active:border-b-0 transition-all">
-            {isFetching ? 'Generating...' : 'Generate Assets'}
-          </button>
-        </form>
-      </div>
-    </main>
-  );
-}
+              <div className
