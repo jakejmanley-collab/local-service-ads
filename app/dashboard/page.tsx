@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default function DashboardPage() {
   const [businessName, setBusinessName] = useState('Your Business');
   const [trade, setTrade] = useState('Service');
+  const [savedAssets, setSavedAssets] = useState<any>(null);
 
   useEffect(() => {
     const savedData = localStorage.getItem('flyer_form_data');
@@ -13,6 +14,11 @@ export default function DashboardPage() {
       const parsed = JSON.parse(savedData);
       if (parsed.businessName) setBusinessName(parsed.businessName);
       if (parsed.field) setTrade(parsed.field);
+    }
+
+    const assets = localStorage.getItem('aretifi_assets');
+    if (assets) {
+      setSavedAssets(JSON.parse(assets));
     }
   }, []);
 
@@ -47,24 +53,62 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h-1m-4-4h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+            {savedAssets ? (
+              <div className="space-y-8">
+                {/* Ad Script Card */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+                    <h3 className="font-bold text-xl">Your Ad Script</h3>
+                    <button 
+                      onClick={() => {
+                        const text = `${savedAssets.copy?.professional?.headline || ''}\n\n${savedAssets.copy?.professional?.description || ''}`;
+                        navigator.clipboard.writeText(text);
+                        alert('Copied to clipboard!');
+                      }}
+                      className="bg-slate-100 text-slate-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-slate-200 transition"
+                    >
+                      Copy Text
+                    </button>
+                  </div>
+                  <div>
+                    <p className="font-bold text-lg mb-2">{savedAssets.copy?.professional?.headline || 'Your Headline'}</p>
+                    <p className="text-slate-600 whitespace-pre-wrap font-medium">{savedAssets.copy?.professional?.description || 'Your ad description will appear here.'}</p>
+                  </div>
+                </div>
+
+                {/* Ad Images Card */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+                    <h3 className="font-bold text-xl">Ad Backgrounds</h3>
+                    <Link href="/preview" className="text-sm font-bold text-blue-600 hover:text-blue-700">Open Studio to add text →</Link>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {savedAssets.photos?.map((photo: string, i: number) => (
+                      <div key={i} className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                         <img src={photo} alt={`Generated Background ${i + 1}`} className="w-full h-48 object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <h3 className="font-bold text-lg">No ads created yet</h3>
-              <p className="text-slate-400 text-sm mt-1 mb-6">Start by making your first set of {trade} flyers.</p>
-              <Link href="/preview" className="text-blue-600 font-bold text-sm hover:underline">Start Here →</Link>
-            </div>
+            ) : (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h-1m-4-4h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-lg">No ads created yet</h3>
+                <p className="text-slate-400 text-sm mt-1 mb-6">Start by making your first set of {trade} flyers.</p>
+                <Link href="/preview" className="text-blue-600 font-bold text-sm hover:underline">Start Here →</Link>
+              </div>
+            )}
           </section>
         </div>
 
         <div className="lg:col-span-4 space-y-6">
           
           <div className="group relative overflow-hidden bg-slate-900 rounded-2xl text-white shadow-xl transition-all hover:scale-[1.02] border border-slate-800 flex flex-col">
-            
-            {/* Feature Image Header */}
             <div className="w-full h-64 bg-slate-800 relative overflow-hidden border-b border-slate-700">
               <img 
                 src="/premium-flyer.jpg" 
@@ -76,7 +120,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Offer Details */}
             <div className="p-6 relative z-10 flex-1 flex flex-col">
               <h3 className="text-xl font-bold leading-tight mb-2">Get Premium <br/>Business Flyers</h3>
               <p className="text-slate-400 text-xs font-medium mb-6 leading-relaxed">
@@ -92,7 +135,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Website Plans Card */}
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             <h3 className="font-bold text-sm text-slate-400 uppercase tracking-widest mb-6">Growth Plans</h3>
             <div className="space-y-4">
