@@ -109,6 +109,8 @@ export default function PreviewPage() {
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('aretifi_user_email', authEmail);
+    // SAVE THE ASSETS SO THE DASHBOARD CAN SEE THEM
+    localStorage.setItem('aretifi_assets', JSON.stringify({ photos, copy }));
     router.push('/dashboard');
   };
 
@@ -119,8 +121,8 @@ export default function PreviewPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
             <div className="bg-white border-4 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] max-w-md w-full p-8 relative">
               <button onClick={() => setShowAuthModal(false)} className="absolute top-4 right-4 font-black text-2xl hover:text-red-600 transition-colors">✕</button>
-              <h2 className="text-3xl font-black uppercase italic mb-2 tracking-tight">Save Your Assets</h2>
-              <p className="text-sm font-bold text-slate-600 mb-6">Create your free account to unlock high-res downloads and save your professional ad copy.</p>
+              <h2 className="text-3xl font-black uppercase italic mb-2 tracking-tight">Save Your Work</h2>
+              <p className="text-sm font-bold text-slate-600 mb-6">Create your free account to download your flyers and save your ad text.</p>
               <form onSubmit={handleAuthSubmit} className="space-y-4">
                 <input type="email" required placeholder="Email Address" className="w-full border-4 p-4 border-black font-bold outline-none focus:bg-yellow-50 transition-colors" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
                 <input type="password" required placeholder="Create Password" className="w-full border-4 p-4 border-black font-bold outline-none focus:bg-yellow-50 transition-colors" value={authPassword} onChange={e => setAuthPassword(e.target.value)} />
@@ -151,7 +153,7 @@ export default function PreviewPage() {
           </div>
 
           <div className="bg-white p-6 border-4 border-black h-fit shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
-            <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2">Listing Copy</h2>
+            <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2">Ad Text</h2>
             {copy ? (
               <div className="space-y-4">
                 <div className="flex border-2 border-black overflow-hidden">
@@ -161,7 +163,7 @@ export default function PreviewPage() {
                 </div>
                 <p className="font-bold border-2 border-black border-dashed p-3 text-sm bg-slate-50">{copy[activeTone]?.headline}</p>
                 <textarea readOnly className="w-full h-80 text-sm border-2 border-black p-3 bg-slate-50 font-sans outline-none" value={copy[activeTone]?.description} />
-                <button onClick={() => setShowAuthModal(true)} className="w-full bg-black text-white py-4 font-black uppercase italic text-sm hover:bg-gray-900 transition-colors">Copy Description</button>
+                <button onClick={() => setShowAuthModal(true)} className="w-full bg-black text-white py-4 font-black uppercase italic text-sm hover:bg-gray-900 transition-colors">Copy Ad Text</button>
               </div>
             ) : (
               <div className="py-10 text-center font-black uppercase text-xs italic border-2 border-black border-dashed">{errorStatus ? `Failed: ${errorStatus}` : 'Generating Ad Copy...'}</div>
@@ -189,7 +191,7 @@ export default function PreviewPage() {
             <input value={form.service4} placeholder="Service 4" className="w-full border-4 p-4 border-black font-bold text-xs outline-none focus:bg-yellow-50 transition-colors" onChange={e => setForm({...form, service4: e.target.value})} />
           </div>
           <button type="submit" disabled={isFetching} className="w-full bg-black text-white font-black py-6 uppercase text-2xl italic tracking-tight border-b-8 border-gray-800 active:translate-y-2 active:border-b-0 transition-all">
-            {isFetching ? 'Generating...' : 'Generate Assets'}
+            {isFetching ? 'Generating...' : 'Create My Ads'}
           </button>
         </form>
       </div>
