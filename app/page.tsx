@@ -60,7 +60,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Updated Pricing Section */}
+      {/* Pricing Section */}
       <section id="pricing" className="py-20 bg-slate-50">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-center mb-12">Level Up Your Business</h2>
@@ -106,6 +106,30 @@ export default function Home() {
               <Link href="/checkout?plan=seo" className="w-full text-center bg-slate-100 text-slate-900 font-bold py-3 rounded-lg hover:bg-slate-200 transition">Get This Plan</Link>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Section Restored */}
+      <section className="bg-slate-900 text-white py-20">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">What Local Pros Are Saying</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-slate-800 p-6 rounded-lg shadow-sm border border-slate-700">
+              <div className="text-yellow-400 mb-4 text-lg">★★★★★</div>
+              <p className="text-slate-300 mb-4 font-medium">"I used to get maybe one message a week for my landscaping business. After using these flyer templates and the exact ad text they gave me, I booked three jobs in two days."</p>
+              <div className="font-bold text-white">- Mike T., Landscaping</div>
+            </div>
+            <div className="bg-slate-800 p-6 rounded-lg shadow-sm border border-slate-700">
+              <div className="text-yellow-400 mb-4 text-lg">★★★★★</div>
+              <p className="text-slate-300 mb-4 font-medium">"The website upgrade changed everything. Now when I reply to marketplace leads, I send them my site link. It makes me look like an established company, not just someone starting out."</p>
+              <div className="font-bold text-white">- Sarah J., Residential Cleaning</div>
+            </div>
+            <div className="bg-slate-800 p-6 rounded-lg shadow-sm border border-slate-700">
+              <div className="text-yellow-400 mb-4 text-lg">★★★★★</div>
+              <p className="text-slate-300 mb-4 font-medium">"Fast, easy, and it works. I enter my services and it spits out a professional ad and flyer. Best ROI for my plumbing business this year."</p>
+              <div className="font-bold text-white">- David R., Plumbing Services</div>
+            </div>
           </div>
         </div>
       </section>
