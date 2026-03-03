@@ -76,13 +76,13 @@ export default function DashboardPage() {
               <div className="inline-block bg-blue-500 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-4">
                 Limited Time Offer
               </div>
-              <h3 className="text-xl font-bold leading-tight mb-2">Upgrade to <br/>Premium AI Assets</h3>
+              <h3 className="text-xl font-bold leading-tight mb-2">Upgrade to <br/>Pro Designed Flyers</h3>
               <p className="text-slate-400 text-xs font-medium mb-6 leading-relaxed">
                 Unlock 5 photorealistic, custom-generated flyers for your {trade} business. Stop using templates and look like a Top-Tier Pro.
               </p>
               <div className="flex items-end gap-2 mb-6">
                 <span className="text-3xl font-black">$25</span>
-                <span className="text-slate-500 text-xs font-bold line-through mb-1">Was $99</span>
+                <span className="text-slate-500 text-xs font-bold line-through mb-1">Was $49</span>
               </div>
               <button className="w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-100 transition-colors shadow-lg">
                 Upgrade Now
@@ -97,7 +97,7 @@ export default function DashboardPage() {
               <Link href="/checkout?plan=network" className="block group">
                 <div className="p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold">Network Site</span>
+                    <span className="font-bold">Verified Pro</span>
                     <span className="text-blue-600 font-black">$15/mo</span>
                   </div>
                   <p className="text-[11px] text-slate-500 font-medium italic">Single page on Aretifi domain</p>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
               <Link href="/checkout?plan=seo" className="block group">
                 <div className="p-4 rounded-xl border border-slate-900 bg-slate-900 text-white hover:bg-slate-800 transition-all">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold text-yellow-400">SEO Dominator</span>
+                    <span className="font-bold text-yellow-400">Pro Plus</span>
                     <span className="font-black">$49/mo</span>
                   </div>
                   <p className="text-[11px] text-slate-400 font-medium italic">Unique domain + 20 local pages</p>
