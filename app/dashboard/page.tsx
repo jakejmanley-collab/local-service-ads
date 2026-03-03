@@ -50,7 +50,7 @@ export default function DashboardPage() {
             <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h-1m-4-4h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <h3 className="font-bold text-lg">No ads created yet</h3>
@@ -61,23 +61,37 @@ export default function DashboardPage() {
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          {/* OTO Card */}
-          <div className="group relative overflow-hidden bg-slate-900 rounded-2xl p-6 text-white shadow-xl transition-all hover:scale-[1.02]">
-            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full" />
-            <div className="relative z-10">
-              <div className="inline-block bg-blue-500 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md mb-4">
+          
+          {/* Redesigned OTO Card with Image Embedding */}
+          <div className="group relative overflow-hidden bg-slate-900 rounded-2xl text-white shadow-xl transition-all hover:scale-[1.02] border border-slate-800 flex flex-col">
+            
+            {/* Feature Image Header */}
+            <div className="w-full h-48 bg-slate-800 relative overflow-hidden border-b border-slate-700">
+              {/* I am linking directly to the generated luxury flyer image here. 
+                  For production, right click and save that image to your /public folder, 
+                  then change this src to "/premium-flyer.jpg" */}
+              <img 
+                src="http://googleusercontent.com/image_generation_content/6" 
+                alt="Premium Business Flyer Example" 
+                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+              />
+              <div className="absolute top-4 left-4 bg-blue-600 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md shadow-md">
                 Limited Time Offer
               </div>
-              <h3 className="text-xl font-bold leading-tight mb-2">Get Premium <br/>AI Ad Images</h3>
+            </div>
+
+            {/* Offer Details */}
+            <div className="p-6 relative z-10 flex-1 flex flex-col">
+              <h3 className="text-xl font-bold leading-tight mb-2">Get Premium <br/>Business Flyers</h3>
               <p className="text-slate-400 text-xs font-medium mb-6 leading-relaxed">
-                Unlock 5 custom background images for your {trade} ads. Stop using standard templates and look like the top Pro in town.
+                Unlock 5 custom, high-end business flyers for your {trade} business. Stop using standard templates and look like the top Pro in town.
               </p>
-              <div className="flex items-end gap-2 mb-6">
-                <span className="text-3xl font-black">$25</span>
+              <div className="flex items-end gap-2 mb-6 mt-auto">
+                <span className="text-3xl font-black text-white">$25</span>
                 <span className="text-slate-500 text-xs font-bold line-through mb-1">Was $99</span>
               </div>
               <Link href="/checkout?oto=true" className="block w-full text-center bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-100 transition-colors shadow-lg">
-                Upgrade My Ads
+                Upgrade My Flyers
               </Link>
             </div>
           </div>
