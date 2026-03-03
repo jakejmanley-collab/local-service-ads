@@ -62,16 +62,12 @@ export default function DashboardPage() {
 
         <div className="lg:col-span-4 space-y-6">
           
-          {/* Redesigned OTO Card with Image Embedding */}
           <div className="group relative overflow-hidden bg-slate-900 rounded-2xl text-white shadow-xl transition-all hover:scale-[1.02] border border-slate-800 flex flex-col">
             
             {/* Feature Image Header */}
-            <div className="w-full h-48 bg-slate-800 relative overflow-hidden border-b border-slate-700">
-              {/* I am linking directly to the generated luxury flyer image here. 
-                  For production, right click and save that image to your /public folder, 
-                  then change this src to "/premium-flyer.jpg" */}
+            <div className="w-full h-64 bg-slate-800 relative overflow-hidden border-b border-slate-700">
               <img 
-                src="http://googleusercontent.com/image_generation_content/6" 
+                src="/premium-flyer.jpg" 
                 alt="Premium Business Flyer Example" 
                 className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
               />
