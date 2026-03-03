@@ -109,7 +109,6 @@ export default function PreviewPage() {
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('aretifi_user_email', authEmail);
-    // SAVE THE ASSETS SO THE DASHBOARD CAN SEE THEM
     localStorage.setItem('aretifi_assets', JSON.stringify({ photos, copy }));
     router.push('/dashboard');
   };
@@ -133,27 +132,34 @@ export default function PreviewPage() {
           </div>
         )}
 
-        <div className="flex justify-between mb-8">
+        <div className="flex justify-between items-end mb-8">
           <button onClick={() => setShow(false)} className="px-6 py-2 bg-black text-white font-bold uppercase italic border-b-4 border-gray-700 active:translate-y-1 active:border-b-0 transition-all">← Edit Info</button>
-          <div className="flex gap-2">
-            {THEME_COLORS.map(color => (
-              <button key={color} onClick={() => setForm({...form, themeColor: color})} className={`w-8 h-8 border-2 border-black transition-transform ${form.themeColor === color ? 'scale-110 ring-2 ring-black' : ''}`} style={{ backgroundColor: color === 'gold' ? '#D4AF37' : color }} />
-            ))}
+          
+          <div className="flex flex-col items-end">
+            <span className="text-sm font-black uppercase tracking-tight mb-2 text-slate-800">Step 1: Choose Your Color</span>
+            <div className="flex gap-2">
+              {THEME_COLORS.map(color => (
+                <button key={color} onClick={() => setForm({...form, themeColor: color})} className={`w-8 h-8 border-2 border-black transition-transform ${form.themeColor === color ? 'scale-110 ring-2 ring-black' : ''}`} style={{ backgroundColor: color === 'gold' ? '#D4AF37' : color }} />
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-          <div className="xl:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {['circle', 'square', 'hex'].map(s => (
-              <div key={s} id={`f-${s}`} className="border-4 border-black bg-white shadow-lg overflow-hidden flex flex-col">
-                <MasterTemplate id={`t-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} photo1={photos[0]} photo2={photos[1]} />
-                <button onClick={() => setShowAuthModal(true)} className="w-full mt-auto bg-black text-white py-4 font-black uppercase text-sm hover:bg-gray-900 transition-colors">Download {s}</button>
-              </div>
-            ))}
+          <div className="xl:col-span-3">
+            <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2 text-slate-800">Step 3: Download Your Chosen Flyer Style</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+              {['circle', 'square', 'hex'].map(s => (
+                <div key={s} id={`f-${s}`} className="border-4 border-black bg-white shadow-lg overflow-hidden flex flex-col h-fit">
+                  <MasterTemplate id={`t-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} photo1={photos[0]} photo2={photos[1]} />
+                  <button onClick={() => setShowAuthModal(true)} className="w-full bg-black text-white py-4 font-black uppercase text-sm hover:bg-gray-900 transition-colors">Download {s}</button>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="bg-white p-6 border-4 border-black h-fit shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
-            <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2">Ad Text</h2>
+            <h2 className="text-xl font-black uppercase italic mb-4 border-b-2 border-black pb-2 text-slate-800">Step 2: Choose Your Ad Text</h2>
             {copy ? (
               <div className="space-y-4">
                 <div className="flex border-2 border-black overflow-hidden">
