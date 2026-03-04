@@ -24,8 +24,16 @@ const getPrompts = (details: any) => {
 };
 
 export async function POST(req: Request) {
+  // 1. Declare the ID outside the try block so the catch block can access it
+  let currentOrderId: string | null = null;
+
   try {
-    const { orderId, details } = await req.json();
+    const body = await req.json();
+    const { orderId, details } = body;
+    
+    // 2. Assign the ID as soon as we have it
+    currentOrderId = orderId;
+
     if (!orderId || !details) return NextResponse.json({ error: 'Missing data' }, { status: 400 });
 
     const adminSupabase = getServiceSupabase();
@@ -79,8 +87,13 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Generation Error:", error.message);
-    const adminSupabase = getServiceSupabase();
-    await adminSupabase.from('flyer_orders').update({ status: 'needs_generation' }).eq('id', orderId);
+    
+    // 3. Now the catch block safely uses currentOrderId to revert the database
+    if (currentOrderId) {
+      const adminSupabase = getServiceSupabase();
+      await adminSupabase.from('flyer_orders').update({ status: 'needs_generation' }).eq('id', currentOrderId);
+    }
+    
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
