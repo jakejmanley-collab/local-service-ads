@@ -1,6 +1,3 @@
-import { NextResponse } from 'next/server';
-import { getServiceSupabase } from '@/lib/supabase';
-
 const getPrompts = (details: any) => {
   const { businessName, field, phone, websiteUrl, service1, service2 } = details;
   
@@ -11,89 +8,19 @@ const getPrompts = (details: any) => {
   const specialty2 = service2 || 'Professional Service';
 
   return [
-    `A premium modern advertising poster for a ${trade} company. The poster features a cinematic photo of a professional at work. Bold, elegant, perfectly spelled typography overlay that reads "${name}". Subtitle text reads "${specialty1} and ${specialty2}". At the bottom, clean text reads "${contact}". Clean graphic design, advertising agency quality.`,
+    // Flyer 1: The Diagonal Corporate Layout (Inspired by your electrical & business examples)
+    `A professional graphic design flyer layout for a ${trade} business. The background uses dynamic diagonal color blocking in modern brand colors over a clean white base. In the top half, a high-quality photograph of a professional worker. Bold, massive, perfectly spelled typography reads "${name}". A structured section with checkmarks lists "${specialty1}" and "${specialty2}". At the bottom, a solid color diagonal banner contains the text "${contact}". Corporate agency design.`,
 
-    `High-end commercial photography of a sleek modern service van parked in a beautiful luxury driveway. The side of the van has large, clear, perfectly spelled typography that reads "${name}". Below it, text reading "${contact}". Professional lighting, 8k resolution, photorealistic.`,
+    // Flyer 2: The Circular Cutout Design (Inspired by your pressure washing example)
+    `A premium service flyer layout for a ${trade} company. The background is a dark, sophisticated texture with bright, sweeping accent shapes. The design features three circular photo frames showing close-up professional ${trade} work. Large, white, modern typography prominently displays "${name}". A bright colored circular badge graphic is included. At the bottom, clear text perfectly displays "${contact}". Highly structured graphic design template.`,
 
-    `Close up portrait of a friendly, professional ${trade} expert looking at the camera. They are wearing a clean, high-end uniform polo shirt. Embroidered perfectly on the chest is the company name "${name}". They are holding a sleek clipboard that says "${specialty1}". Cinematic lighting, trustworthy.`,
+    // Flyer 3: The Grid/Block B2B Style (Inspired by your commercial floor care example)
+    `A clean, corporate graphic design flyer for "${name}", a ${trade} business. The layout uses a structured grid with solid colored rectangular blocks in blue and white. A large rectangular hero image of a friendly professional at work. A distinct colored sidebar section clearly lists the services: "${specialty1}" and "${specialty2}". The typography is sans-serif, highly legible, and perfectly spelled. A bold banner at the bottom displays "${contact}". Modern B2B minimalist layout.`,
 
-    `A crisp, premium advertising yard sign placed on a perfectly manicured green lawn. The sign has perfect, bold typography that reads "${name}". Below the name, it says "${contact}". Bright sunny day, professional real estate style photography, highly detailed.`,
+    // Flyer 4: The Three-Pillar Icon Design (Inspired by your dark "Business Creativity" example)
+    `A sleek, modern business flyer layout for "${name}". The top half features a faded photograph of ${trade} equipment seamlessly integrated into a dark background. Below it, large perfect typography reads "${name}". The bottom half features three colorful, distinct rounded blocks side-by-side, each containing an icon. Bold text near the blocks reads "${specialty1}" and "${specialty2}". The contact info "${contact}" is clearly written at the very bottom. High-end printing design.`,
 
-    `Artistic, satisfying top-down flatlay of clean, premium ${trade} tools arranged neatly on a dark sleek background. In the center, a luxurious embossed business card. The card clearly and perfectly reads "${name}" and "${contact}". Soft studio lighting, 8k resolution.`
+    // Flyer 5: The Diamond/Geometric Conference Layout (Inspired by your online business conference example)
+    `An ultra-modern, dynamic graphic design flyer for a ${trade} service named "${name}". The layout features sharp diamond and chevron shapes masking professional photography of the service. High-contrast color blocking using yellow and dark blue over a white background. Clear, bold typography for the company name "${name}". A specific block highlights "${specialty1}". At the bottom, high-contrast text perfectly reads "${contact}". Clean vector graphics style.`
   ];
 };
-
-export async function POST(req: Request) {
-  // 1. Declare the ID outside the try block so the catch block can access it
-  let currentOrderId: string | null = null;
-
-  try {
-    const body = await req.json();
-    const { orderId, details } = body;
-    
-    // 2. Assign the ID as soon as we have it
-    currentOrderId = orderId;
-
-    if (!orderId || !details) return NextResponse.json({ error: 'Missing data' }, { status: 400 });
-
-    const adminSupabase = getServiceSupabase();
-    await adminSupabase.from('flyer_orders').update({ status: 'processing' }).eq('id', orderId);
-
-    const prompts = getPrompts(details);
-    const imageUrls = [];
-
-    console.log(`Starting generation for premium order: ${orderId}`);
-
-    for (let i = 0; i < prompts.length; i++) {
-      const res = await fetch('https://fal.run/fal-ai/flux/dev', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Key ${process.env.FAL_API_KEY}` 
-        },
-        body: JSON.stringify({ 
-          prompt: prompts[i], 
-          image_size: "square_hd",
-          num_inference_steps: 28, 
-          guidance_scale: 3.5
-        })
-      });
-
-      const data = await res.json();
-      if (!data.images) throw new Error(`Fal.ai failed on image ${i + 1}`);
-      const falUrl = data.images[0].url;
-
-      const imgRes = await fetch(falUrl);
-      const arrayBuffer = await imgRes.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      
-      const fileName = `premium/${orderId}-img-${i + 1}.jpg`;
-      
-      await adminSupabase.storage
-        .from('trades')
-        .upload(fileName, buffer, { contentType: 'image/jpeg', upsert: true });
-      
-      const publicUrl = adminSupabase.storage.from('trades').getPublicUrl(fileName).data.publicUrl;
-      imageUrls.push(publicUrl);
-    }
-
-    await adminSupabase.from('flyer_orders').update({
-      status: 'delivered',
-      image_1: imageUrls[0], image_2: imageUrls[1], image_3: imageUrls[2],
-      image_4: imageUrls[3], image_5: imageUrls[4],
-    }).eq('id', orderId);
-
-    return NextResponse.json({ success: true, imageUrls });
-
-  } catch (error: any) {
-    console.error("Generation Error:", error.message);
-    
-    // 3. Now the catch block safely uses currentOrderId to revert the database
-    if (currentOrderId) {
-      const adminSupabase = getServiceSupabase();
-      await adminSupabase.from('flyer_orders').update({ status: 'needs_generation' }).eq('id', currentOrderId);
-    }
-    
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
