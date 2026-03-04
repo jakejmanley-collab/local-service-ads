@@ -14,7 +14,7 @@ function SuccessContent() {
             </svg>
           </div>
           
-          <h1 className="text-3xl font-black uppercase italic mb-2 tracking-tighter italic">Upgrade Success!</h1>
+          <h1 className="text-3xl font-black uppercase italic mb-2 tracking-tighter">Upgrade Success!</h1>
           <p className="text-slate-500 font-bold text-sm mb-8 uppercase tracking-wide">Your account has been updated</p>
 
           <div className="bg-slate-50 border-2 border-dashed border-slate-300 p-4 mb-8 text-left">
