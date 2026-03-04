@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-// If you want to save to Supabase directly from here, we import the client
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -14,7 +12,6 @@ export default function PremiumIntakePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   
-  // Form State
   const [formData, setFormData] = useState({
     businessName: '',
     field: '',
@@ -23,14 +20,13 @@ export default function PremiumIntakePage() {
     service2: '',
     service3: '',
     service4: '',
-    service5: '', // NEW Premium Field
-    service6: '', // NEW Premium Field
-    websiteUrl: '', // NEW Premium Field
+    service5: '', 
+    service6: '', 
+    websiteUrl: '', 
     themeColor: 'blue'
   });
 
   useEffect(() => {
-    // Auto-fill from their free flyer session!
     const saved = localStorage.getItem('flyer_form_data');
     if (saved) {
       setFormData(prev => ({ ...prev, ...JSON.parse(saved) }));
@@ -45,33 +41,33 @@ export default function PremiumIntakePage() {
     e.preventDefault();
     setLoading(true);
 
-    // 1. Save the new upgraded data back to their browser
     localStorage.setItem('flyer_form_data', JSON.stringify(formData));
-    localStorage.setItem('aretifi_flyers', 'pending_review'); // Update status
+    localStorage.setItem('aretifi_flyers', 'pending_review'); 
 
-    // 2. Send this detailed order to your Supabase Admin table
-    // Note: We use a placeholder email if we don't have it, since Stripe has the real one. 
-    // In a real app with login, you'd use their user ID.
+    // Save everything into the new 'details' column
     const { error } = await supabase.from('flyer_orders').insert([{
-      customer_email: `${formData.businessName.replace(/\s/g, '')}@customer.com`, // Placeholder for MVP
+      customer_email: `${formData.businessName.replace(/\s/g, '')}@customer.com`, 
       stripe_session_id: `manual_upgrade_${Date.now()}`,
       status: 'needs_generation',
       trade: formData.field,
-      // We can stuff extra details into the trade column for now, or add JSON columns later
+      details: formData 
     }]);
 
     setLoading(false);
     
-    // 3. Send them back to the dashboard to see the "Pending" status
-    router.push('/dashboard?upgrade=pending');
+    if (error) {
+      alert("Error saving data: " + error.message);
+    } else {
+      router.push('/dashboard?upgrade=pending');
+    }
   };
 
   return (
     <main className="min-h-screen bg-[#f8fafc] py-12 px-6 font-sans text-slate-900">
       <div className="max-w-2xl mx-auto">
-        <Link href="/dashboard" className="text-sm font-bold text-slate-400 hover:text-slate-900 mb-8 inline-block">
+        <button onClick={() => router.push('/dashboard')} className="text-sm font-bold text-slate-400 hover:text-slate-900 mb-8 inline-block">
           ← Back to Dashboard
-        </Link>
+        </button>
 
         <div className="bg-white border border-slate-200 rounded-3xl p-10 shadow-xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
@@ -82,7 +78,7 @@ export default function PremiumIntakePage() {
             </span>
             <h1 className="text-3xl font-black tracking-tight mb-2">Customize Your Premium Flyers</h1>
             <p className="text-slate-500 font-medium">
-              We've pre-loaded your details. Add your website and up to two extra services to be featured on your high-end templates. Our design team will process these within 24 hours.
+              We've pre-loaded your details. Add your website and extra services below. Our AI will seamlessly blend these directly into your high-end flyer artwork.
             </p>
           </div>
 
@@ -127,11 +123,10 @@ export default function PremiumIntakePage() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full mt-8 bg-blue-600 text-white font-black text-lg py-5 rounded-xl shadow-[0_8px_30px_rgb(37,99,235,0.3)] hover:bg-blue-700 hover:shadow-[0_8px_30px_rgb(37,99,235,0.5)] transition-all active:scale-[0.98] disabled:opacity-50"
+              className="w-full mt-8 bg-blue-600 text-white font-black text-lg py-5 rounded-xl shadow-[0_8px_30px_rgb(37,99,235,0.3)] hover:bg-blue-700 transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              {loading ? 'Submitting...' : 'Submit to Design Team'}
+              {loading ? 'Submitting to Generation Engine...' : 'Generate Premium Flyers'}
             </button>
-            <p className="text-center text-xs font-bold text-slate-400 mt-4 uppercase">Turnaround time: ~24 Hours</p>
           </form>
         </div>
       </div>
