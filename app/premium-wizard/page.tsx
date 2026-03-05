@@ -10,7 +10,6 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // --- CONFIGURATION DATA ---
-// We keep the IDs as style-1 to style-8 so the backend AI mapping stays perfectly intact!
 const SHAPE_PREFERENCES = [
   { id: 'style-1', name: 'Perfect Square', render: (active: boolean) => <div className={`w-14 h-14 ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`}></div> },
   { id: 'style-2', name: 'Diagonal Cut', render: (active: boolean) => <div className={`w-14 h-14 ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`} style={{ clipPath: 'polygon(0 0, 100% 0, 100% 70%, 0% 100%)' }}></div> },
@@ -143,7 +142,7 @@ export default function PremiumWizard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Business Name</label>
-                  <input type="text" name="businessName" value={formData.businessName} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-600" />
+                  <input type="text" name="businessName" placeholder="e.g. Apex Plumbing" value={formData.businessName} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-600" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Business Type / Trade</label>
@@ -151,18 +150,23 @@ export default function PremiumWizard() {
                 </div>
               </div>
 
+              {/* PHONE, EMAIL, AND URL BLOCK */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Phone</label>
-                  <input type="text" name="phone" value={formData.phone} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
+                  <input type="text" name="phone" placeholder="555-555-5555" value={formData.phone} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Email</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">
+                    Email <span className="text-slate-300 font-medium normal-case ml-1">(Optional)</span>
+                  </label>
+                  <input type="email" name="email" placeholder="hello@company.com" value={formData.email} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Website URL</label>
-                  <input type="text" name="websiteUrl" placeholder="optional" value={formData.websiteUrl} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">
+                    Website URL <span className="text-slate-300 font-medium normal-case ml-1">(Optional)</span>
+                  </label>
+                  <input type="text" name="websiteUrl" placeholder="www.company.com" value={formData.websiteUrl} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
                 </div>
               </div>
 
@@ -175,7 +179,13 @@ export default function PremiumWizard() {
                 </div>
               </div>
 
-              <button onClick={() => setStep(2)} className="w-full mt-10 bg-black text-white font-black text-lg py-4 rounded-xl hover:bg-slate-800 transition-all">Next: Visual Preferences →</button>
+              <button 
+                onClick={() => setStep(2)} 
+                disabled={!formData.businessName || !formData.trade}
+                className="w-full mt-10 bg-black text-white font-black text-lg py-4 rounded-xl hover:bg-slate-800 disabled:opacity-50 transition-all"
+              >
+                Next: Visual Preferences →
+              </button>
             </div>
           )}
 
