@@ -1,18 +1,48 @@
 import { NextResponse } from 'next/server';
 import { getServiceSupabase } from '@/lib/supabase';
 
-// --- DATA MAPPING FOR WIZARD CHOICES ---
-const COLOR_MAP: Record<string, string> = {
-  'color-1': 'Deep Navy, Premium Gold, and Crisp White',
-  'color-2': 'Crimson Red, Dark Slate, and Off-White',
-  'color-3': 'Ocean Teal, Sky Blue, and Soft Silver',
-  'color-4': 'Forest Green, Vibrant Leaf, and Charcoal',
-  'color-5': 'Safety Yellow, Heavy Black, and Concrete Grey',
-  'color-6': 'Electric Indigo, Vibrant Cyan, and Dark Slate',
-  'color-7': 'Matte Black, Champagne, and Ivory',
-  'color-8': 'Flame Orange, Ice Blue, and Deep Navy',
-  'color-9': 'Mint Green, Bright Coral, and Pearl White',
-  'color-10': 'Rust Copper, Warm Sand, and Espresso Brown',
+// --- DYNAMIC COLOR EXPANSION ENGINE ---
+const COLOR_VARIATIONS: Record<string, string[]> = {
+  'blue': [
+    'Navy Blue, Crisp White, and Charcoal Grey',
+    'Bright Electric Blue, Light Steel Grey, and Pure White',
+    'Ocean Blue, Midnight Blue, and Silver'
+  ],
+  'red': [
+    'Crimson Red, Crisp White, and Matte Black',
+    'Bright Action Red, Light Grey, and Pure White',
+    'Deep Dark Red, Brushed Silver, and Charcoal'
+  ],
+  'green': [
+    'Forest Green, Pure White, and Slate Grey',
+    'Vibrant Leaf Green, Soft Grey, and Charcoal',
+    'Deep Emerald, Mint Green accents, and Crisp White'
+  ],
+  'gold': [
+    'Premium Gold, Deep Navy Blue, and Crisp White',
+    'Bright Yellow, Matte Black, and Concrete Grey',
+    'Metallic Gold, Ivory, and Charcoal'
+  ],
+  'orange': [
+    'Flame Orange, Deep Navy, and Pure White',
+    'Vibrant Orange, Slate Grey, and Crisp White',
+    'Burnt Orange, Warm Sand, and Espresso Black'
+  ],
+  'purple': [
+    'Deep Royal Purple, Crisp White, and Silver',
+    'Vibrant Violet, Matte Black, and Light Grey',
+    'Plum, Champagne Gold, and White'
+  ],
+  'teal': [
+    'Ocean Teal, Sky Blue, and Soft Silver',
+    'Dark Aqua, Pure White, and Charcoal Grey',
+    'Vibrant Turquoise, Navy Blue, and Crisp White'
+  ],
+  'black': [
+    'Matte Black, Brushed Silver, and Crisp White',
+    'Charcoal Grey, Pure White, and Chrome',
+    'Deep Black, Ivory, and Subtle Gold Accents'
+  ]
 };
 
 const STYLE_MAP: Record<string, string> = {
@@ -27,36 +57,40 @@ const STYLE_MAP: Record<string, string> = {
 };
 
 const getPrompts = (details: any) => {
-  // Extract data from the Wizard
-  const { businessName, trade, phone, selectedStyles = [], selectedColors = [], features = [], service1, service2 } = details;
+  const { businessName, trade, field, phone, websiteUrl, selectedStyles = [], selectedColors = [], features = [], service1, service2 } = details;
   
   const name = businessName || 'Premium Service';
-  const industry = trade || 'Service';
-  const contact = phone || '555-555-5555';
+  const industry = trade || field || 'Service';
+  const contact = phone || websiteUrl || '555-555-5555';
   const specialty1 = service1 || 'Quality Service';
   const specialty2 = service2 || 'Professional Support';
 
-  // Map choices to actual AI instructions (with safe fallbacks)
+  // Map choices (with safe fallbacks if empty)
   const style1 = STYLE_MAP[selectedStyles[0]] || STYLE_MAP['style-4'];
   const style2 = STYLE_MAP[selectedStyles[1]] || STYLE_MAP['style-5'];
   
-  const color1 = COLOR_MAP[selectedColors[0]] || 'Slate Grey and Crimson Red';
-  const color2 = COLOR_MAP[selectedColors[1]] || 'Navy Blue and Gold';
+  // Extract the user's two base colors (fallback to blue and black)
+  const baseColor1 = selectedColors[0] || 'blue';
+  const baseColor2 = selectedColors[1] || 'black';
 
-  // Translate trust badges into an AI prompt command
-  const badgesText = features.length > 0 ? `Include stylized graphic badges/icons that communicate: ${features.join(', ')}.` : '';
+  // Pull expanded professional palettes based on their base color choice
+  const color1_VarA = COLOR_VARIATIONS[baseColor1]?.[0] || 'Navy, White, and Grey';
+  const color1_VarB = COLOR_VARIATIONS[baseColor1]?.[1] || 'Bright Blue, Silver, and White';
+  const color2_VarA = COLOR_VARIATIONS[baseColor2]?.[0] || 'Black, Silver, and White';
+  const color2_VarB = COLOR_VARIATIONS[baseColor2]?.[1] || 'Charcoal, Chrome, and White';
 
-  // We generate 5 variations mixing their 2 style and 2 color choices
+  const badgesText = features && features.length > 0 ? `Include stylized graphic badges/icons that communicate: ${features.join(', ')}.` : '';
+
   return [
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color1}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color1_VarA}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color1}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color1_VarB}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color2}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color2_VarA}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color2}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color2_VarB}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. A clean, premium layout with professional photography. The color palette uses exactly ${color1}. The flyer includes perfect typography reading "${name}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. A clean, premium layout with professional photography. The color palette uses exactly ${color1_VarA} with accent touches of ${baseColor2}. The flyer includes perfect typography reading "${name}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`
   ];
 };
 
