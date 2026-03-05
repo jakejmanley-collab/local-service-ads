@@ -21,17 +21,15 @@ const FLYER_STYLES = [
   { id: 'style-8', name: 'Geometric High-Contrast' },
 ];
 
-const COLOR_SCHEMES = [
-  { id: 'color-1', name: 'Trust & Authority', hex1: '#0A2540', hex2: '#D4AF37', hex3: '#FFFFFF' },
-  { id: 'color-2', name: 'Emergency Action', hex1: '#D90429', hex2: '#2B2D42', hex3: '#F8F9FA' },
-  { id: 'color-3', name: 'Clean Flow', hex1: '#0F766E', hex2: '#38BDF8', hex3: '#E2E8F0' },
-  { id: 'color-4', name: 'Eco Growth', hex1: '#166534', hex2: '#22C55E', hex3: '#111827' },
-  { id: 'color-5', name: 'Industrial Strength', hex1: '#FACC15', hex2: '#0F172A', hex3: '#94A3B8' },
-  { id: 'color-6', name: 'Smart Tech', hex1: '#4F46E5', hex2: '#06B6D4', hex3: '#1E293B' },
-  { id: 'color-7', name: 'High-End Luxury', hex1: '#171717', hex2: '#F3E8D6', hex3: '#FDFAF5' },
-  { id: 'color-8', name: 'Hot & Cold', hex1: '#FF5A5F', hex2: '#A8DADC', hex3: '#1D3557' },
-  { id: 'color-9', name: 'Fresh & Spotless', hex1: '#34D399', hex2: '#FB7185', hex3: '#FAFAFA' },
-  { id: 'color-10', name: 'Earth & Timber', hex1: '#C2410C', hex2: '#E5E5CB', hex3: '#3E2723' },
+const BASE_COLORS = [
+  { id: 'blue', name: 'Professional Blue', hex: '#2563eb' },
+  { id: 'red', name: 'Action Red', hex: '#dc2626' },
+  { id: 'green', name: 'Growth Green', hex: '#16a34a' },
+  { id: 'gold', name: 'Premium Gold / Yellow', hex: '#eab308' },
+  { id: 'orange', name: 'Energetic Orange', hex: '#ea580c' },
+  { id: 'purple', name: 'Creative Purple', hex: '#9333ea' },
+  { id: 'teal', name: 'Modern Teal / Aqua', hex: '#0d9488' },
+  { id: 'black', name: 'High-End Black & Silver', hex: '#171717' },
 ];
 
 const BADGE_FEATURES = [
@@ -168,7 +166,7 @@ export default function PremiumWizard() {
           {step === 2 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               <h2 className="text-3xl font-black mb-2">Step 2: Design Blueprint</h2>
-              <p className="text-slate-500 mb-8 font-medium">Select exactly 2 styles and 2 color schemes for the AI to use.</p>
+              <p className="text-slate-500 mb-8 font-medium">Select exactly 2 styles and 2 core brand colors for the AI to use.</p>
 
               {/* Styles Grid */}
               <div className="mb-10">
@@ -195,21 +193,17 @@ export default function PremiumWizard() {
               {/* Colors Grid */}
               <div>
                 <div className="flex justify-between items-end mb-4">
-                  <h3 className="font-bold text-lg">Color Palettes</h3>
+                  <h3 className="font-bold text-lg">Core Brand Colors</h3>
                   <span className="text-sm font-bold text-blue-600">{formData.selectedColors.length} / 2 Selected</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {COLOR_SCHEMES.map(color => {
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {BASE_COLORS.map(color => {
                     const isSelected = formData.selectedColors.includes(color.id);
                     return (
-                      <div key={color.id} onClick={() => toggleArrayItem('selectedColors', color.id, 2)} className={`cursor-pointer border-2 rounded-xl p-3 flex items-center gap-3 transition-all ${isSelected ? 'border-blue-600 bg-blue-50 shadow-sm' : 'border-slate-200 hover:border-slate-300'}`}>
-                        {/* 3-Color CSS Swatch */}
-                        <div className="flex-shrink-0 flex w-12 h-12 rounded-full overflow-hidden border border-slate-200 shadow-inner">
-                          <div className="w-1/3 h-full" style={{ backgroundColor: color.hex1 }}></div>
-                          <div className="w-1/3 h-full" style={{ backgroundColor: color.hex2 }}></div>
-                          <div className="w-1/3 h-full" style={{ backgroundColor: color.hex3 }}></div>
-                        </div>
-                        <span className="font-bold text-sm leading-tight">{color.name}</span>
+                      <div key={color.id} onClick={() => toggleArrayItem('selectedColors', color.id, 2)} className={`cursor-pointer border-2 rounded-xl p-3 flex flex-col items-center gap-3 transition-all ${isSelected ? 'border-blue-600 bg-blue-50 shadow-sm scale-[0.98]' : 'border-slate-200 hover:border-slate-300'}`}>
+                        <div className="w-12 h-12 rounded-full shadow-inner border-2 border-slate-100" style={{ backgroundColor: color.hex }}></div>
+                        <span className="font-bold text-sm text-center leading-tight">{color.name}</span>
+                        {isSelected && <div className="text-blue-600 text-xs font-black uppercase">Selected</div>}
                       </div>
                     );
                   })}
