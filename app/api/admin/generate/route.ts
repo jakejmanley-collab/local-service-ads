@@ -82,13 +82,13 @@ const getPrompts = (details: any) => {
   const badgesText = features && features.length > 0 ? `Include stylized graphic badges/icons that communicate: ${features.join(', ')}.` : '';
 
   return [
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color1_VarA}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color1_VarA}. The flyer includes perfectly spelled typography reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner clearly reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color1_VarB}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color1_VarB}. The flyer includes perfectly spelled typography reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner clearly reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color2_VarA}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color2_VarA}. The flyer includes perfectly spelled typography reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner clearly reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color2_VarB}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color2_VarB}. The flyer includes perfectly spelled typography reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner clearly reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
     `A high-end graphic design business flyer for "${name}", a ${industry} company. A clean, premium layout with professional photography. The color palette uses exactly ${color1_VarA} with accent touches of ${baseColor2}. The flyer includes perfect typography reading "${name}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`
   ];
@@ -110,32 +110,41 @@ export async function POST(req: Request) {
     const prompts = getPrompts(details);
     const imageUrls = [];
 
-    console.log(`Starting generation for wizard order: ${orderId}`);
+    console.log(`Starting Ideogram generation for wizard order: ${orderId}`);
 
     for (let i = 0; i < prompts.length; i++) {
-      const res = await fetch('https://fal.run/fal-ai/flux/dev', {
+      console.log(`Generating Ideogram Image ${i + 1}...`);
+      
+      const res = await fetch('https://api.ideogram.ai/generate', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json', 
-          'Authorization': `Key ${process.env.FAL_API_KEY}` 
+          'Api-Key': process.env.IDEOGRAM_API_KEY || ''
         },
         body: JSON.stringify({ 
-          prompt: prompts[i], 
-          image_size: "square_hd",
-          num_inference_steps: 28, 
-          guidance_scale: 3.5
+          image_request: {
+            prompt: prompts[i],
+            aspect_ratio: "ASPECT_RATIO_4_5", 
+            model: "V_2", 
+            magic_prompt_option: "AUTO" 
+          }
         })
       });
 
-      const data = await res.json();
-      if (!data.images) throw new Error(`Fal.ai failed on image ${i + 1}`);
-      const falUrl = data.images[0].url;
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Ideogram failed on image ${i + 1}: ${errText}`);
+      }
 
-      const imgRes = await fetch(falUrl);
+      const data = await res.json();
+      const ideogramUrl = data.data[0].url;
+
+      // Download from Ideogram and upload to your Supabase Storage
+      const imgRes = await fetch(ideogramUrl);
       const arrayBuffer = await imgRes.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       
-      const fileName = `premium/${orderId}-img-${i + 1}.jpg`;
+      const fileName = `premium/${orderId}-img-${i + 1}-${Date.now()}.jpg`;
       
       await adminSupabase.storage
         .from('trades')
