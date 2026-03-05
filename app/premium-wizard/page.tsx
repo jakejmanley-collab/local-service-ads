@@ -10,26 +10,27 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // --- CONFIGURATION DATA ---
-const FLYER_STYLES = [
-  { id: 'style-1', name: 'Modern Slate & Crimson' },
-  { id: 'style-2', name: 'Brushed Metal & Action' },
-  { id: 'style-3', name: 'Magazine Editorial' },
-  { id: 'style-4', name: 'The Diagonal Corporate' },
-  { id: 'style-5', name: 'Circular Cutout' },
-  { id: 'style-6', name: 'B2B Minimalist Grid' },
-  { id: 'style-7', name: 'Three-Pillar Icon' },
-  { id: 'style-8', name: 'Geometric High-Contrast' },
+// We keep the IDs as style-1 to style-8 so the backend AI mapping stays perfectly intact!
+const SHAPE_PREFERENCES = [
+  { id: 'style-1', name: 'Perfect Square', render: (active: boolean) => <div className={`w-14 h-14 ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`}></div> },
+  { id: 'style-2', name: 'Diagonal Cut', render: (active: boolean) => <div className={`w-14 h-14 ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`} style={{ clipPath: 'polygon(0 0, 100% 0, 100% 70%, 0% 100%)' }}></div> },
+  { id: 'style-3', name: 'Tall Portrait', render: (active: boolean) => <div className={`w-10 h-16 ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`}></div> },
+  { id: 'style-4', name: 'Sharp Hexagon', render: (active: boolean) => <div className={`w-14 h-14 ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`} style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}></div> },
+  { id: 'style-5', name: 'Perfect Circle', render: (active: boolean) => <div className={`w-14 h-14 rounded-full ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`}></div> },
+  { id: 'style-6', name: 'Soft Squircle', render: (active: boolean) => <div className={`w-14 h-14 rounded-2xl ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`}></div> },
+  { id: 'style-7', name: 'Three Pillars', render: (active: boolean) => <div className="flex gap-1.5">{[1,2,3].map(i => <div key={i} className={`w-4 h-12 rounded-full ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`}></div>)}</div> },
+  { id: 'style-8', name: 'Sharp Diamond', render: (active: boolean) => <div className={`w-10 h-10 rotate-45 ${active ? 'bg-blue-600' : 'bg-slate-200'} transition-colors duration-300`}></div> },
 ];
 
 const BASE_COLORS = [
   { id: 'blue', name: 'Professional Blue', hex: '#2563eb' },
   { id: 'red', name: 'Action Red', hex: '#dc2626' },
   { id: 'green', name: 'Growth Green', hex: '#16a34a' },
-  { id: 'gold', name: 'Premium Gold / Yellow', hex: '#eab308' },
+  { id: 'gold', name: 'Premium Gold', hex: '#eab308' },
   { id: 'orange', name: 'Energetic Orange', hex: '#ea580c' },
   { id: 'purple', name: 'Creative Purple', hex: '#9333ea' },
-  { id: 'teal', name: 'Modern Teal / Aqua', hex: '#0d9488' },
-  { id: 'black', name: 'High-End Black & Silver', hex: '#171717' },
+  { id: 'teal', name: 'Modern Teal', hex: '#0d9488' },
+  { id: 'black', name: 'Black & Silver', hex: '#171717' },
 ];
 
 const BADGE_FEATURES = [
@@ -49,8 +50,9 @@ export default function PremiumWizard() {
   // Master State Object
   const [formData, setFormData] = useState({
     businessName: '',
-    phone: '',
     trade: '',
+    phone: '',
+    email: '',
     websiteUrl: '',
     service1: '', service2: '', service3: '', 
     service4: '', service5: '', service6: '',
@@ -99,18 +101,18 @@ export default function PremiumWizard() {
     setLoading(true);
 
     const { error } = await supabase.from('flyer_orders').insert([{
-      customer_email: `${formData.businessName.replace(/\s/g, '')}@customer.com`, 
+      customer_email: formData.email || `${formData.businessName.replace(/\s/g, '')}@customer.com`, 
       stripe_session_id: `wizard_upgrade_${Date.now()}`,
       status: 'needs_generation',
       trade: formData.trade || 'Service',
-      details: formData // Saves all colors, styles, and text!
+      details: formData
     }]);
 
     setLoading(false);
     if (error) {
       alert("Error saving data: " + error.message);
     } else {
-      router.push('/dashboard?upgrade=pending');
+      router.push('/premium-success');
     }
   };
 
@@ -135,17 +137,32 @@ export default function PremiumWizard() {
           {/* STEP 1: CORE DETAILS */}
           {step === 1 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-3xl font-black mb-2">Step 1: Your Business Info</h2>
-              <p className="text-slate-500 mb-8 font-medium">Let's get the exact details our AI should print on your premium flyers.</p>
+              <h2 className="text-3xl font-black mb-2">Step 1: Core Information</h2>
+              <p className="text-slate-500 mb-8 font-medium">Tell us about your business so our design team can build your custom assets.</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Business Name</label>
                   <input type="text" name="businessName" value={formData.businessName} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-600" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Phone Number</label>
-                  <input type="text" name="phone" value={formData.phone} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-600" />
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Business Type / Trade</label>
+                  <input type="text" name="trade" placeholder="e.g. Plumbing, HVAC, Roofing" value={formData.trade} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-bold outline-none focus:border-blue-600" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Phone</label>
+                  <input type="text" name="phone" value={formData.phone} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Email</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Website URL</label>
+                  <input type="text" name="websiteUrl" placeholder="optional" value={formData.websiteUrl} onChange={handleTextChange} className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-600" />
                 </div>
               </div>
 
@@ -158,32 +175,31 @@ export default function PremiumWizard() {
                 </div>
               </div>
 
-              <button onClick={() => setStep(2)} className="w-full mt-10 bg-black text-white font-black text-lg py-4 rounded-xl hover:bg-slate-800 transition-all">Next: Visual Style →</button>
+              <button onClick={() => setStep(2)} className="w-full mt-10 bg-black text-white font-black text-lg py-4 rounded-xl hover:bg-slate-800 transition-all">Next: Visual Preferences →</button>
             </div>
           )}
 
-          {/* STEP 2: STYLES & COLORS */}
+          {/* STEP 2: SHAPES & COLORS */}
           {step === 2 && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-3xl font-black mb-2">Step 2: Design Blueprint</h2>
-              <p className="text-slate-500 mb-8 font-medium">Select exactly 2 styles and 2 core brand colors for the AI to use.</p>
+              <h2 className="text-3xl font-black mb-2">Step 2: Visual Blueprint</h2>
+              <p className="text-slate-500 mb-8 font-medium">Select 2 core layout shapes and 2 brand colors to guide the design.</p>
 
-              {/* Styles Grid */}
+              {/* Shapes Grid */}
               <div className="mb-10">
                 <div className="flex justify-between items-end mb-4">
-                  <h3 className="font-bold text-lg">Flyer Styles</h3>
+                  <h3 className="font-bold text-lg">Layout Structure Focus</h3>
                   <span className="text-sm font-bold text-blue-600">{formData.selectedStyles.length} / 2 Selected</span>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {FLYER_STYLES.map(style => {
-                    const isSelected = formData.selectedStyles.includes(style.id);
+                  {SHAPE_PREFERENCES.map(shape => {
+                    const isSelected = formData.selectedStyles.includes(shape.id);
                     return (
-                      <div key={style.id} onClick={() => toggleArrayItem('selectedStyles', style.id, 2)} className={`cursor-pointer rounded-xl border-4 transition-all overflow-hidden ${isSelected ? 'border-blue-600 scale-[0.98]' : 'border-transparent hover:border-slate-200'}`}>
-                        {/* Placeholder for actual image thumbnails */}
-                        <div className="bg-slate-100 aspect-[3/4] flex items-center justify-center p-4 text-center">
-                          <span className="font-bold text-slate-400 text-sm">{style.name}</span>
+                      <div key={shape.id} onClick={() => toggleArrayItem('selectedStyles', shape.id, 2)} className={`cursor-pointer rounded-xl border-2 p-4 flex flex-col items-center justify-center gap-4 transition-all h-36 ${isSelected ? 'border-blue-600 bg-blue-50/50 scale-[0.98]' : 'border-slate-200 hover:border-slate-300'}`}>
+                        <div className="flex items-center justify-center h-16 w-16">
+                          {shape.render(isSelected)}
                         </div>
-                        {isSelected && <div className="bg-blue-600 text-white text-xs font-black py-1 text-center uppercase">Selected</div>}
+                        <span className={`font-bold text-xs text-center uppercase tracking-wide ${isSelected ? 'text-blue-700' : 'text-slate-500'}`}>{shape.name}</span>
                       </div>
                     );
                   })}
@@ -203,7 +219,6 @@ export default function PremiumWizard() {
                       <div key={color.id} onClick={() => toggleArrayItem('selectedColors', color.id, 2)} className={`cursor-pointer border-2 rounded-xl p-3 flex flex-col items-center gap-3 transition-all ${isSelected ? 'border-blue-600 bg-blue-50 shadow-sm scale-[0.98]' : 'border-slate-200 hover:border-slate-300'}`}>
                         <div className="w-12 h-12 rounded-full shadow-inner border-2 border-slate-100" style={{ backgroundColor: color.hex }}></div>
                         <span className="font-bold text-sm text-center leading-tight">{color.name}</span>
-                        {isSelected && <div className="text-blue-600 text-xs font-black uppercase">Selected</div>}
                       </div>
                     );
                   })}
@@ -217,7 +232,7 @@ export default function PremiumWizard() {
                   disabled={formData.selectedStyles.length !== 2 || formData.selectedColors.length !== 2}
                   className="w-2/3 bg-black text-white font-black text-lg py-4 rounded-xl hover:bg-slate-800 disabled:opacity-50 transition-all"
                 >
-                  Next: Premium Features →
+                  Next: Premium Badges →
                 </button>
               </div>
             </div>
@@ -250,7 +265,7 @@ export default function PremiumWizard() {
                   disabled={loading}
                   className="w-2/3 bg-blue-600 text-white font-black text-lg py-4 rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-all shadow-[0_8px_30px_rgb(37,99,235,0.3)]"
                 >
-                  {loading ? 'Submitting...' : 'Submit to Design Engine'}
+                  {loading ? 'Submitting...' : 'Submit to Design Team'}
                 </button>
               </div>
             </div>
