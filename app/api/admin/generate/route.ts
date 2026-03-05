@@ -1,26 +1,132 @@
+import { NextResponse } from 'next/server';
+import { getServiceSupabase } from '@/lib/supabase';
+
+// --- DATA MAPPING FOR WIZARD CHOICES ---
+const COLOR_MAP: Record<string, string> = {
+  'color-1': 'Deep Navy, Premium Gold, and Crisp White',
+  'color-2': 'Crimson Red, Dark Slate, and Off-White',
+  'color-3': 'Ocean Teal, Sky Blue, and Soft Silver',
+  'color-4': 'Forest Green, Vibrant Leaf, and Charcoal',
+  'color-5': 'Safety Yellow, Heavy Black, and Concrete Grey',
+  'color-6': 'Electric Indigo, Vibrant Cyan, and Dark Slate',
+  'color-7': 'Matte Black, Champagne, and Ivory',
+  'color-8': 'Flame Orange, Ice Blue, and Deep Navy',
+  'color-9': 'Mint Green, Bright Coral, and Pearl White',
+  'color-10': 'Rust Copper, Warm Sand, and Espresso Brown',
+};
+
+const STYLE_MAP: Record<string, string> = {
+  'style-1': 'A sophisticated layout with sleek, modern sans-serif typography. Clean grid.',
+  'style-2': 'A dynamic and active layout featuring high contrast, and a large diagonal hero image.',
+  'style-3': 'A luxury editorial magazine layout with lots of negative space, elegant typography, and geometric blocking.',
+  'style-4': 'A professional corporate layout utilizing dynamic diagonal color blocks and structured checkmark lists.',
+  'style-5': 'A highly structured graphic design featuring overlapping circular photo frames and bright sweeping accent shapes.',
+  'style-6': 'A clean B2B minimalist grid using solid colored rectangular blocks and highly legible sans-serif typography.',
+  'style-7': 'A modern high-end layout featuring a faded background image and three distinct, colorful rounded columns at the bottom.',
+  'style-8': 'An ultra-modern layout featuring sharp diamond and chevron shapes masking the professional photography.'
+};
+
 const getPrompts = (details: any) => {
-  const { businessName, field, phone, websiteUrl, service1, service2 } = details;
+  // Extract data from the Wizard
+  const { businessName, trade, phone, selectedStyles = [], selectedColors = [], features = [], service1, service2 } = details;
   
   const name = businessName || 'Premium Service';
-  const trade = field || 'Service';
-  const contact = websiteUrl ? websiteUrl : phone;
-  const specialty1 = service1 || trade;
-  const specialty2 = service2 || 'Professional Service';
+  const industry = trade || 'Service';
+  const contact = phone || '555-555-5555';
+  const specialty1 = service1 || 'Quality Service';
+  const specialty2 = service2 || 'Professional Support';
 
+  // Map choices to actual AI instructions (with safe fallbacks)
+  const style1 = STYLE_MAP[selectedStyles[0]] || STYLE_MAP['style-4'];
+  const style2 = STYLE_MAP[selectedStyles[1]] || STYLE_MAP['style-5'];
+  
+  const color1 = COLOR_MAP[selectedColors[0]] || 'Slate Grey and Crimson Red';
+  const color2 = COLOR_MAP[selectedColors[1]] || 'Navy Blue and Gold';
+
+  // Translate trust badges into an AI prompt command
+  const badgesText = features.length > 0 ? `Include stylized graphic badges/icons that communicate: ${features.join(', ')}.` : '';
+
+  // We generate 5 variations mixing their 2 style and 2 color choices
   return [
-    // Flyer 1: The Diagonal Corporate Layout (Inspired by your electrical & business examples)
-    `A professional graphic design flyer layout for a ${trade} business. The background uses dynamic diagonal color blocking in modern brand colors over a clean white base. In the top half, a high-quality photograph of a professional worker. Bold, massive, perfectly spelled typography reads "${name}". A structured section with checkmarks lists "${specialty1}" and "${specialty2}". At the bottom, a solid color diagonal banner contains the text "${contact}". Corporate agency design.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color1}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    // Flyer 2: The Circular Cutout Design (Inspired by your pressure washing example)
-    `A premium service flyer layout for a ${trade} company. The background is a dark, sophisticated texture with bright, sweeping accent shapes. The design features three circular photo frames showing close-up professional ${trade} work. Large, white, modern typography prominently displays "${name}". A bright colored circular badge graphic is included. At the bottom, clear text perfectly displays "${contact}". Highly structured graphic design template.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color1}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    // Flyer 3: The Grid/Block B2B Style (Inspired by your commercial floor care example)
-    `A clean, corporate graphic design flyer for "${name}", a ${trade} business. The layout uses a structured grid with solid colored rectangular blocks in blue and white. A large rectangular hero image of a friendly professional at work. A distinct colored sidebar section clearly lists the services: "${specialty1}" and "${specialty2}". The typography is sans-serif, highly legible, and perfectly spelled. A bold banner at the bottom displays "${contact}". Modern B2B minimalist layout.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style1} The color palette uses exactly ${color2}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    // Flyer 4: The Three-Pillar Icon Design (Inspired by your dark "Business Creativity" example)
-    `A sleek, modern business flyer layout for "${name}". The top half features a faded photograph of ${trade} equipment seamlessly integrated into a dark background. Below it, large perfect typography reads "${name}". The bottom half features three colorful, distinct rounded blocks side-by-side, each containing an icon. Bold text near the blocks reads "${specialty1}" and "${specialty2}". The contact info "${contact}" is clearly written at the very bottom. High-end printing design.`,
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. ${style2} The color palette uses exactly ${color2}. The flyer includes text reading "${name}", "${specialty1}", and "${specialty2}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`,
 
-    // Flyer 5: The Diamond/Geometric Conference Layout (Inspired by your online business conference example)
-    `An ultra-modern, dynamic graphic design flyer for a ${trade} service named "${name}". The layout features sharp diamond and chevron shapes masking professional photography of the service. High-contrast color blocking using yellow and dark blue over a white background. Clear, bold typography for the company name "${name}". A specific block highlights "${specialty1}". At the bottom, high-contrast text perfectly reads "${contact}". Clean vector graphics style.`
+    `A high-end graphic design business flyer for "${name}", a ${industry} company. A clean, premium layout with professional photography. The color palette uses exactly ${color1}. The flyer includes perfect typography reading "${name}". At the bottom, a bold banner reads "${contact}". ${badgesText} Vector graphic design, agency quality.`
   ];
 };
+
+export async function POST(req: Request) {
+  let currentOrderId: string | null = null;
+
+  try {
+    const body = await req.json();
+    const { orderId, details } = body;
+    currentOrderId = orderId;
+
+    if (!orderId || !details) return NextResponse.json({ error: 'Missing data' }, { status: 400 });
+
+    const adminSupabase = getServiceSupabase();
+    await adminSupabase.from('flyer_orders').update({ status: 'processing' }).eq('id', orderId);
+
+    const prompts = getPrompts(details);
+    const imageUrls = [];
+
+    console.log(`Starting generation for wizard order: ${orderId}`);
+
+    for (let i = 0; i < prompts.length; i++) {
+      const res = await fetch('https://fal.run/fal-ai/flux/dev', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Key ${process.env.FAL_API_KEY}` 
+        },
+        body: JSON.stringify({ 
+          prompt: prompts[i], 
+          image_size: "square_hd",
+          num_inference_steps: 28, 
+          guidance_scale: 3.5
+        })
+      });
+
+      const data = await res.json();
+      if (!data.images) throw new Error(`Fal.ai failed on image ${i + 1}`);
+      const falUrl = data.images[0].url;
+
+      const imgRes = await fetch(falUrl);
+      const arrayBuffer = await imgRes.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      const fileName = `premium/${orderId}-img-${i + 1}.jpg`;
+      
+      await adminSupabase.storage
+        .from('trades')
+        .upload(fileName, buffer, { contentType: 'image/jpeg', upsert: true });
+      
+      const publicUrl = adminSupabase.storage.from('trades').getPublicUrl(fileName).data.publicUrl;
+      imageUrls.push(publicUrl);
+    }
+
+    await adminSupabase.from('flyer_orders').update({
+      status: 'delivered',
+      image_1: imageUrls[0], image_2: imageUrls[1], image_3: imageUrls[2],
+      image_4: imageUrls[3], image_5: imageUrls[4],
+    }).eq('id', orderId);
+
+    return NextResponse.json({ success: true, imageUrls });
+
+  } catch (error: any) {
+    console.error("Generation Error:", error.message);
+    
+    if (currentOrderId) {
+      const adminSupabase = getServiceSupabase();
+      await adminSupabase.from('flyer_orders').update({ status: 'needs_generation' }).eq('id', currentOrderId);
+    }
+    
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
