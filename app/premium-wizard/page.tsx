@@ -22,12 +22,16 @@ const FLYER_STYLES = [
 ];
 
 const COLOR_SCHEMES = [
-  { id: 'color-1', name: 'Red & Slate Grey', hex1: '#dc2626', hex2: '#334155' },
-  { id: 'color-2', name: 'Navy & Gold', hex1: '#1e3a8a', hex2: '#eab308' },
-  { id: 'color-3', name: 'Forest & Charcoal', hex1: '#166534', hex2: '#1f2937' },
-  { id: 'color-4', name: 'Electric Blue & White', hex1: '#2563eb', hex2: '#f8fafc' },
-  { id: 'color-5', name: 'Orange & Black', hex1: '#ea580c', hex2: '#000000' },
-  { id: 'color-6', name: 'Teal & Silver', hex1: '#0d9488', hex2: '#94a3b8' },
+  { id: 'color-1', name: 'Trust & Authority', hex1: '#0A2540', hex2: '#D4AF37', hex3: '#FFFFFF' },
+  { id: 'color-2', name: 'Emergency Action', hex1: '#D90429', hex2: '#2B2D42', hex3: '#F8F9FA' },
+  { id: 'color-3', name: 'Clean Flow', hex1: '#0F766E', hex2: '#38BDF8', hex3: '#E2E8F0' },
+  { id: 'color-4', name: 'Eco Growth', hex1: '#166534', hex2: '#22C55E', hex3: '#111827' },
+  { id: 'color-5', name: 'Industrial Strength', hex1: '#FACC15', hex2: '#0F172A', hex3: '#94A3B8' },
+  { id: 'color-6', name: 'Smart Tech', hex1: '#4F46E5', hex2: '#06B6D4', hex3: '#1E293B' },
+  { id: 'color-7', name: 'High-End Luxury', hex1: '#171717', hex2: '#F3E8D6', hex3: '#FDFAF5' },
+  { id: 'color-8', name: 'Hot & Cold', hex1: '#FF5A5F', hex2: '#A8DADC', hex3: '#1D3557' },
+  { id: 'color-9', name: 'Fresh & Spotless', hex1: '#34D399', hex2: '#FB7185', hex3: '#FAFAFA' },
+  { id: 'color-10', name: 'Earth & Timber', hex1: '#C2410C', hex2: '#E5E5CB', hex3: '#3E2723' },
 ];
 
 const BADGE_FEATURES = [
