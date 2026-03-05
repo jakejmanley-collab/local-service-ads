@@ -96,14 +96,14 @@ export default function PremiumWizard() {
     });
   };
 
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
     setLoading(true);
 
     const { error } = await supabase.from('flyer_orders').insert([{
       customer_email: formData.email || `${formData.businessName.replace(/\s/g, '')}@customer.com`, 
       stripe_session_id: `wizard_upgrade_${Date.now()}`,
       status: 'needs_generation',
-      trade: formData.trade || 'Service',
+      // I removed the "trade" line here!
       details: formData
     }]);
 
