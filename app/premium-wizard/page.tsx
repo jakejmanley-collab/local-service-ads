@@ -198,14 +198,16 @@ export default function PremiumWizard() {
                   <h3 className="font-bold text-lg">Color Palettes</h3>
                   <span className="text-sm font-bold text-blue-600">{formData.selectedColors.length} / 2 Selected</span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {COLOR_SCHEMES.map(color => {
                     const isSelected = formData.selectedColors.includes(color.id);
                     return (
-                      <div key={color.id} onClick={() => toggleArrayItem('selectedColors', color.id, 2)} className={`cursor-pointer border-2 rounded-xl p-3 flex items-center gap-3 transition-all ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'}`}>
-                        <div className="flex-shrink-0 flex w-10 h-10 rounded-full overflow-hidden border border-slate-200">
-                          <div className="w-1/2 h-full" style={{ backgroundColor: color.hex1 }}></div>
-                          <div className="w-1/2 h-full" style={{ backgroundColor: color.hex2 }}></div>
+                      <div key={color.id} onClick={() => toggleArrayItem('selectedColors', color.id, 2)} className={`cursor-pointer border-2 rounded-xl p-3 flex items-center gap-3 transition-all ${isSelected ? 'border-blue-600 bg-blue-50 shadow-sm' : 'border-slate-200 hover:border-slate-300'}`}>
+                        {/* 3-Color CSS Swatch */}
+                        <div className="flex-shrink-0 flex w-12 h-12 rounded-full overflow-hidden border border-slate-200 shadow-inner">
+                          <div className="w-1/3 h-full" style={{ backgroundColor: color.hex1 }}></div>
+                          <div className="w-1/3 h-full" style={{ backgroundColor: color.hex2 }}></div>
+                          <div className="w-1/3 h-full" style={{ backgroundColor: color.hex3 }}></div>
                         </div>
                         <span className="font-bold text-sm leading-tight">{color.name}</span>
                       </div>
