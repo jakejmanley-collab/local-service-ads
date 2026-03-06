@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://yourdomain.com'; // REPLACE WITH YOUR ACTUAL DOMAIN
+  const baseUrl = 'https://aretifi.com'; // REPLACE WITH YOUR ACTUAL DOMAIN
 
   // Fetch all slugs from your SEO table
   const { data: articles } = await supabase
