@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     // Make sure to replace hello@yourdomain.com with your actual Porkbun email
     if (email) {
       await resend.emails.send({
-        from: 'Josh | Apex Flyers <hello@yourdomain.com>',
+        from: 'Aretifi Team <hello@aretifi.com>',
         to: email,
         subject: `🛠️ We’re on it! Order received for ${businessName}`,
         react: OrderConfirmationEmail({ businessName }),
