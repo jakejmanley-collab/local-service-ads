@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   try {
     const { keyword, passcode } = await req.json();
 
-    // --- NEW SECURITY CHECK ---
+    // --- SECURITY CHECK ---
     if (passcode !== process.env.ADMIN_PASSCODE) {
       return NextResponse.json({ error: 'Unauthorized: Invalid Passcode' }, { status: 401 });
     }
@@ -35,8 +35,8 @@ export async function POST(req: Request) {
       }
     `;
 
-    // 3. Generate the Content
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    // 3. Generate the Content (UPDATED TO GEMINI 1.5 FLASH)
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
