@@ -21,27 +21,26 @@ export async function POST(req: Request) {
     const slug = keyword.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
 
     const prompt = `
-      Write a 1000-word, high-quality SEO article for: "${keyword}".
-      Target Audience: Local service businesses (plumbers, cleaners, etc.).
-      Tone: Professional, helpful, and expert.
-
+      Write a 1000-word SEO article for: "${keyword}".
       Return ONLY a raw JSON object:
       {
-        "title": "SEO Optimized Title",
-        "description": "Meta description under 160 chars",
-        "h1": "Main Article Heading",
+        "title": "SEO Title",
+        "description": "Meta description",
+        "h1": "Article H1",
         "cta_header": "Ready to Professionalize Your Business?",
-        "cta_body": "If you're looking for help starting or growing your own business, try our free flyer and ad text writer. For those ready to scale, check out our affordable pro plans designed for local pros.",
-        "content": "Full HTML content using <h2>, <p>, <ul>, and <li> tags. Do not include the CTA in this field."
+        "cta_body": "Try our free flyer and ad text writer today.",
+        "content": "Full HTML content with <h2>, <p>, <ul> tags."
       }
     `;
 
+    // KEEPING THE WORKING MODEL
     const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite-preview' });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
-    const cleanJsonString = responseText.replace(/```json\n?|```/g, '').trim();
-    const articleData = JSON.parse(cleanJsonString);
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("AI failed to return valid JSON.");
+    const articleData = JSON.parse(jsonMatch[0]);
 
     const { error: dbError } = await supabase.from('seo_articles').upsert({
       slug,
@@ -50,10 +49,11 @@ export async function POST(req: Request) {
       h1: articleData.h1,
       cta_header: articleData.cta_header,
       cta_body: articleData.cta_body,
-      content: articleData.content
+      content: articleData.content,
+      cta: "migrated" // FIX: This prevents the 'null value' error you saw
     }, { onConflict: 'slug' });
 
-    if (dbError) throw dbError;
+    if (dbError) throw new Error(`Database Error: ${dbError.message}`);
 
     return NextResponse.json({ success: true, slug });
 
