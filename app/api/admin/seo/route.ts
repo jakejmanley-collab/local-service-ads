@@ -10,7 +10,12 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { keyword } = await req.json();
+    const { keyword, passcode } = await req.json();
+
+    // --- NEW SECURITY CHECK ---
+    if (passcode !== process.env.ADMIN_PASSCODE) {
+      return NextResponse.json({ error: 'Unauthorized: Invalid Passcode' }, { status: 401 });
+    }
 
     // 1. Create a URL-friendly slug (e.g., "Facebook Marketing" -> "facebook-marketing")
     const slug = keyword.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
