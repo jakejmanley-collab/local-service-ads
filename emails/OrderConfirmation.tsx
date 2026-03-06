@@ -28,8 +28,8 @@ export const OrderConfirmationEmail = ({ businessName }: OrderConfirmationProps)
       <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
         <p style={{ color: '#9ca3af', fontSize: '14px' }}>
           Best,<br />
-          <strong>Josh</strong><br />
-          Founder, Apex Flyers
+          <strong>Aretifi Team</strong><br />
+          Aretifi.com
         </p>
       </div>
     </div>
