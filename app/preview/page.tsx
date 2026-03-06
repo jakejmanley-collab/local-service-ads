@@ -183,6 +183,11 @@ export default function PreviewPage() {
                 </div>
                 <p className="font-bold border-2 border-black border-dashed p-3 text-sm bg-slate-50">{copy[activeTone]?.headline}</p>
                 <textarea readOnly className="w-full h-80 text-sm border-2 border-black p-3 bg-slate-50 font-sans outline-none" value={copy[activeTone]?.description} />
+                
+                <p className="text-xs font-bold text-slate-500 leading-snug">
+                  <span className="text-black italic">* Note:</span> While this text has been optimized to convert, we recommend adding to it (e.g., adding more services, pricing, your specific service area, etc.) if it doesn't fully describe your business.
+                </p>
+
                 <button onClick={() => setShowAuthModal(true)} className="w-full bg-black text-white py-4 font-black uppercase italic text-sm hover:bg-gray-900 transition-colors">Copy Ad Text</button>
               </div>
             ) : (
