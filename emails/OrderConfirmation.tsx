@@ -1,20 +1,37 @@
 import * as React from 'react';
 
-interface EmailProps {
+interface OrderConfirmationProps {
   businessName: string;
-  trade: string;
 }
 
-export const OrderConfirmationEmail = ({ businessName, trade }: EmailProps) => (
-  <div style={{ fontFamily: 'sans-serif', padding: '20px', color: '#333' }}>
-    <h1 style={{ color: '#2563eb' }}>Order Received!</h1>
-    <p>Hi there,</p>
-    <p>Thanks for choosing us! We've received your order for <strong>{businessName}</strong>.</p>
-    <p>Our design team is currently crafting your 5 premium <strong>{trade}</strong> flyer variations based on your style preferences.</p>
-    <hr style={{ border: 'none', borderTop: '1px solid #eee', margin: '20px 0' }} />
-    <p style={{ fontSize: '14px', color: '#666' }}>
-      <strong>Next Steps:</strong> You will receive a follow-up email with your high-resolution files within 48 hours.
-    </p>
-    <p>Best,<br /><strong>Josh</strong><br />Founder, Apex Flyers</p>
+export const OrderConfirmationEmail = ({ businessName }: OrderConfirmationProps) => (
+  <div style={{
+    fontFamily: 'Helvetica, Arial, sans-serif',
+    backgroundColor: '#f9fafb',
+    padding: '40px 20px'
+  }}>
+    <div style={{
+      maxWidth: '600px',
+      margin: '0 auto',
+      backgroundColor: '#ffffff',
+      padding: '30px',
+      borderRadius: '12px',
+      border: '1px solid #e5e7eb'
+    }}>
+      <h1 style={{ color: '#111827', fontSize: '24px', fontWeight: 'bold' }}>Order Received!</h1>
+      <p style={{ color: '#4b5563', fontSize: '16px', lineHeight: '24px' }}>
+        Hi there! We’ve received your order for <strong>{businessName}</strong>. 
+      </p>
+      <p style={{ color: '#4b5563', fontSize: '16px', lineHeight: '24px' }}>
+        Our design team is currently processing your custom flyer variations. You will receive an email with your high-resolution files within the next 48 hours.
+      </p>
+      <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
+        <p style={{ color: '#9ca3af', fontSize: '14px' }}>
+          Best,<br />
+          <strong>Josh</strong><br />
+          Founder, Apex Flyers
+        </p>
+      </div>
+    </div>
   </div>
 );
