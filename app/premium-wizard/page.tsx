@@ -2,12 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-
-// Supabase setup
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // --- CONFIGURATION DATA ---
 const SHAPE_PREFERENCES = [
@@ -96,22 +90,31 @@ export default function PremiumWizard() {
     });
   };
 
- const handleSubmit = async () => {
+  const handleSubmit = async () => {
     setLoading(true);
 
-    const { error } = await supabase.from('flyer_orders').insert([{
-      customer_email: formData.email || `${formData.businessName.replace(/\s/g, '')}@customer.com`, 
-      stripe_session_id: `wizard_upgrade_${Date.now()}`,
-      status: 'needs_generation',
-      // I removed the "trade" line here!
-      details: formData
-    }]);
+    try {
+      // Send the data to our secure API route
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          businessName: formData.businessName,
+          email: formData.email,
+          formData: formData 
+        }),
+      });
 
-    setLoading(false);
-    if (error) {
-      alert("Error saving data: " + error.message);
-    } else {
-      router.push('/premium-success');
+      if (response.ok) {
+        router.push('/premium-success');
+      } else {
+        alert("Something went wrong saving your order. Please try again.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
