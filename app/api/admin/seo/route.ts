@@ -1,4 +1,3 @@
-// 1. Extend the Vercel timeout to the absolute maximum allowed
 export const maxDuration = 60; 
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -21,41 +20,40 @@ export async function POST(req: Request) {
 
     const slug = keyword.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
 
-    // 2. The Prompt: Explicitly asking for 1000 words in JSON
     const prompt = `
-      Write a 1000-word, high-quality SEO article for a local service business about: "${keyword}".
-      Include expert advice, specific steps, and local trust-building tips.
-      
-      Return ONLY a raw JSON object (no markdown, no backticks):
+      Write a 1000-word, high-quality SEO article for: "${keyword}".
+      Target Audience: Local service businesses (plumbers, cleaners, etc.).
+      Tone: Professional, helpful, and expert.
+
+      Return ONLY a raw JSON object:
       {
-        "title": "SEO Title",
-        "description": "Meta description",
-        "h1": "Article H1",
-        "cta": "Call to action text",
-        "content": "Full HTML content with <h2>, <p>, <ul>, and <li> tags."
+        "title": "SEO Optimized Title",
+        "description": "Meta description under 160 chars",
+        "h1": "Main Article Heading",
+        "cta_header": "Ready to Professionalize Your Business?",
+        "cta_body": "If you're looking for help starting or growing your own business, try our free flyer and ad text writer. For those ready to scale, check out our affordable pro plans designed for local pros.",
+        "content": "Full HTML content using <h2>, <p>, <ul>, and <li> tags. Do not include the CTA in this field."
       }
     `;
 
-    // 3. USING THE NEWEST MARCH 2026 WORKHORSE MODEL
     const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite-preview' });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
-    // 4. Heavy-duty JSON cleaning
     const cleanJsonString = responseText.replace(/```json\n?|```/g, '').trim();
     const articleData = JSON.parse(cleanJsonString);
 
-    // 5. Save/Update in Supabase
     const { error: dbError } = await supabase.from('seo_articles').upsert({
       slug,
       title: articleData.title,
       description: articleData.description,
       h1: articleData.h1,
-      cta: articleData.cta,
+      cta_header: articleData.cta_header,
+      cta_body: articleData.cta_body,
       content: articleData.content
     }, { onConflict: 'slug' });
 
-    if (dbError) throw new Error(dbError.message);
+    if (dbError) throw dbError;
 
     return NextResponse.json({ success: true, slug });
 
