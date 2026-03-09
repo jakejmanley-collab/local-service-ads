@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 font-sans text-balance">
+    <main className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       
       {/* Hero Section */}
       <section className="max-w-6xl mx-auto px-6 py-24 text-center">
@@ -17,8 +17,18 @@ export default function Home() {
           Stop overpaying for websites. Answer a few questions and our system builds you a professional webpage on our trades network instantly.
         </p>
         
-        {/* RESTORED: Full Stats Row */}
-        <div className="flex flex-wrap justify-center gap-8 mb-12">
+        {/* Hero Buttons */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+          <Link href="/upgrade-offer" className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg text-center">
+            Get Your Webpage
+          </Link>
+          <Link href="/preview" className="bg-white text-slate-900 px-8 py-4 rounded-xl font-bold text-lg border border-slate-300 hover:bg-slate-100 transition shadow-sm text-center">
+            Try Flyer Tool Free
+          </Link>
+        </div>
+
+        {/* STATS ROW - Corrected Placement Below Buttons */}
+        <div className="flex flex-wrap justify-center gap-8">
           <div className="flex items-center gap-2">
             <div className="bg-green-100 p-2 rounded-lg text-green-700 shadow-sm">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
@@ -27,23 +37,14 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <div className="bg-blue-100 p-2 rounded-lg text-blue-700 shadow-sm">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
             </div>
             <span className="font-bold text-slate-700 text-sm">Optimized text increases sales by 30%</span>
           </div>
         </div>
-
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link href="/upgrade-offer" className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg">
-            Get Your Webpage
-          </Link>
-          <Link href="/preview" className="bg-white text-slate-900 px-8 py-4 rounded-xl font-bold text-lg border border-slate-300 hover:bg-slate-100 transition shadow-sm">
-            Try Flyer Tool Free
-          </Link>
-        </div>
       </section>
 
-      {/* Feature Section (Icons) */}
+      {/* Feature Section */}
       <section className="bg-white py-16 border-y border-slate-200">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8 text-center">
@@ -52,21 +53,21 @@ export default function Home() {
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Verified Pro Presence</h3>
-              <p className="text-slate-600 text-sm leading-relaxed text-pretty">Your own professional webpage hosted on our trades network so customers trust you instantly.</p>
+              <p className="text-slate-600 text-sm leading-relaxed">Your own professional webpage hosted on our trades network so customers trust you instantly.</p>
             </div>
             <div className="p-6">
               <div className="text-blue-600 mb-4 flex justify-center">
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Automatic Writing</h3>
-              <p className="text-slate-600 text-sm leading-relaxed text-pretty">Don't waste time typing. Our system automatically writes your professional business description for you.</p>
+              <p className="text-slate-600 text-sm leading-relaxed">Don't waste time typing. Our system automatically writes your professional business description for you.</p>
             </div>
             <div className="p-6">
               <div className="text-blue-600 mb-4 flex justify-center">
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               </div>
               <h3 className="text-xl font-bold mb-2">Save More Money</h3>
-              <p className="text-slate-600 text-sm leading-relaxed text-pretty">We use smart tech to keep our costs low and pass those savings directly to you. No hidden setup fees.</p>
+              <p className="text-slate-600 text-sm leading-relaxed">We use smart tech to keep our costs low and pass those savings directly to you. No hidden setup fees.</p>
             </div>
           </div>
         </div>
@@ -78,6 +79,7 @@ export default function Home() {
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-16 italic underline decoration-blue-500 underline-offset-8">Fair pricing for the working pro.</h2>
 
           <div className="grid md:grid-cols-3 gap-8 text-left mb-16">
+            {/* Free */}
             <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
               <h3 className="text-2xl font-semibold mb-2 italic">Free</h3>
               <div className="text-4xl font-bold mb-4">$0<span className="text-lg text-slate-500 font-normal">/mo</span></div>
@@ -89,6 +91,7 @@ export default function Home() {
               <Link href="/preview" className="w-full py-3 rounded-xl font-bold text-center bg-slate-100 text-slate-900 hover:bg-slate-200 transition">Start Free</Link>
             </div>
 
+            {/* Verified Pro */}
             <div className="bg-white rounded-3xl p-8 ring-2 ring-blue-600 shadow-xl relative md:-translate-y-2 flex flex-col">
               <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 text-sm font-semibold rounded-full">Most Popular</span>
               <h3 className="text-2xl font-semibold mb-2 italic">Verified Pro</h3>
@@ -103,6 +106,7 @@ export default function Home() {
               <Link href="/upgrade-offer" className="w-full py-4 rounded-xl font-bold text-center bg-blue-600 text-white hover:bg-blue-700 shadow-md transition">Get Listed Now</Link>
             </div>
 
+            {/* Pro Plus */}
             <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
               <h3 className="text-2xl font-semibold mb-2 italic">Pro Plus</h3>
               <div className="text-4xl font-bold mb-4">$29<span className="text-lg text-slate-500 font-normal">/mo</span></div>
@@ -124,17 +128,17 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6 text-left">
             <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-inner">
               <div className="text-yellow-400 mb-4 text-xl">★★★★★</div>
-              <p className="text-slate-300 mb-6 font-medium leading-relaxed italic text-pretty">"I used to get maybe one message a week for my landscaping business. After using these flyer templates and the ad text, I booked three jobs in two days."</p>
+              <p className="text-slate-300 mb-6 font-medium leading-relaxed italic">"I used to get maybe one message a week for my landscaping business. After using these flyer templates and the ad text, I booked three jobs in two days."</p>
               <div className="font-bold text-white text-sm uppercase tracking-wider">- Mike T., Landscaping</div>
             </div>
             <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-inner">
               <div className="text-yellow-400 mb-4 text-xl">★★★★★</div>
-              <p className="text-slate-300 mb-6 font-medium leading-relaxed italic text-pretty">"Now when I reply to marketplace leads, I send them my custom link. It makes me look like a high-end company, not just a side-hustler."</p>
+              <p className="text-slate-300 mb-6 font-medium leading-relaxed italic">"Now when I reply to marketplace leads, I send them my custom link. It makes me look like a high-end company, not just a side-hustler."</p>
               <div className="font-bold text-white text-sm uppercase tracking-wider">- Sarah J., Residential Cleaning</div>
             </div>
             <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-inner">
               <div className="text-yellow-400 mb-4 text-xl">★★★★★</div>
-              <p className="text-slate-300 mb-6 font-medium leading-relaxed italic text-pretty">"Fast, easy, and it works. They don't overcharge like the big agency guys. My page was built instantly and it looks great."</p>
+              <p className="text-slate-300 mb-6 font-medium leading-relaxed italic">"Fast, easy, and it works. They don't overcharge like the big agency guys. My page was built instantly and it looks great."</p>
               <div className="font-bold text-white text-sm uppercase tracking-wider">- David R., Plumbing Services</div>
             </div>
           </div>
