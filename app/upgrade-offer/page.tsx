@@ -36,7 +36,7 @@ export default function UpgradeOfferPage() {
         '20 optimized pages to rank on Google', 
         'Show up in Google search results!',
         'Priority customer support',
-        isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Premium Flyer Tool' 
+        isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Basic Flyer Tool' 
       ],
       cta: 'Get Pro Plus',
       monthlyLink: 'https://buy.stripe.com/28E3cp2ev41239O9dN3gk06',
@@ -50,15 +50,15 @@ export default function UpgradeOfferPage() {
       <div className="max-w-5xl mx-auto text-center">
         
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900">
-          Ready to look like a premium business?
+          Ready to look like a professional business?
         </h1>
         <p className="text-lg text-slate-600 mb-4 max-w-2xl mx-auto">
-          Secure your spot on the network. Setup takes less than 5 minutes.
+          Setup takes less than 5 minutes.
         </p>
 
         {/* ADDED: Promo text for yearly sign-ups */}
         <p className="text-blue-600 font-bold mb-10">
-          Sign up for yearly and receive access to the premium flyer tool for free
+          Sign up for yearly and receive access to the premium flyer tool for free (a $25 value)
         </p>
 
         {/* The Monthly / Yearly Toggle */}
@@ -78,7 +78,7 @@ export default function UpgradeOfferPage() {
           <span className={`text-sm font-bold flex items-center gap-2 ${isAnnual ? 'text-slate-900' : 'text-slate-400'}`}>
             Yearly
             <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">
-              Save over 20% + Bonus
+              Save over 20% + Bonus Premium Flyer Generator
             </span>
           </span>
         </div>
