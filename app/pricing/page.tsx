@@ -22,7 +22,7 @@ export default function PricingPage() {
     },
     {
       name: 'Verified Pro',
-      price: '$19',
+      price: '$15',
       description: 'Your own professional webpage on the Aretifi network.',
       features: [
         'Verified Pro Webpage',
@@ -36,7 +36,7 @@ export default function PricingPage() {
     },
     {
       name: 'Pro Plus',
-      price: '$39',
+      price: '$49',
       description: 'Designed for local pros ready to dominate their service area.',
       features: [
         'Everything in Verified Pro',
