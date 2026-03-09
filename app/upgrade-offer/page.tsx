@@ -10,35 +10,37 @@ export default function UpgradeOfferPage() {
     {
       name: 'Verified Pro',
       monthlyPrice: '$9',
-      annualPrice: '$90', // 16% discount
-      description: 'Your dedicated, instantly-generated page on our premium niche networks.',
+      annualPrice: '$86', 
+      discountText: 'Regularly $108/yr. You save 20%.',
+      description: 'Your own professional webpage hosted on our trades network.',
       features: [
-        'Premium Niche Network Listing',
-        'Instant AI Bio & Setup', 
-        'Custom Branding for Flyers', 
-        'Standard Email Support',
+        'Your own webpage on our network',
+        'We write your business description for you', 
+        'Add your logo and colors to your flyers', 
+        'Standard email support',
         isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Basic Flyer Tool'
       ],
       cta: 'Get Listed Now',
-      monthlyLink: 'https://buy.stripe.com/4gM4gt5qH9lmh0Eey73gk04', // Verified Pro Monthly
-      annualLink: 'https://buy.stripe.com/fZuaERaL169afWAahR3gk05',  // Verified Pro Yearly
+      monthlyLink: 'https://buy.stripe.com/4gM4gt5qH9lmh0Eey73gk04',
+      annualLink: 'https://buy.stripe.com/fZuaERaL169afWAahR3gk05',
       highlight: true
     },
     {
       name: 'Pro Plus',
       monthlyPrice: '$29',
-      annualPrice: '$290', // 16% discount
-      description: 'Designed for local pros ready to dominate their entire service area.',
+      annualPrice: '$261', 
+      discountText: 'Regularly $348/yr. You save 25%.',
+      description: 'Designed for local pros ready to dominate their service area.',
       features: [
-        'Everything in Verified Pro',
-        'Competitor Ad Analysis', 
-        'Premium SEO Guides Access',
-        '1-on-1 Priority Support',
+        'Dedicated website on unique URL',
+        '20 optimized pages to rank on Google', 
+        'Show up in Google search results!',
+        'Priority customer support',
         isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Premium Flyer Tool ($99/yr value)' 
       ],
       cta: 'Get Pro Plus',
-      monthlyLink: 'https://buy.stripe.com/28E3cp2ev41239O9dN3gk06', // Pro Plus Monthly
-      annualLink: 'https://buy.stripe.com/3cI9AN9GXcxybGk75F3gk07',  // Pro Plus Yearly
+      monthlyLink: 'https://buy.stripe.com/28E3cp2ev41239O9dN3gk06',
+      annualLink: 'https://buy.stripe.com/3cI9AN9GXcxybGk75F3gk07',
       highlight: false
     }
   ];
@@ -71,7 +73,7 @@ export default function UpgradeOfferPage() {
           <span className={`text-sm font-bold flex items-center gap-2 ${isAnnual ? 'text-slate-900' : 'text-slate-400'}`}>
             Yearly
             <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">
-              Save 16% + Bonus
+              Save over 20% + Bonus
             </span>
           </span>
         </div>
@@ -97,13 +99,23 @@ export default function UpgradeOfferPage() {
                 {tier.name}
               </h2>
               
-              <div className="flex items-baseline gap-1 mb-4">
+              {/* Price Container */}
+              <div className="flex items-baseline gap-1 mt-2">
                 <span className="text-5xl font-bold text-slate-900">
                   {isAnnual ? tier.annualPrice : tier.monthlyPrice}
                 </span>
                 <span className="text-slate-500 font-medium">
                   {isAnnual ? '/yr' : '/mo'}
                 </span>
+              </div>
+
+              {/* Explicit Discount Math */}
+              <div className="min-h-[1.5rem] mt-1 mb-4">
+                {isAnnual && (
+                  <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
+                    {tier.discountText}
+                  </span>
+                )}
               </div>
               
               <p className="text-slate-600 mb-8 min-h-[3rem]">
