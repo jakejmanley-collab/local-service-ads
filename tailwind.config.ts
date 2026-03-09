@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import typography from '@tailwindcss/typography' // <-- We import it here instead
 
 const config: Config = {
   content: [
@@ -10,7 +11,7 @@ const config: Config = {
     extend: {},
   },
   plugins: [
-    require('@tailwindcss/typography'), // THIS IS THE MAGIC LINE
+    typography, // <-- And use it here
   ],
 }
 export default config
