@@ -4,13 +4,52 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toPng } from 'html-to-image';
 import Papa from 'papaparse';
-import Link from 'next/link'; // Added for the upgrade button
+import Link from 'next/link';
 
 const THEME_COLORS = ['red', 'blue', 'gold', 'green', 'purple'];
 const FALLBACK_1 = "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=800"; 
 const FALLBACK_2 = "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=800";
 
-// ... (parse and MasterTemplate functions remain the same) ...
+const parse = (val: string) => {
+  if (!val || val.trim() === "") return null;
+  const p = val.split(',').map(s => s.trim());
+  if (p.length < 4) return null;
+  return {
+    x: p[0], y: p[1], w: p[2], h: p[3],
+    s: { fontSize: p[4] || '30px', color: p[5] || '#000', fontWeight: p[6] || '400', fontFamily: p[8] || 'Anton', lineHeight: '1', display: 'flex', alignItems: 'center' }
+  };
+};
+
+// RESTORED: MasterTemplate component required for rendering the flyers
+const MasterTemplate = ({ id, data, configKey, rawDatabase, photo1, photo2 }: any) => {
+  const row = rawDatabase[configKey];
+  if (!row) return null;
+  const p1 = parse(row['Photo Hole']); const p2 = parse(row['Photo Hole 2']); 
+  const h1 = parse(row['Header Top']); const h2 = parse(row['Header Bottom']);
+  const s1 = parse(row['Service 1']); const s2 = parse(row['Service 2']);
+  const s3 = parse(row['Service 3']); const s4 = parse(row['Service 4']);
+  const ph = parse(row['Phone']);
+  const name = data.businessName || "";
+  const first = name.split(' ')[0] || "PRO";
+  const rest = name.split(' ').slice(1).join(' ') || "SERVICES";
+  const isHex = configKey.includes('hex');
+  const isCircle = configKey.includes('circle');
+  const clip = isHex ? { clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' } : isCircle ? { borderRadius: '50%', overflow: 'hidden' } : {};
+
+  return (
+    <div id={id} className="relative w-full bg-white text-balance">
+      <svg viewBox="0 0 1080 1080" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+        <image href={`/${configKey}.png`} x="0" y="0" width="1080" height="1080" />
+        {p1 && <foreignObject x={p1.x} y={p1.y} width={p1.w} height={p1.h}><div style={{ width: '100%', height: '100%', ...clip }}><img src={photo1} className="w-full h-full object-cover" crossOrigin="anonymous" onError={(e: any) => { e.currentTarget.src = FALLBACK_1; }} /></div></foreignObject>}
+        {p2 && <foreignObject x={p2.x} y={p2.y} width={p2.w} height={p2.h}><div style={{ width: '100%', height: '100%', ...clip }}><img src={photo2} className="w-full h-full object-cover" crossOrigin="anonymous" onError={(e: any) => { e.currentTarget.src = FALLBACK_2; }} /></div></foreignObject>}
+        {[{ c: h1, t: first }, { c: h2, t: rest }, { c: ph, t: data.phone, isPhone: true }, { c: s1, t: data.service1 ? `✓ ${data.service1}` : '' }, { c: s2, t: data.service2 ? `✓ ${data.service2}` : '' }, { c: s3, t: data.service3 ? `✓ ${data.service3}` : '' }, { c: s4, t: data.service4 ? `✓ ${data.service4}` : '' }].map((item, i) => {
+          if (!item.c || !item.t) return null;
+          return <foreignObject key={i} x={item.c.x} y={item.c.y} width={item.c.w} height={item.c.h} style={{ overflow: 'visible' }}><div style={item.c.s} className="w-full h-full uppercase whitespace-nowrap">{item.t}</div></foreignObject>;
+        })}
+      </svg>
+    </div>
+  );
+};
 
 export default function PreviewPage() {
   const router = useRouter();
@@ -49,8 +88,8 @@ export default function PreviewPage() {
     try {
       const imgRes = await fetch('/api/generate-trade', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trade: form.field }) });
       if (imgRes.ok) {
-        const imgData = await imgRes.ok ? await imgRes.json() : null;
-        if (imgData) setPhotos([imgData.photo1, imgData.photo2]);
+        const imgData = await imgRes.json();
+        setPhotos([imgData.photo1, imgData.photo2]);
       }
       const copyRes = await fetch('/api/generate-listing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ businessName: form.businessName, trade: form.field, services: [form.service1, form.service2, form.service3, form.service4].filter(Boolean) }) });
       if (copyRes.ok) {
@@ -77,10 +116,8 @@ export default function PreviewPage() {
   };
 
   if (show) {
-    // ... (Show state UI updated with modern classes) ...
     return (
       <main className="min-h-screen p-8 bg-slate-50 font-sans relative">
-        {/* Auth Modal with Modern Styling */}
         {showAuthModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-10 relative">
@@ -103,7 +140,6 @@ export default function PreviewPage() {
                 ← Back to Edit
               </button>
               <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
-              {/* Premium Upgrade Button */}
               <Link href="/upgrade-offer" className="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-100 transition-colors">
                 ✨ Upgrade to Premium
               </Link>
@@ -127,6 +163,7 @@ export default function PreviewPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {['circle', 'square', 'hex'].map(s => (
                   <div key={s} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden group">
+                    {/* MasterTemplate is now defined above */}
                     <MasterTemplate id={`t-${s}`} data={form} configKey={`${s}-${form.themeColor}`} rawDatabase={db} photo1={photos[0]} photo2={photos[1]} />
                     <div className="p-4">
                       <button onClick={() => setShowAuthModal(true)} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-600 transition-all">Download {s}</button>
@@ -158,7 +195,7 @@ export default function PreviewPage() {
                   <button onClick={() => setShowAuthModal(true)} className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all">Copy Text</button>
                 </div>
               ) : (
-                <div className="py-20 text-center text-slate-300 font-medium">Generating Ad Copy...</div>
+                <div className="py-20 text-center text-slate-300 font-medium italic">Generating Ad Copy...</div>
               )}
             </div>
           </div>
@@ -167,7 +204,6 @@ export default function PreviewPage() {
     );
   }
 
-  // Modernized Form View
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-50 p-6 font-sans">
       <div className="bg-white max-w-xl w-full p-12 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100">
