@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Pricing | Aretifi Studio',
-  description: 'Simple, transparent pricing for local service business growth tools.',
+  description: 'Fair, honest pricing for local service business growth tools and premium network listings.',
 };
 
 export default function PricingPage() {
@@ -22,22 +22,22 @@ export default function PricingPage() {
     },
     {
       name: 'Verified Pro',
-      price: '$15',
-      description: 'Your own professional webpage on the Aretifi network.',
+      price: '$9',
+      description: 'Your dedicated, instantly-generated page on our premium niche networks.',
       features: [
-        'Verified Pro Webpage',
-        'Priority AI Writing', 
+        'Premium Niche Network Listing',
+        'Instant AI Bio & Setup', 
         'Custom Branding for Flyers', 
         'Standard Email Support'
       ],
-      cta: 'Go Verified',
+      cta: 'Get Listed',
       href: '/upgrade-offer', 
       highlight: true
     },
     {
       name: 'Pro Plus',
-      price: '$49',
-      description: 'Designed for local pros ready to dominate their service area.',
+      price: '$29',
+      description: 'Designed for local pros ready to dominate their entire service area.',
       features: [
         'Everything in Verified Pro',
         'Competitor Ad Analysis', 
@@ -56,13 +56,13 @@ export default function PricingPage() {
         
         {/* Header Section */}
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900">
-          Simple, transparent pricing
+          Fair pricing for the working pro.
         </h1>
         <p className="text-lg text-slate-600 mb-16 max-w-2xl mx-auto">
-          Start for free to test the waters, upgrade when your schedule gets packed. No hidden fees.
+          Aretifi uses smart technology to build your business faster and cheaper than the legacy guys. Upgrade when one extra job covers your entire year.
         </p>
 
-        {/* Pricing Cards Grid (Updated to 3 columns) */}
+        {/* Pricing Cards Grid */}
         <div className="grid md:grid-cols-3 gap-8 text-left mb-16">
           {tiers.map((tier) => (
             <div 
@@ -87,7 +87,6 @@ export default function PricingPage() {
                 <span className="text-slate-500 font-medium">/mo</span>
               </div>
               
-              {/* Added min-height to keep all cards aligned perfectly */}
               <p className="text-slate-600 mb-8 min-h-[3rem]">
                 {tier.description}
               </p>
@@ -105,7 +104,7 @@ export default function PricingPage() {
                 href={tier.href} 
                 className={`block w-full py-3.5 rounded-xl font-semibold text-center transition-colors ${
                   tier.highlight 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md' 
                     : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
                 }`}
               >
@@ -128,7 +127,7 @@ export default function PricingPage() {
               Unlock the Premium Flyer Tool
             </h3>
             <p className="text-slate-600 text-lg">
-              Commit to a full year of <span className="font-semibold text-slate-900">Verified Pro</span> or <span className="font-semibold text-slate-900">Pro Plus</span> and get completely free, unlimited access to our Premium Flyer Generator (normally sold separately).
+              Commit to a full year of <span className="font-semibold text-slate-900">Verified Pro</span> or <span className="font-semibold text-slate-900">Pro Plus</span> and get completely free, unlimited access to our Premium Flyer Generator.
             </p>
           </div>
           
