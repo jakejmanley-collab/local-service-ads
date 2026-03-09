@@ -38,7 +38,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <div className="bg-blue-100 p-2 rounded-lg text-blue-700 shadow-sm">
-              {/* Text/Chat Icon for Optimized Text */}
+              {/* Sparkles/AI Icon for Optimized Text */}
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
             </div>
             <span className="font-bold text-slate-700 text-sm">Optimized text increases sales by 30%</span>
