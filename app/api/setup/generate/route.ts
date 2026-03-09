@@ -2,29 +2,30 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Initialize Supabase Admin Client (Bypasses RLS to insert data safely from the backend)
+// Initialize Supabase Admin Client
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Helper function to create clean URLs (e.g., "Bob's Plumbing!" -> "bobs-plumbing")
 const generateSlug = (name: string) => {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
-    .replace(/(^-|-$)+/g, '');   // Remove leading or trailing hyphens
+    .replace(/[^a-z0-9]+/g, '-') 
+    .replace(/(^-|-$)+/g, '');   
 };
 
 export async function POST(req: Request) {
   try {
+    // MOVE OPENAI INITIALIZATION HERE: Inside the POST function
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
     const body = await req.json();
     const { businessName, phone, industry, city, bullets, sessionId } = body;
+
+    // ... (Keep the rest of your file exactly the same starting from here) ...
 
     // 1. Verify Payment (Optional but recommended)
     // If you want to strictly enforce this, you would use the Stripe SDK here
