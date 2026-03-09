@@ -39,6 +39,8 @@ export default function PricingPage() {
   return (
     <main className="min-h-screen bg-slate-50 py-24 px-6 font-sans text-slate-900">
       <div className="max-w-4xl mx-auto text-center">
+        
+        {/* Header Section */}
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900">
           Simple, transparent pricing
         </h1>
@@ -46,7 +48,8 @@ export default function PricingPage() {
           Start for free to test the waters, upgrade when your schedule gets packed. No hidden fees.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-8 text-left max-w-3xl mx-auto">
+        {/* Pricing Cards Grid */}
+        <div className="grid md:grid-cols-2 gap-8 text-left max-w-3xl mx-auto mb-16">
           {tiers.map((tier) => (
             <div 
               key={tier.name} 
@@ -95,6 +98,34 @@ export default function PricingPage() {
             </div>
           ))}
         </div>
+
+        {/* Annual Bonus Offer Banner */}
+        <div className="bg-blue-50 border border-blue-200 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 max-w-4xl mx-auto shadow-sm relative overflow-hidden">
+          {/* Subtle background decoration */}
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
+          
+          <div className="text-left flex-1 relative z-10">
+            <div className="inline-block bg-blue-600 text-white font-bold px-3 py-1 rounded-full text-sm mb-4 shadow-sm">
+              Annual Bonus Offer
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">
+              Unlock the Premium Flyer Tool
+            </h3>
+            <p className="text-slate-600 text-lg">
+              Commit to a full year of <span className="font-semibold text-slate-900">Verified Pro</span> or <span className="font-semibold text-slate-900">Pro Plus</span> and get completely free, unlimited access to our Premium Flyer Generator (normally sold separately).
+            </p>
+          </div>
+          
+          <div className="flex-shrink-0 w-full md:w-auto relative z-10">
+            <Link 
+              href="/upgrade-offer" 
+              className="bg-slate-900 text-white font-semibold py-4 px-8 rounded-xl hover:bg-slate-800 transition-colors shadow-md block text-center text-lg w-full md:w-auto"
+            >
+              View Annual Plans
+            </Link>
+          </div>
+        </div>
+
       </div>
     </main>
   );
