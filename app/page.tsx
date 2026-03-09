@@ -10,11 +10,11 @@ export default function Home() {
           Built for Local Service Pros
         </div>
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
-          Professional Web Presence. <br className="hidden md:block" />
-          <span className="text-blue-600">Fair, Honest Pricing.</span>
+          Look like a premium business. <br className="hidden md:block" />
+          <span className="text-blue-600">Get more jobs.</span>
         </h1>
         <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
-          AI has made building a website easier than ever. Why pay hundreds a month for apps that do less? Get listed on our premium industry networks in minutes, pass the savings to your business, and get back to work.
+          Stop paying thousands to web designers. Answer a few questions, and our system instantly builds you a professional webpage on our trusted trades directory.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link href="/preview" className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg">
@@ -26,7 +26,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Proof Section */}
+      {/* Proof Section (Plain English Features) */}
       <section className="bg-white py-16 border-y border-slate-200">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8 text-center">
@@ -36,17 +36,17 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-slate-900">Premium Niche Networks</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">Don't just get a generic page. Get listed on industry-specific premium domains (like PlumbingVerse or LawnLegends) that command instant respect.</p>
+              <h3 className="text-xl font-bold mb-2 text-slate-900">Your Own Webpage</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">Get a dedicated page on our industry directory (like PlumbingVerse.com) that makes you look like a top-tier pro to potential customers.</p>
             </div>
             <div className="p-6">
               <div className="flex items-center justify-center gap-2 text-blue-600 mb-4">
                 <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-slate-900">Instant AI Setup</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">No drag-and-drop builders or 3-week agency waits. Answer a few questions and our system writes, designs, and launches your page instantly.</p>
+              <h3 className="text-xl font-bold mb-2 text-slate-900">We Do The Writing</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">Don't know what to say? Just give us a few bullet points. Our system automatically writes a professional business description that gets customers to call.</p>
             </div>
             <div className="p-6">
               <div className="flex items-center justify-center gap-2 text-blue-600 mb-4">
@@ -54,8 +54,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-slate-900">Keep Your Profits</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">We use automation to keep our costs near zero, and we pass those savings directly to you. Cost shouldn't be a barrier to looking professional.</p>
+              <h3 className="text-xl font-bold mb-2 text-slate-900">Fair, Honest Pricing</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">We don't charge heavy setup fees or lock you into expensive contracts. You pay one low monthly price, and you keep all the money from your jobs.</p>
             </div>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default function Home() {
             Fair pricing for the working pro.
           </h2>
           <p className="text-lg text-slate-600 mb-16 max-w-2xl mx-auto text-center">
-            Aretifi uses smart technology to build your business faster and cheaper than the legacy guys. Upgrade when one extra job covers your entire year.
+            Upgrade when just one extra job pays for your entire year.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 text-left mb-16">
@@ -81,12 +81,12 @@ export default function Home() {
                 <span className="text-slate-500 font-medium">/mo</span>
               </div>
               <p className="text-slate-600 mb-8 min-h-[3rem]">
-                Perfect for getting your first few Marketplace customers.
+                Perfect for making your first few ad flyers.
               </p>
               <ul className="space-y-4 mb-10 flex-grow text-slate-700">
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Unlimited Flyer Generations</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Basic Ad Text Templates</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Community Support</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Make unlimited flyers</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Basic ad text templates</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Community support</li>
               </ul>
               <Link href="/preview" className="block w-full py-3.5 rounded-xl font-semibold text-center transition-colors bg-slate-100 text-slate-900 hover:bg-slate-200">
                 Start for Free
@@ -104,13 +104,13 @@ export default function Home() {
                 <span className="text-slate-500 font-medium">/mo</span>
               </div>
               <p className="text-slate-600 mb-8 min-h-[3rem]">
-                Your dedicated, instantly-generated page on our premium niche networks.
+                Your own professional webpage hosted on our trades network.
               </p>
               <ul className="space-y-4 mb-10 flex-grow text-slate-700">
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Premium Niche Network Listing</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Instant AI Bio & Setup</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Custom Branding for Flyers</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Standard Email Support</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Your own webpage on our network</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> We write your business description</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Add your logo and colors to flyers</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Standard email support</li>
               </ul>
               <Link href="/upgrade-offer" className="block w-full py-3.5 rounded-xl font-semibold text-center transition-colors bg-blue-600 text-white hover:bg-blue-700 shadow-md">
                 Get Listed
@@ -125,13 +125,13 @@ export default function Home() {
                 <span className="text-slate-500 font-medium">/mo</span>
               </div>
               <p className="text-slate-600 mb-8 min-h-[3rem]">
-                Designed for local pros ready to dominate their entire service area.
+                Get seen by more customers in more cities.
               </p>
               <ul className="space-y-4 mb-10 flex-grow text-slate-700">
                 <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Everything in Verified Pro</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Competitor Ad Analysis</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Premium SEO Guides Access</li>
-                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> 1-on-1 Priority Support</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Show up in 3 extra cities</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Rank higher on our directory</li>
+                <li className="flex items-start"><span className="mr-3 text-blue-500 font-bold">✓</span> Priority customer support</li>
               </ul>
               <Link href="/upgrade-offer" className="block w-full py-3.5 rounded-xl font-semibold text-center transition-colors bg-slate-100 text-slate-900 hover:bg-slate-200">
                 Get Pro Plus
@@ -146,13 +146,13 @@ export default function Home() {
             
             <div className="text-left flex-1 relative z-10">
               <div className="inline-block bg-blue-600 text-white font-bold px-3 py-1 rounded-full text-sm mb-4 shadow-sm">
-                Annual Bonus Offer
+                Yearly Plan Bonus
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">
-                Unlock the Premium Flyer Tool
+                Get our Premium Flyer Tool Free
               </h3>
               <p className="text-slate-600 text-lg">
-                Commit to a full year of <span className="font-semibold text-slate-900">Verified Pro</span> or <span className="font-semibold text-slate-900">Pro Plus</span> and get completely free, unlimited access to our Premium Flyer Generator.
+                Choose a yearly plan and get our Premium Flyer Tool completely free, plus save over 20% on your subscription.
               </p>
             </div>
             
@@ -161,7 +161,7 @@ export default function Home() {
                 href="/upgrade-offer" 
                 className="bg-slate-900 text-white font-semibold py-4 px-8 rounded-xl hover:bg-slate-800 transition-colors shadow-md block text-center text-lg w-full md:w-auto"
               >
-                View Annual Plans
+                View Yearly Plans
               </Link>
             </div>
           </div>
@@ -169,24 +169,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Reviews Section Restored */}
+      {/* Reviews Section */}
       <section className="bg-slate-900 text-white py-20">
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Trusted by Hard-Working Local Pros</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-700">
               <div className="text-yellow-400 mb-4 text-xl">★★★★★</div>
-              <p className="text-slate-300 mb-6 font-medium leading-relaxed">"I used to get maybe one message a week for my landscaping business. After using these flyer templates and the exact ad text they gave me, I booked three jobs in two days."</p>
+              <p className="text-slate-300 mb-6 font-medium leading-relaxed">"I used to get maybe one message a week for my landscaping business. After using these flyer templates, I booked three jobs in two days."</p>
               <div className="font-bold text-white">- Mike T., Landscaping</div>
             </div>
             <div className="bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-700">
               <div className="text-yellow-400 mb-4 text-xl">★★★★★</div>
-              <p className="text-slate-300 mb-6 font-medium leading-relaxed">"Getting listed on their premium cleaning network changed everything. Now when I reply to marketplace leads, I send them my custom link. It makes me look like a high-end company, not just a side-hustler."</p>
+              <p className="text-slate-300 mb-6 font-medium leading-relaxed">"Getting listed on their network changed everything. Now when I reply to leads, I send them my custom link. It makes me look like a high-end company."</p>
               <div className="font-bold text-white">- Sarah J., Residential Cleaning</div>
             </div>
             <div className="bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-700">
               <div className="text-yellow-400 mb-4 text-xl">★★★★★</div>
-              <p className="text-slate-300 mb-6 font-medium leading-relaxed">"Fast, easy, and it works. They don't overcharge like the big agency guys. I entered my services and the AI built my network page instantly. Best ROI for my plumbing business this year."</p>
+              <p className="text-slate-300 mb-6 font-medium leading-relaxed">"Fast, easy, and it works. They don't overcharge like the big agency guys. I answered a few questions and my page was built instantly."</p>
               <div className="font-bold text-white">- David R., Plumbing Services</div>
             </div>
           </div>
