@@ -21,24 +21,38 @@ export default function PricingPage() {
       highlight: false
     },
     {
-      name: 'Pro',
+      name: 'Verified Pro',
       price: '$19',
-      description: 'Designed for local pros ready to dominate their service area.',
+      description: 'Your own professional webpage on the Aretifi network.',
       features: [
+        'Verified Pro Webpage',
         'Priority AI Writing', 
         'Custom Branding for Flyers', 
-        'Competitor Ad Analysis', 
-        'Priority Email Support'
+        'Standard Email Support'
       ],
-      cta: 'Go Pro Now',
+      cta: 'Go Verified',
       href: '/upgrade-offer', 
       highlight: true
+    },
+    {
+      name: 'Pro Plus',
+      price: '$39',
+      description: 'Designed for local pros ready to dominate their service area.',
+      features: [
+        'Everything in Verified Pro',
+        'Competitor Ad Analysis', 
+        'Premium SEO Guides Access',
+        '1-on-1 Priority Support'
+      ],
+      cta: 'Get Pro Plus',
+      href: '/upgrade-offer', 
+      highlight: false
     }
   ];
 
   return (
     <main className="min-h-screen bg-slate-50 py-24 px-6 font-sans text-slate-900">
-      <div className="max-w-4xl mx-auto text-center">
+      <div className="max-w-6xl mx-auto text-center">
         
         {/* Header Section */}
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900">
@@ -48,8 +62,8 @@ export default function PricingPage() {
           Start for free to test the waters, upgrade when your schedule gets packed. No hidden fees.
         </p>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid md:grid-cols-2 gap-8 text-left max-w-3xl mx-auto mb-16">
+        {/* Pricing Cards Grid (Updated to 3 columns) */}
+        <div className="grid md:grid-cols-3 gap-8 text-left mb-16">
           {tiers.map((tier) => (
             <div 
               key={tier.name} 
@@ -60,7 +74,7 @@ export default function PricingPage() {
               }`}
             >
               {tier.highlight && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 text-sm font-semibold rounded-full">
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 text-sm font-semibold rounded-full w-max">
                   Most Popular
                 </span>
               )}
@@ -72,7 +86,9 @@ export default function PricingPage() {
                 <span className="text-4xl font-bold text-slate-900">{tier.price}</span>
                 <span className="text-slate-500 font-medium">/mo</span>
               </div>
-              <p className="text-slate-600 mb-8 h-12">
+              
+              {/* Added min-height to keep all cards aligned perfectly */}
+              <p className="text-slate-600 mb-8 min-h-[3rem]">
                 {tier.description}
               </p>
               
