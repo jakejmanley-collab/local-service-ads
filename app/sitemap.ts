@@ -7,7 +7,7 @@ const supabase = createClient(
 );
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://aretifi.com'; // REPLACE WITH YOUR ACTUAL DOMAIN
+  const baseUrl = 'https://aretifi.com'; 
 
   // Fetch all slugs from your SEO table
   const { data: articles } = await supabase
@@ -34,6 +34,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/pricing`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
     },
     ...articleEntries,
   ];
