@@ -1,105 +1,138 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Link from 'next/link';
 
 export default function UpgradeOfferPage() {
-  const router = useRouter();
-  const [trade, setTrade] = useState('Local Service');
+  const [isAnnual, setIsAnnual] = useState(false);
 
-  useEffect(() => {
-    // Pull the trade they just entered to personalize the upsell
-    const savedData = localStorage.getItem('flyer_form_data');
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      if (parsed.field) {
-        setTrade(parsed.field);
-      }
+  const tiers = [
+    {
+      name: 'Verified Pro',
+      monthlyPrice: '$9',
+      annualPrice: '$90', // 16% discount
+      description: 'Your dedicated, instantly-generated page on our premium niche networks.',
+      features: [
+        'Premium Niche Network Listing',
+        'Instant AI Bio & Setup', 
+        'Custom Branding for Flyers', 
+        'Standard Email Support',
+        isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Basic Flyer Tool'
+      ],
+      cta: 'Get Listed Now',
+      monthlyLink: 'https://buy.stripe.com/4gM4gt5qH9lmh0Eey73gk04', // Verified Pro Monthly
+      annualLink: 'https://buy.stripe.com/fZuaERaL169afWAahR3gk05',  // Verified Pro Yearly
+      highlight: true
+    },
+    {
+      name: 'Pro Plus',
+      monthlyPrice: '$29',
+      annualPrice: '$290', // 16% discount
+      description: 'Designed for local pros ready to dominate their entire service area.',
+      features: [
+        'Everything in Verified Pro',
+        'Competitor Ad Analysis', 
+        'Premium SEO Guides Access',
+        '1-on-1 Priority Support',
+        isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Premium Flyer Tool ($99/yr value)' 
+      ],
+      cta: 'Get Pro Plus',
+      monthlyLink: 'https://buy.stripe.com/28E3cp2ev41239O9dN3gk06', // Pro Plus Monthly
+      annualLink: 'https://buy.stripe.com/3cI9AN9GXcxybGk75F3gk07',  // Pro Plus Yearly
+      highlight: false
     }
-  }, []);
-
-  const handleAccept = () => {
-    // In a production environment, this routes to a Stripe Checkout link for the $25 product.
-    // For now, we simulate success and push to the dashboard.
-    alert('Routing to Stripe Checkout for $25...');
-    router.push('/dashboard');
-  };
-
-  const handleDecline = () => {
-    // If they decline, send them straight to the dashboard to access their free assets.
-    router.push('/dashboard');
-  };
+  ];
 
   return (
-    <main className="min-h-screen bg-slate-900 flex items-center justify-center p-6 font-sans">
-      <div className="max-w-3xl w-full bg-white border-4 border-black shadow-[15px_15px_0px_0px_rgba(255,255,255,0.2)]">
+    <main className="min-h-screen bg-slate-50 py-24 px-6 font-sans text-slate-900">
+      <div className="max-w-5xl mx-auto text-center">
         
-        {/* Progress Bar / Status */}
-        <div className="bg-green-500 p-3 text-center border-b-4 border-black">
-          <p className="font-black uppercase text-sm text-black tracking-widest">
-            Step 1 Complete: Your Free Account is Created
-          </p>
-        </div>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900">
+          Ready to look like a premium business?
+        </h1>
+        <p className="text-lg text-slate-600 mb-10 max-w-2xl mx-auto">
+          Secure your spot on the network. Setup takes less than 5 minutes.
+        </p>
 
-        <div className="p-10 md:p-14 text-center">
-          <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter mb-4 text-red-600">
-            Wait! Read This Before <br/> Accessing Your Dashboard.
-          </h1>
+        {/* The Monthly / Yearly Toggle */}
+        <div className="flex justify-center items-center gap-4 mb-16">
+          <span className={`text-sm font-bold ${!isAnnual ? 'text-slate-900' : 'text-slate-400'}`}>
+            Monthly
+          </span>
           
-          <p className="text-xl font-bold text-slate-800 mb-8 max-w-xl mx-auto">
-            Thousands of contractors use our standard free templates. Separate yourself from the competition with the <span className="underline decoration-4 decoration-yellow-400">Premium AI Asset Pack</span>.
-          </p>
-
-          {/* The Offer Box */}
-          <div className="bg-slate-50 border-4 border-black p-8 text-left mb-10 relative">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black font-black uppercase italic px-4 py-1 border-2 border-black text-sm">
-              One-Time Offer
-            </div>
-            
-            <h2 className="text-2xl font-black uppercase mb-4">What you get for $25:</h2>
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start gap-3">
-                <span className="text-green-600 font-black text-xl">✓</span>
-                <span className="font-bold text-slate-700">5 Completely Unique, Photorealistic Ad Backgrounds</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-green-600 font-black text-xl">✓</span>
-                <span className="font-bold text-slate-700">Generated from scratch by AI specifically for your {trade} business</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-green-600 font-black text-xl">✓</span>
-                <span className="font-bold text-slate-700">Commercial-use rights to completely dominate Facebook Marketplace</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-red-600 font-black text-xl">✕</span>
-                <span className="font-bold text-slate-500 line-through">Never look like a generic template again</span>
-              </li>
-            </ul>
-
-            <div className="flex items-center justify-between border-t-2 border-slate-200 pt-6">
-              <div className="text-slate-500 font-bold line-through text-xl">Normal Price: $99</div>
-              <div className="text-4xl font-black">Only $25</div>
-            </div>
-          </div>
-
-          {/* Call to Actions */}
-          <div className="space-y-4">
-            <button 
-              onClick={handleAccept}
-              className="w-full bg-blue-600 text-white font-black py-6 uppercase text-2xl italic tracking-tight border-b-8 border-blue-800 hover:bg-blue-500 active:translate-y-2 active:border-b-0 transition-all"
-            >
-              Yes! Upgrade My Assets for $25
-            </button>
-            
-            <button 
-              onClick={handleDecline}
-              className="w-full py-4 text-slate-400 font-bold uppercase text-xs hover:text-slate-600 underline decoration-slate-300 transition-colors"
-            >
-              No thanks, I want to look like everyone else using the standard free templates. Take me to my dashboard.
-            </button>
-          </div>
-
+          <button 
+            onClick={() => setIsAnnual(!isAnnual)}
+            className="w-16 h-8 bg-blue-600 rounded-full p-1 flex items-center transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+            aria-label="Toggle annual billing"
+          >
+            <div className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300 ${isAnnual ? 'translate-x-8' : ''}`} />
+          </button>
+          
+          <span className={`text-sm font-bold flex items-center gap-2 ${isAnnual ? 'text-slate-900' : 'text-slate-400'}`}>
+            Yearly
+            <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wide">
+              Save 16% + Bonus
+            </span>
+          </span>
         </div>
+
+        {/* Pricing Cards */}
+        <div className="grid md:grid-cols-2 gap-8 text-left max-w-4xl mx-auto">
+          {tiers.map((tier) => (
+            <div 
+              key={tier.name} 
+              className={`bg-white rounded-3xl p-8 flex flex-col transition-all ${
+                tier.highlight 
+                  ? 'ring-2 ring-blue-600 shadow-xl relative md:-translate-y-2' 
+                  : 'border border-slate-200 shadow-sm'
+              }`}
+            >
+              {tier.highlight && (
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 text-sm font-semibold rounded-full w-max">
+                  Most Popular
+                </span>
+              )}
+              
+              <h2 className="text-2xl font-semibold mb-2 text-slate-900">
+                {tier.name}
+              </h2>
+              
+              <div className="flex items-baseline gap-1 mb-4">
+                <span className="text-5xl font-bold text-slate-900">
+                  {isAnnual ? tier.annualPrice : tier.monthlyPrice}
+                </span>
+                <span className="text-slate-500 font-medium">
+                  {isAnnual ? '/yr' : '/mo'}
+                </span>
+              </div>
+              
+              <p className="text-slate-600 mb-8 min-h-[3rem]">
+                {tier.description}
+              </p>
+              
+              <ul className="space-y-4 mb-10 flex-grow">
+                {tier.features.map((f, i) => (
+                  <li key={i} className="flex items-start text-slate-700">
+                    <span className="mr-3 text-blue-500 font-bold">✓</span> 
+                    <span className={f.includes('FREE') ? 'font-bold text-slate-900' : ''}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              
+              <Link 
+                href={isAnnual ? tier.annualLink : tier.monthlyLink} 
+                className={`block w-full py-4 rounded-xl font-bold text-lg text-center transition-colors ${
+                  tier.highlight 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md' 
+                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
+                }`}
+              >
+                {tier.cta}
+              </Link>
+            </div>
+          ))}
+        </div>
+
       </div>
     </main>
   );
