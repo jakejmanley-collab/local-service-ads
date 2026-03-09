@@ -1,146 +1,46 @@
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Pricing | Aretifi Studio',
-  description: 'Fair, honest pricing for local service business growth tools and premium network listings.',
-};
-
 export default function PricingPage() {
-  const tiers = [
-    {
-      name: 'Free',
-      price: '$0',
-      description: 'Perfect for getting your first few Marketplace customers.',
-      features: [
-        'Unlimited Flyer Generations', 
-        'Basic Ad Text Templates', 
-        'Community Support'
-      ],
-      cta: 'Start for Free',
-      href: '/preview',
-      highlight: false
-    },
-    {
-      name: 'Verified Pro',
-      price: '$9',
-      description: 'Your dedicated, instantly-generated page on our premium niche networks.',
-      features: [
-        'Premium Niche Network Listing',
-        'Instant AI Bio & Setup', 
-        'Custom Branding for Flyers', 
-        'Standard Email Support'
-      ],
-      cta: 'Get Listed',
-      href: '/upgrade-offer', 
-      highlight: true
-    },
-    {
-      name: 'Pro Plus',
-      price: '$29',
-      description: 'Designed for local pros ready to dominate their entire service area.',
-      features: [
-        'Everything in Verified Pro',
-        'Competitor Ad Analysis', 
-        'Premium SEO Guides Access',
-        '1-on-1 Priority Support'
-      ],
-      cta: 'Get Pro Plus',
-      href: '/upgrade-offer', 
-      highlight: false
-    }
-  ];
-
   return (
     <main className="min-h-screen bg-slate-50 py-24 px-6 font-sans text-slate-900">
-      <div className="max-w-6xl mx-auto text-center">
-        
-        {/* Header Section */}
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900">
-          Fair pricing for the working pro.
-        </h1>
-        <p className="text-lg text-slate-600 mb-16 max-w-2xl mx-auto">
-          Aretifi uses smart technology to build your business faster and cheaper than the legacy guys. Upgrade when one extra job covers your entire year.
-        </p>
+      <div className="max-w-5xl mx-auto text-center">
+        <h1 className="text-4xl md:text-5xl font-bold mb-6 italic">Simple, Honest Pricing.</h1>
+        <p className="text-lg text-slate-600 mb-16">Upgrade when just one extra job pays for your entire year.</p>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-8 text-left mb-16">
-          {tiers.map((tier) => (
-            <div 
-              key={tier.name} 
-              className={`bg-white rounded-3xl p-8 flex flex-col transition-all ${
-                tier.highlight 
-                  ? 'ring-2 ring-blue-600 shadow-xl relative md:-translate-y-2' 
-                  : 'border border-slate-200 shadow-sm'
-              }`}
-            >
-              {tier.highlight && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 text-sm font-semibold rounded-full w-max">
-                  Most Popular
-                </span>
-              )}
-              
-              <h2 className="text-2xl font-semibold mb-2 text-slate-900">
-                {tier.name}
-              </h2>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-4xl font-bold text-slate-900">{tier.price}</span>
-                <span className="text-slate-500 font-medium">/mo</span>
-              </div>
-              
-              <p className="text-slate-600 mb-8 min-h-[3rem]">
-                {tier.description}
-              </p>
-              
-              <ul className="space-y-4 mb-10 flex-grow">
-                {tier.features.map(f => (
-                  <li key={f} className="flex items-start text-slate-700">
-                    <span className="mr-3 text-blue-500 font-bold">✓</span> 
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              
-              <Link 
-                href={tier.href} 
-                className={`block w-full py-3.5 rounded-xl font-semibold text-center transition-colors ${
-                  tier.highlight 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md' 
-                    : 'bg-slate-100 text-slate-900 hover:bg-slate-200'
-                }`}
-              >
-                {tier.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
-
-        {/* Annual Bonus Offer Banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 max-w-4xl mx-auto shadow-sm relative overflow-hidden">
-          {/* Subtle background decoration */}
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
-          
-          <div className="text-left flex-1 relative z-10">
-            <div className="inline-block bg-blue-600 text-white font-bold px-3 py-1 rounded-full text-sm mb-4 shadow-sm">
-              Annual Bonus Offer
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">
-              Unlock the Premium Flyer Tool
-            </h3>
-            <p className="text-slate-600 text-lg">
-              Commit to a full year of <span className="font-semibold text-slate-900">Verified Pro</span> or <span className="font-semibold text-slate-900">Pro Plus</span> and get completely free, unlimited access to our Premium Flyer Generator.
-            </p>
+        <div className="grid md:grid-cols-2 gap-12 text-left">
+          {/* Verified Pro */}
+          <div className="flex flex-col">
+            <h2 className="text-3xl font-bold mb-4 italic text-blue-600 underline underline-offset-8 decoration-2">Verified Pro</h2>
+            <p className="text-slate-600 text-lg mb-6">"Your own professional webpage hosted on our trades network."</p>
+            <ul className="space-y-4 mb-8 text-slate-700 font-medium">
+              <li className="flex items-center gap-3">✓ Your own webpage</li>
+              <li className="flex items-center gap-3">✓ We write your business bio</li>
+              <li className="flex items-center gap-3">✓ Logo & colors for your flyers</li>
+              <li className="flex items-center gap-3">✓ Standard email support</li>
+            </ul>
+            <Link href="/upgrade-offer" className="mt-auto block w-full bg-blue-600 text-white py-4 rounded-2xl text-center font-bold text-xl shadow-lg">Start for $9/mo</Link>
           </div>
-          
-          <div className="flex-shrink-0 w-full md:w-auto relative z-10">
-            <Link 
-              href="/upgrade-offer" 
-              className="bg-slate-900 text-white font-semibold py-4 px-8 rounded-xl hover:bg-slate-800 transition-colors shadow-md block text-center text-lg w-full md:w-auto"
-            >
-              View Annual Plans
-            </Link>
+
+          {/* Pro Plus */}
+          <div className="flex flex-col">
+            <h2 className="text-3xl font-bold mb-4 italic text-slate-900 underline underline-offset-8 decoration-2">Pro Plus</h2>
+            <p className="text-slate-600 text-lg mb-6">"Get seen by more customers in more cities."</p>
+            <ul className="space-y-4 mb-8 text-slate-700 font-medium">
+              <li className="flex items-center gap-3 font-bold text-blue-600 underline underline-offset-4">✓ Everything in Verified Pro</li>
+              <li className="flex items-center gap-3">✓ Show up in 3 extra cities</li>
+              <li className="flex items-center gap-3">✓ Rank higher on directory pages</li>
+              <li className="flex items-center gap-3">✓ Priority customer support</li>
+            </ul>
+            <Link href="/upgrade-offer" className="mt-auto block w-full bg-slate-900 text-white py-4 rounded-2xl text-center font-bold text-xl shadow-lg">Start for $29/mo</Link>
           </div>
         </div>
 
+        {/* Savings Notice */}
+        <div className="mt-20 p-8 bg-blue-50 rounded-3xl border-2 border-blue-200 inline-block">
+          <p className="text-blue-900 font-bold text-lg">
+            🎁 Need to save more? <Link href="/upgrade-offer" className="underline decoration-blue-400 hover:text-blue-600">Switch to a yearly plan</Link> to save over 20% and get the Premium Flyer Tool for free.
+          </p>
+        </div>
       </div>
     </main>
   );
