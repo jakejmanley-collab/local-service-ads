@@ -36,7 +36,7 @@ export default function UpgradeOfferPage() {
         '20 optimized pages to rank on Google', 
         'Show up in Google search results!',
         'Priority customer support',
-        isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Premium Flyer Tool ($99/yr value)' 
+        isAnnual ? '🎁 FREE Premium Flyer Tool' : 'Premium Flyer Tool' 
       ],
       cta: 'Get Pro Plus',
       monthlyLink: 'https://buy.stripe.com/28E3cp2ev41239O9dN3gk06',
@@ -52,8 +52,13 @@ export default function UpgradeOfferPage() {
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-slate-900">
           Ready to look like a premium business?
         </h1>
-        <p className="text-lg text-slate-600 mb-10 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 mb-4 max-w-2xl mx-auto">
           Secure your spot on the network. Setup takes less than 5 minutes.
+        </p>
+
+        {/* ADDED: Promo text for yearly sign-ups */}
+        <p className="text-blue-600 font-bold mb-10">
+          Sign up for yearly and receive access to the premium flyer tool for free
         </p>
 
         {/* The Monthly / Yearly Toggle */}
@@ -99,7 +104,6 @@ export default function UpgradeOfferPage() {
                 {tier.name}
               </h2>
               
-              {/* Price Container */}
               <div className="flex items-baseline gap-1 mt-2">
                 <span className="text-5xl font-bold text-slate-900">
                   {isAnnual ? tier.annualPrice : tier.monthlyPrice}
@@ -109,7 +113,6 @@ export default function UpgradeOfferPage() {
                 </span>
               </div>
 
-              {/* Explicit Discount Math */}
               <div className="min-h-[1.5rem] mt-1 mb-4">
                 {isAnnual && (
                   <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
