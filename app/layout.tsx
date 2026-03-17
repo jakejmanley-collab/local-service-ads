@@ -50,7 +50,7 @@ export default function RootLayout({
 
         {/* Global Footer */}
         <footer className="bg-slate-950 text-slate-400 py-12 border-t-8 border-slate-900">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
             <div>
               <div className="font-black text-2xl tracking-tighter text-white uppercase italic mb-4">
                 ARETIFI
@@ -63,6 +63,14 @@ export default function RootLayout({
               <Link href="/preview" className="hover:text-white transition-colors">Free Generator</Link>
               <Link href="/dashboard" className="hover:text-white transition-colors">User Dashboard</Link>
               <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
+            </div>
+
+            {/* Popular Locations Directory for SEO Crawling */}
+            <div className="flex flex-col space-y-2">
+              <h3 className="font-black text-white uppercase tracking-wider mb-2">Popular Guides</h3>
+              <Link href="/guides/electrician-marketing" className="hover:text-white transition-colors">Electrician Marketing</Link>
+              <Link href="/guides/plumbing-ads-tips" className="hover:text-white transition-colors">Plumbing Ad Tips</Link>
+              <Link href="/guides/hvac-social-media" className="hover:text-white transition-colors">HVAC Social Media</Link>
             </div>
 
             <div className="flex flex-col space-y-2">
