@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
-  // Only protect the /admin route
+  // 1. Protect /admin but ALLOW /api/admin/seo to bypass this specific browser prompt
+  // This allows the "Blast" button to work without a browser popup
   if (req.nextUrl.pathname.startsWith('/admin')) {
     const basicAuth = req.headers.get('authorization');
 
@@ -10,13 +11,12 @@ export function middleware(req: NextRequest) {
       const authValue = basicAuth.split(' ')[1];
       const [user, pwd] = atob(authValue).split(':');
 
-      // The username will be 'admin', and the password will be pulled from Vercel
-      if (user === 'admin' && pwd === process.env.ADMIN_PASSWORD) {
+      // Use ADMIN_PASSCODE to match your other files
+      if (user === 'admin' && pwd === process.env.ADMIN_PASSCODE) {
         return NextResponse.next();
       }
     }
 
-    // If no password or wrong password, show the native browser login prompt
     return new NextResponse('Unauthorized access', {
       status: 401,
       headers: {
