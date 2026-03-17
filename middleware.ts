@@ -22,8 +22,8 @@ export function middleware(req: NextRequest) {
 
         // 3. AUTH LOGIC:
         // Username is hardcoded as 'admin'
-        // Password MUST match your ADMIN_PASSCODE environment variable in Vercel
-        const validPassword = process.env.ADMIN_PASSCODE;
+        // Password MUST match your ADMIN_PASSWORD environment variable in Vercel
+        const validPassword = process.env.ADMIN_PASSWORD;
 
         if (user === 'admin' && pwd === validPassword) {
           return NextResponse.next();
