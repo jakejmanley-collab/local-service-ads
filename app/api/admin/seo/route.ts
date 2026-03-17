@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const { keyword, passcode, site } = await req.json();
 
     // 1. Security Check
-    const storedPasscode = process.env.ADMIN_PASSCODE?.trim();
+    const storedPasscode = process.env.ADMIN_PASSWORD?.trim();
     if (!passcode || passcode.trim() !== storedPasscode) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
