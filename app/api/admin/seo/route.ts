@@ -1,67 +1,47 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize Gemini and Supabase
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Use Service Role Key to bypass RLS for admin actions
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!, 
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: Request) {
   try {
     const { keyword, passcode, site } = await req.json();
 
     // 1. Security Check
-    if (passcode !== process.env.ADMIN_PASSCODE) {
+    const storedPasscode = process.env.ADMIN_PASSCODE?.trim();
+    if (!passcode || passcode.trim() !== storedPasscode) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. Prepare slug and site-specific context
-    const slug = keyword.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    // 2. AI Generation
     const isDiscord = site === 'discord';
-    
-    // 3. Dynamic Prompt based on the selected site
-    const prompt = `
-      Act as a senior SEO content strategist. Write a 1000-word, high-conversion article targeting the keyword: "${keyword}".
-      
-      Context: This is for ${isDiscord ? 'DiscordCompression.com, a private browser-based video tool' : 'Aretifi.com, a contractor marketing platform'}.
-      ${isDiscord ? 'Focus on Discord 25MB limits, private FFmpeg processing, and bulk uploads.' : 'Focus on contractor branding and high-end flyer design.'}
-      
-      Return ONLY a valid JSON object:
-      {
-        "title": "SEO Title (60 chars)",
-        "description": "Meta description (155 chars)",
-        "h1": "Main Article H1",
-        "cta_header": "Strong CTA Heading",
-        "cta_body": "Supporting CTA sentence",
-        "content": "Full article HTML with <h2>, <p>, and <ul> tags."
-      }
-    `;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Write a high-end SEO article for "${keyword}". Target: ${isDiscord ? 'DiscordCompression.com' : 'Aretifi.com'}. 
+    Return JSON: { "h1": "", "title": "", "description": "", "content": "HTML with <h2> and <p>" }`;
 
-    // 4. Generate Content with Gemini
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
     const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    
-    // Extract JSON from potential markdown code blocks
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("Invalid AI response format");
-    const articleData = JSON.parse(jsonMatch[0]);
+    const data = JSON.parse(result.response.text());
 
-    // 5. Upsert to your shared Aretifi Supabase project
-    const { error } = await supabase.from('seo_articles').upsert({
-      slug,
-      ...articleData,
-      site_tag: site || 'aretifi', // Assigns the article to the correct site
-    }, { onConflict: 'slug' });
+    // 3. Database Entry
+    const { error } = await supabase
+      .from('seo_articles')
+      .upsert({
+        slug: keyword.toLowerCase().replace(/ /g, '-'),
+        ...data,
+        site_tag: site,
+      });
 
     if (error) throw error;
+    return NextResponse.json({ success: true });
 
-    return NextResponse.json({ success: true, slug });
-  } catch (error: any) {
-    console.error("SEO Generation Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
