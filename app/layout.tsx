@@ -2,9 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
 
+// Fixed Metadata: Added metadataBase and canonical for SEO indexing
 export const metadata: Metadata = {
   metadataBase: new URL('https://aretifi.com'),
-  title: 'Aretifi | High-End Contractor Flyers',
+  title: {
+    default: 'Aretifi | High-End Contractor Flyers',
+    template: '%s | Aretifi',
+  },
   description: 'Precision marketing assets for local service professionals.',
   alternates: {
     canonical: '/',
@@ -65,12 +69,13 @@ export default function RootLayout({
               <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
             </div>
 
-            {/* Popular Locations Directory for SEO Crawling */}
+            {/* Internal Links for SEO Discovery */}
             <div className="flex flex-col space-y-2">
               <h3 className="font-black text-white uppercase tracking-wider mb-2">Popular Guides</h3>
               <Link href="/guides/electrician-marketing" className="hover:text-white transition-colors">Electrician Marketing</Link>
               <Link href="/guides/plumbing-ads-tips" className="hover:text-white transition-colors">Plumbing Ad Tips</Link>
               <Link href="/guides/hvac-social-media" className="hover:text-white transition-colors">HVAC Social Media</Link>
+              <Link href="/locations" className="text-blue-500 font-bold hover:text-blue-400 pt-2">View All Locations →</Link>
             </div>
 
             <div className="flex flex-col space-y-2">
@@ -83,7 +88,6 @@ export default function RootLayout({
             &copy; {new Date().getFullYear()} Aretifi. All rights reserved.
           </div>
         </footer>
-
       </body>
     </html>
   );
