@@ -3,8 +3,12 @@ import Link from 'next/link';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://aretifi.com'),
   title: 'Aretifi | High-End Contractor Flyers',
   description: 'Precision marketing assets for local service professionals.',
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export default function RootLayout({
