@@ -2,21 +2,38 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
-  // 1. Protect /admin but ALLOW /api/admin/seo to bypass this specific browser prompt
-  // This allows the "Blast" button to work without a browser popup
-  if (req.nextUrl.pathname.startsWith('/admin')) {
+  const pathname = req.nextUrl.pathname;
+
+  // 1. Protect all routes starting with /admin
+  if (pathname.startsWith('/admin')) {
+    
+    // 2. INTERNAL BYPASS: Allow the SEO API to talk to the dashboard 
+    // without triggering a browser login popup.
+    if (pathname.startsWith('/api/admin/seo')) {
+      return NextResponse.next();
+    }
+
     const basicAuth = req.headers.get('authorization');
 
     if (basicAuth) {
-      const authValue = basicAuth.split(' ')[1];
-      const [user, pwd] = atob(authValue).split(':');
+      try {
+        const authValue = basicAuth.split(' ')[1];
+        const [user, pwd] = atob(authValue).split(':');
 
-      // Use ADMIN_PASSCODE to match your other files
-      if (user === 'admin' && pwd === process.env.ADMIN_PASSCODE) {
-        return NextResponse.next();
+        // 3. AUTH LOGIC:
+        // Username is hardcoded as 'admin'
+        // Password MUST match your ADMIN_PASSCODE environment variable in Vercel
+        const validPassword = process.env.ADMIN_PASSCODE;
+
+        if (user === 'admin' && pwd === validPassword) {
+          return NextResponse.next();
+        }
+      } catch (e) {
+        // If decoding fails, continue to the unauthorized response
       }
     }
 
+    // 4. UNAUTHORIZED: Trigger the native browser login prompt
     return new NextResponse('Unauthorized access', {
       status: 401,
       headers: {
@@ -27,3 +44,8 @@ export function middleware(req: NextRequest) {
 
   return NextResponse.next();
 }
+
+// Ensure middleware only runs on relevant paths to save performance
+export const config = {
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
+};
