@@ -42,9 +42,8 @@ export async function POST(req: Request) {
       .upsert({
         slug: keyword.toLowerCase().replace(/ /g, '-').trim(),
         ...data,
-        site_tag: site,
-        last_updated: new Date().toISOString()
-      }, { onConflict: 'slug' });
+        site_tag: site
+  }, { onConflict: 'slug' });
 
     if (error) throw error;
     return NextResponse.json({ success: true });
