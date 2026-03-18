@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     // 2. AI GENERATION
     const isDiscord = site === 'discord';
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `Write a high-end SEO article for "${keyword}". Target: ${isDiscord ? 'DiscordCompression.com' : 'Aretifi.com'}. 
     Return ONLY the raw JSON string: { "h1": "", "title": "", "description": "", "content": "HTML with <h2> and <p>" }`;
 
