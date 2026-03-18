@@ -24,7 +24,18 @@ export default function SEOAdmin() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ keyword, passcode, site }),
         });
-        if (!res.ok) throw new Error("Check Passcode or Vercel Env Vars");
+        
+        if (!res.ok) {
+          let errorMessage = "Check Passcode or Vercel Env Vars";
+          try {
+            const errData = await res.json();
+            if (errData.error) errorMessage = errData.error;
+          } catch (e) {
+            errorMessage = `Server Error: ${res.status} (Check Middleware)`;
+          }
+          throw new Error(errorMessage);
+        }
+        
         setLogs(prev => [...prev, `✅ Success: ${keyword} is now LIVE on ${site}`]);
       } catch (err: any) {
         setLogs(prev => [...prev, `❌ Error: ${err.message}`]);
