@@ -36,5 +36,6 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*'],
+  // Exclude /api/admin/ so the route.ts can process the JSON passcode from the UI component securely
+  matcher: ['/admin/:path*'],
 };
