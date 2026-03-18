@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getServiceSupabase } from '@/lib/supabase';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Force Vercel to bypass cache and read Env Vars fresh
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -41,7 +36,8 @@ export async function POST(req: Request) {
     const data = JSON.parse(cleanedJson);
 
     // 3. DATABASE ENTRY
-    const { error } = await supabase
+    const adminSupabase = getServiceSupabase();
+    const { error } = await adminSupabase
       .from('seo_articles')
       .upsert({
         slug: keyword.toLowerCase().replace(/ /g, '-').trim(),
