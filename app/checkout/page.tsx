@@ -19,10 +19,10 @@ function CheckoutContent() {
   // 1. PASTE YOUR UNIQUE STRIPE LINKS HERE
   const LINKS = {
     FLYERS_OTO: "https://buy.stripe.com/aFa28l6uL2WY11G3Tt3gk01",
-    VERIFIED_PRO_MONTHLY: "https://buy.stripe.com/aFadR38CT9lm7q475F3gk02",
-    VERIFIED_PRO_YEARLY: "https://buy.stripe.com/your_yearly_verified_pro_link", // <-- ADD YEARLY LINK
-    PRO_PLUS_MONTHLY: "https://buy.stripe.com/eVq9AN4mD556cKogGf3gk03",
-    PRO_PLUS_YEARLY: "https://buy.stripe.com/your_yearly_pro_plus_link" // <-- ADD YEARLY LINK
+    VERIFIED_PRO_MONTHLY: "https://buy.stripe.com/4gM4gt5qH9lmh0Eey73gk04",
+    VERIFIED_PRO_YEARLY: "https://buy.stripe.com/fZuaERaL169afWAahR3gk05", // <-- ADD YEARLY LINK
+    PRO_PLUS_MONTHLY: "https://buy.stripe.com/28E3cp2ev41239O9dN3gk06",
+    PRO_PLUS_YEARLY: "https://buy.stripe.com/3cI9AN9GXcxybGk75F3gk07" // <-- ADD YEARLY LINK
   };
 
   useEffect(() => {
