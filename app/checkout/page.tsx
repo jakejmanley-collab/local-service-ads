@@ -104,7 +104,7 @@ function CheckoutContent() {
                   onClick={() => setIsYearly(true)}
                   className={`px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${isYearly ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                 >
-                  Yearly <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded uppercase tracking-wider font-black">Save 15%</span>
+                  Yearly <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded uppercase tracking-wider font-black">Save 20%</span>
                 </button>
               </div>
             )}
