@@ -268,7 +268,7 @@ function DashboardContent() {
                   <div className="p-4 rounded-xl border border-blue-700 bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-bold">Verified Pro</span>
-                      <span className="font-black text-blue-100">$15/mo</span>
+                      <span className="font-black text-blue-100">$9/mo</span>
                     </div>
                     <p className="text-[11px] text-blue-200 font-medium italic">A professional page on our domain</p>
                   </div>
@@ -278,7 +278,7 @@ function DashboardContent() {
                   <div className="p-4 rounded-xl border border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-all">
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-bold">Pro Plus</span>
-                      <span className="font-black text-slate-900">$49/mo</span>
+                      <span className="font-black text-slate-900">$29/mo</span>
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium italic">Your own domain + 20 pages built for Google</p>
                   </div>
