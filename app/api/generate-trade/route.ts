@@ -13,16 +13,16 @@ export async function POST(req: Request) {
     // Slugify the trade name
     const slug = trade.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     
-    // Using v2 in the filename to force-update from the old "brass fitting" versions
-    const filename1 = `${slug}-v2-1.jpg`;
-    const filename2 = `${slug}-v2-2.jpg`;
+    // Bumped to v6 to clear cache and enforce equipment-only generation
+    const filename1 = `${slug}-v6-1.jpg`;
+    const filename2 = `${slug}-v6-2.jpg`;
 
     // 1. Check if high-end images already exist in Supabase Storage
     const { data: existingFiles } = await adminSupabase.storage.from('trades').list('', {
       search: slug
     });
 
-    // If these specific v2 files exist, return them immediately ($0 cost)
+    // If these specific v6 files exist, return them immediately ($0 cost)
     const hasFiles = existingFiles?.some(f => f.name === filename1) && existingFiles?.some(f => f.name === filename2);
 
     if (hasFiles) {
@@ -79,15 +79,15 @@ export async function POST(req: Request) {
     // 4. Run High-End Brand Generations
     console.log(`Generating high-end assets for: ${trade}`);
     
-    // PROMPT 1: The "Hero" (Cinematic, clean uniform, professional lighting)
+    // PROMPT 1: The "Hero" (Equipment, vehicles, environments - NO HUMANS)
     const photo1 = await generateAndUpload(
-      `high-end commercial brand photography, professional ${trade} technician wearing a clean modern uniform performing expert service, bright airy professional lighting, cinematic depth of field with blurred background, minimalist aesthetic, 8k resolution, premium advertising style --ar 1:1`, 
+      `high-end commercial brand photography, pristine ${trade} equipment, vehicles, or professional workspace, strictly no humans in frame, bright natural lighting, cinematic depth of field with blurred background, minimalist aesthetic, 8k resolution, premium advertising quality --ar 1:1`, 
       filename1
     );
 
     // PROMPT 2: The "Premium Layout" (Clean tools, organized, bright natural light)
     const photo2 = await generateAndUpload(
-      `commercial product photography, close-up of high-end professional tools for ${trade} arranged neatly and artistically, bright natural lighting, soft shadows, professional color grading, minimalist clean background, advertising quality --ar 1:1`, 
+      `commercial product photography, close-up of high-end professional tools and equipment for ${trade} arranged neatly and artistically, strictly no humans in frame, bright natural lighting, soft shadows, professional color grading, minimalist clean background, advertising quality --ar 1:1`, 
       filename2
     );
 
