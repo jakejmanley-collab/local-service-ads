@@ -111,6 +111,7 @@ export default function PreviewPage() {
     e.preventDefault();
     localStorage.setItem('aretifi_user_email', authEmail);
     localStorage.setItem('aretifi_assets', JSON.stringify({ photos, copy }));
+    localStorage.setItem('flyer_form_data', JSON.stringify(form));
     router.push('/dashboard');
   };
 
@@ -119,6 +120,7 @@ export default function PreviewPage() {
     // Supabase Google OAuth integration target
     localStorage.setItem('aretifi_user_email', 'google_user@example.com');
     localStorage.setItem('aretifi_assets', JSON.stringify({ photos, copy }));
+    localStorage.setItem('flyer_form_data', JSON.stringify(form));
     router.push('/dashboard');
   };
 
