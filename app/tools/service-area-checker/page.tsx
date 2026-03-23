@@ -157,6 +157,7 @@ export default function ServiceAreaCheckerPage() {
                 maxLength={5}
                 className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
               />
+              <p className="text-xs text-zinc-500 mt-1">Currently supports US zip codes only.</p>
             </div>
 
             {/* Trade */}
