@@ -242,12 +242,9 @@ export default function HeadlineGeneratorPage() {
             {showLeadCapture && (
               <div className="mt-6 bg-zinc-900 border border-amber-400/40 rounded-2xl px-6 py-5">
                 <p className="text-white font-semibold mb-1">
-                  Want more customers finding you automatically?
+                  Want us to let you know when we add new free tools?
                 </p>
-                <p className="text-zinc-400 text-sm mb-4">
-                  Drop your email and we&apos;ll send you a free checklist for getting more local leads.
-                </p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mt-3">
                   <input
                     type="email"
                     placeholder="your@email.com"
@@ -260,7 +257,7 @@ export default function HeadlineGeneratorPage() {
                     disabled={leadLoading || !leadEmail.includes("@")}
                     className="bg-amber-400 hover:bg-amber-300 disabled:bg-zinc-700 disabled:text-zinc-500 text-zinc-900 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors whitespace-nowrap"
                   >
-                    {leadLoading ? "Sending…" : "Send it"}
+                    {leadLoading ? "Sending…" : "Yes, keep me posted"}
                   </button>
                 </div>
                 <button
