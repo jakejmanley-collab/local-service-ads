@@ -33,6 +33,10 @@ export default function HeadlineGeneratorPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState<number | null>(null);
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [leadEmail, setLeadEmail] = useState("");
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadLoading, setLeadLoading] = useState(false);
 
   const handleGenerate = async () => {
     if (!trade || !city) return;
@@ -63,12 +67,32 @@ export default function HeadlineGeneratorPage() {
     navigator.clipboard.writeText(text);
     setCopied(index);
     setTimeout(() => setCopied(null), 1800);
+    if (!leadSubmitted) setShowLeadCapture(true);
   };
 
   const handleCopyAll = () => {
     navigator.clipboard.writeText(headlines.join("\n"));
     setCopied(-1);
     setTimeout(() => setCopied(null), 1800);
+    if (!leadSubmitted) setShowLeadCapture(true);
+  };
+
+  const handleLeadSubmit = async () => {
+    if (!leadEmail.includes("@")) return;
+    setLeadLoading(true);
+    try {
+      await fetch("/api/tools/capture-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: leadEmail, tool: "headline-generator" }),
+      });
+    } catch {
+      // fail silently — don't block the user
+    } finally {
+      setLeadLoading(false);
+      setLeadSubmitted(true);
+      setShowLeadCapture(false);
+    }
   };
 
   return (
@@ -214,20 +238,60 @@ export default function HeadlineGeneratorPage() {
               ))}
             </ul>
 
+            {/* Email capture — shown after first copy */}
+            {showLeadCapture && (
+              <div className="mt-6 bg-zinc-900 border border-amber-400/40 rounded-2xl px-6 py-5">
+                <p className="text-white font-semibold mb-1">
+                  Want more customers finding you automatically?
+                </p>
+                <p className="text-zinc-400 text-sm mb-4">
+                  Drop your email and we&apos;ll send you a free checklist for getting more local leads.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={leadEmail}
+                    onChange={(e) => setLeadEmail(e.target.value)}
+                    className="flex-1 bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-2.5 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                  />
+                  <button
+                    onClick={handleLeadSubmit}
+                    disabled={leadLoading || !leadEmail.includes("@")}
+                    className="bg-amber-400 hover:bg-amber-300 disabled:bg-zinc-700 disabled:text-zinc-500 text-zinc-900 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors whitespace-nowrap"
+                  >
+                    {leadLoading ? "Sending…" : "Send it"}
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowLeadCapture(false)}
+                  className="mt-3 text-xs text-zinc-500 hover:text-zinc-400 transition-colors"
+                >
+                  No thanks
+                </button>
+              </div>
+            )}
+
+            {/* Submitted confirmation */}
+            {leadSubmitted && (
+              <div className="mt-6 bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 text-center">
+                <p className="text-zinc-300 text-sm">✓ Got it — check your inbox soon.</p>
+              </div>
+            )}
+
             {/* Upsell nudge */}
-            <div className="mt-8 bg-amber-400/10 border border-amber-400/30 rounded-2xl px-6 py-5 text-center">
+            <div className="mt-6 bg-amber-400/10 border border-amber-400/30 rounded-2xl px-6 py-5 text-center">
               <p className="text-amber-300 font-semibold mb-1">
-                Like these headlines?
+                Want customers to find you without posting every day?
               </p>
               <p className="text-zinc-400 text-sm mb-4">
-                Turn them into a professional flyer or business page in minutes
-                with Aretifi.
+                Get a professional contractor website that works for you 24/7.
               </p>
               <a
-                href="/preview"
+                href="/upgrade-offer"
                 className="inline-block bg-amber-400 hover:bg-amber-300 text-zinc-900 font-bold px-6 py-3 rounded-xl text-sm transition-colors"
               >
-                Try the Free Flyer Builder →
+                See Pricing →
               </a>
             </div>
           </div>
