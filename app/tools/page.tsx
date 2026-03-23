@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { MapPin } from "lucide-react";
+import { ReactNode } from "react";
 
-const TOOLS = [
+const TOOLS: { href: string; title: string; description: string; icon: string | ReactNode }[] = [
   {
     href: "/tools/headline-generator",
     title: "Ad Headline Generator",
@@ -55,6 +57,12 @@ const TOOLS = [
     description: "Paste any Facebook Marketplace listing and get a score, specific gaps, and an improved version ready to copy.",
     icon: "🔍",
   },
+  {
+    href: "/tools/service-area-checker",
+    title: "Service Area Checker",
+    description: "Enter your zip code and drive radius — get a ranked list of cities to target and ready-to-paste Facebook Marketplace service area text.",
+    icon: <MapPin className="w-6 h-6 text-amber-400" />,
+  },
 ];
 
 export default function ToolsPage() {
@@ -86,7 +94,9 @@ export default function ToolsPage() {
               className="group bg-zinc-900 border border-zinc-800 hover:border-amber-400/50 rounded-2xl p-6 transition-all hover:bg-zinc-900/80"
             >
               <div className="flex items-start gap-4">
-                <span className="text-2xl mt-0.5">{tool.icon}</span>
+                <span className="text-2xl mt-0.5 shrink-0">
+                  {tool.icon}
+                </span>
                 <div>
                   <h2 className="text-white font-bold text-base mb-1 group-hover:text-amber-400 transition-colors">
                     {tool.title}
