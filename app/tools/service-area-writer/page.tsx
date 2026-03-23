@@ -1,4 +1,4 @@
-np"use client";
+"use client";
 
 import { useState } from "react";
 
@@ -25,33 +25,32 @@ const TRADES = [
   "Moving Service",
 ];
 
-export default function HeadlineGeneratorPage() {
+export default function ServiceAreaWriterPage() {
   const [trade, setTrade] = useState("");
   const [city, setCity] = useState("");
-  const [serviceType, setServiceType] = useState("");
-  const [headlines, setHeadlines] = useState<string[]>([]);
+  const [areas, setAreas] = useState("");
+  const [specialties, setSpecialties] = useState("");
+  const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleGenerate = async () => {
-    if (!trade || !city) return;
+    if (!trade || !city || !areas) return;
     setLoading(true);
     setError("");
-    setHeadlines([]);
+    setContent("");
 
     try {
-      const res = await fetch("/api/tools/headline-generator", {
+      const res = await fetch("/api/tools/service-area-writer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trade, city, serviceType }),
+        body: JSON.stringify({ trade, city, areas, specialties }),
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || "Something went wrong");
-
-      setHeadlines(data.headlines);
+      setContent(data.content);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -59,16 +58,10 @@ export default function HeadlineGeneratorPage() {
     }
   };
 
-  const handleCopy = (text: string, index: number) => {
-    navigator.clipboard.writeText(text);
-    setCopied(index);
-    setTimeout(() => setCopied(null), 1800);
-  };
-
-  const handleCopyAll = () => {
-    navigator.clipboard.writeText(headlines.join("\n"));
-    setCopied(-1);
-    setTimeout(() => setCopied(null), 1800);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
   };
 
   return (
@@ -80,11 +73,11 @@ export default function HeadlineGeneratorPage() {
             Free Tool
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
-            Contractor Ad Headline Generator
+            Service Area Page Writer
           </h1>
           <p className="text-zinc-400 text-lg max-w-xl mx-auto">
-            Get 6 punchy, proven ad headlines for your trade business in
-            seconds. Built for Facebook Marketplace, Kijiji, and local flyers.
+            Generate an SEO-optimized service area section for your website.
+            Rank in more cities and neighbourhoods without writing a word.
           </p>
         </div>
       </section>
@@ -112,10 +105,10 @@ export default function HeadlineGeneratorPage() {
               </select>
             </div>
 
-            {/* City */}
+            {/* Primary City */}
             <div>
               <label className="block text-sm font-semibold text-zinc-300 mb-2">
-                Your City <span className="text-amber-400">*</span>
+                Your Primary City <span className="text-amber-400">*</span>
               </label>
               <input
                 type="text"
@@ -127,17 +120,32 @@ export default function HeadlineGeneratorPage() {
             </div>
           </div>
 
-          {/* Optional specialty */}
+          {/* Service Areas */}
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-zinc-300 mb-2">
+              All Areas You Serve <span className="text-amber-400">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Mississauga, Brampton, Oakville, Burlington, Milton"
+              value={areas}
+              onChange={(e) => setAreas(e.target.value)}
+              className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+            />
+            <p className="text-xs text-zinc-500 mt-1">Separate each area with a comma.</p>
+          </div>
+
+          {/* Specialties */}
           <div className="mb-7">
             <label className="block text-sm font-semibold text-zinc-300 mb-2">
-              Specialty or Service{" "}
+              Key Services{" "}
               <span className="text-zinc-500 font-normal">(optional)</span>
             </label>
             <input
               type="text"
-              placeholder="e.g. emergency drain cleaning, kitchen renovations, snow plowing"
-              value={serviceType}
-              onChange={(e) => setServiceType(e.target.value)}
+              placeholder="e.g. emergency repairs, free estimates, same-day service"
+              value={specialties}
+              onChange={(e) => setSpecialties(e.target.value)}
               className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-4 py-3 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
             />
           </div>
@@ -145,34 +153,19 @@ export default function HeadlineGeneratorPage() {
           {/* CTA */}
           <button
             onClick={handleGenerate}
-            disabled={!trade || !city || loading}
+            disabled={!trade || !city || !areas || loading}
             className="w-full bg-amber-400 hover:bg-amber-300 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-zinc-900 font-bold text-base py-4 rounded-xl transition-colors duration-150"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="animate-spin h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  />
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                 </svg>
                 Generating…
               </span>
             ) : (
-              "Generate My Headlines →"
+              "Write My Service Area Page →"
             )}
           </button>
 
@@ -181,47 +174,29 @@ export default function HeadlineGeneratorPage() {
           )}
         </div>
 
-        {/* Results */}
-        {headlines.length > 0 && (
+        {/* Result */}
+        {content && (
           <div className="mt-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">
-                Your Headlines
-              </h2>
+              <h2 className="text-xl font-bold text-white">Your Service Area Content</h2>
               <button
-                onClick={handleCopyAll}
+                onClick={handleCopy}
                 className="text-sm text-amber-400 hover:text-amber-300 font-medium transition-colors"
               >
-                {copied === -1 ? "✓ Copied all!" : "Copy all"}
+                {copied ? "✓ Copied!" : "Copy"}
               </button>
             </div>
-            <ul className="space-y-3">
-              {headlines.map((h, i) => (
-                <li
-                  key={i}
-                  className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4 group hover:border-amber-400/40 transition-colors"
-                >
-                  <span className="text-white font-medium text-base pr-4">
-                    {h}
-                  </span>
-                  <button
-                    onClick={() => handleCopy(h, i)}
-                    className="shrink-0 text-xs text-zinc-500 group-hover:text-amber-400 font-semibold transition-colors"
-                  >
-                    {copied === i ? "✓ Copied" : "Copy"}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-6 py-5 group hover:border-amber-400/40 transition-colors">
+              <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
+            </div>
 
             {/* Upsell nudge */}
-            <div className="mt-8 bg-amber-400/10 border border-amber-400/30 rounded-2xl px-6 py-5 text-center">
+            <div className="mt-6 bg-amber-400/10 border border-amber-400/30 rounded-2xl px-6 py-5 text-center">
               <p className="text-amber-300 font-semibold mb-1">
-                Like these headlines?
+                Need a full website to put this on?
               </p>
               <p className="text-zinc-400 text-sm mb-4">
-                Turn them into a professional flyer or business page in minutes
-                with Aretifi.
+                Aretifi builds professional contractor pages that rank in local searches — free to start.
               </p>
               <a
                 href="/preview"
@@ -238,26 +213,17 @@ export default function HeadlineGeneratorPage() {
       <section className="max-w-3xl mx-auto px-6 pb-20">
         <div className="border-t border-zinc-800 pt-12">
           <h2 className="text-2xl font-bold text-white mb-4">
-            Why Your Ad Headline Matters
+            Why Service Area Pages Help Contractors Rank Locally
           </h2>
           <div className="prose prose-invert prose-zinc max-w-none text-zinc-400 text-sm leading-relaxed space-y-4">
             <p>
-              When a homeowner is scrolling through Facebook Marketplace or
-              Kijiji, your headline is the only thing standing between you and
-              their click. A weak headline — like "Plumber available" — gets
-              ignored. A strong one builds instant trust and drives action.
+              Google wants to show searchers businesses that serve their specific location. If your website only mentions one city, you may be invisible to potential customers in nearby towns and neighbourhoods — even if you serve them every day.
             </p>
             <p>
-              The best contractor headlines do three things: they state who you
-              are, signal professionalism, and create a reason to act now.
-              Including your city name also helps you rank in local searches and
-              feel relevant to the reader.
+              Service area pages solve this by giving Google clear, written signals that you operate in multiple locations. When someone in Brampton searches "plumber near me," a well-written service area mention increases your chances of appearing — especially in Google Maps results.
             </p>
             <p>
-              This free tool uses AI trained on high-converting local service
-              ads to generate headlines tailored to your specific trade and
-              market. Use them on Kijiji, Facebook, Google ads, flyers, or
-              anywhere you need to grab attention fast.
+              Keep service area content natural and informative. Avoid copy-pasting the same paragraph for every city and just swapping the name — Google recognizes this as thin content and may penalize it. Instead, use this tool to generate unique, relevant copy that reads well for both search engines and real customers.
             </p>
           </div>
         </div>
