@@ -49,6 +49,12 @@ const TOOLS = [
     description: "A help-wanted ad for employees, subcontractors, or apprentices — ready to post anywhere.",
     icon: "🔨",
   },
+  {
+    href: "/tools/fb-listing-analyzer",
+    title: "FB Listing Analyzer",
+    description: "Paste any Facebook Marketplace listing and get a score, specific gaps, and an improved version ready to copy.",
+    icon: "🔍",
+  },
 ];
 
 export default function ToolsPage() {
