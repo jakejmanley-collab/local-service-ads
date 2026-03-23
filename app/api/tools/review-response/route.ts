@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const tone = Number(stars) >= 4 ? "warm and grateful" : Number(stars) === 3 ? "appreciative but acknowledging the concern" : "calm, empathetic, and solution-focused";
 
