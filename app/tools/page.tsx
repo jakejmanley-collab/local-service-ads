@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { MapPin, DollarSign, SplitSquareHorizontal } from "lucide-react";
+import { ReactNode } from "react";
 
-const TOOLS = [
+const TOOLS: { href: string; title: string; description: string; icon: string | ReactNode }[] = [
   {
     href: "/tools/headline-generator",
     title: "Ad Headline Generator",
@@ -49,6 +51,30 @@ const TOOLS = [
     description: "A help-wanted ad for employees, subcontractors, or apprentices — ready to post anywhere.",
     icon: "🔨",
   },
+  {
+    href: "/tools/fb-listing-analyzer",
+    title: "FB Listing Analyzer",
+    description: "Paste any Facebook Marketplace listing and get a score, specific gaps, and an improved version ready to copy.",
+    icon: "🔍",
+  },
+  {
+    href: "/tools/service-area-checker",
+    title: "Service Area Checker",
+    description: "Enter your zip code and drive radius — get a ranked list of cities to target and ready-to-paste Facebook Marketplace service area text.",
+    icon: <MapPin className="w-6 h-6 text-amber-400" />,
+  },
+  {
+    href: "/tools/job-pricing-estimator",
+    title: "Job Pricing Estimator",
+    description: "Enter your trade, zip code, and job details — get a realistic price range for your local market with a ready-to-paste quote for Facebook Marketplace.",
+    icon: <DollarSign className="w-6 h-6 text-amber-400" />,
+  },
+  {
+    href: "/tools/before-after-tool",
+    title: "Before & After Maker",
+    description: "Upload two photos and get a perfectly formatted 1080×1080 before/after image ready for Facebook Marketplace — with your branding baked in.",
+    icon: <SplitSquareHorizontal className="w-6 h-6 text-amber-400" />,
+  },
 ];
 
 export default function ToolsPage() {
@@ -80,7 +106,9 @@ export default function ToolsPage() {
               className="group bg-zinc-900 border border-zinc-800 hover:border-amber-400/50 rounded-2xl p-6 transition-all hover:bg-zinc-900/80"
             >
               <div className="flex items-start gap-4">
-                <span className="text-2xl mt-0.5">{tool.icon}</span>
+                <span className="text-2xl mt-0.5 shrink-0">
+                  {tool.icon}
+                </span>
                 <div>
                   <h2 className="text-white font-bold text-base mb-1 group-hover:text-amber-400 transition-colors">
                     {tool.title}
