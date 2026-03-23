@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { MapPin, DollarSign } from "lucide-react";
 import { ReactNode } from "react";
 
 const TOOLS: { href: string; title: string; description: string; icon: string | ReactNode }[] = [
@@ -62,6 +62,12 @@ const TOOLS: { href: string; title: string; description: string; icon: string | 
     title: "Service Area Checker",
     description: "Enter your zip code and drive radius — get a ranked list of cities to target and ready-to-paste Facebook Marketplace service area text.",
     icon: <MapPin className="w-6 h-6 text-amber-400" />,
+  },
+  {
+    href: "/tools/job-pricing-estimator",
+    title: "Job Pricing Estimator",
+    description: "Enter your trade, zip code, and job details — get a realistic price range for your local market with a ready-to-paste quote for Facebook Marketplace.",
+    icon: <DollarSign className="w-6 h-6 text-amber-400" />,
   },
 ];
 
