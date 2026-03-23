@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, DollarSign } from "lucide-react";
+import { MapPin, DollarSign, SplitSquareHorizontal } from "lucide-react";
 import { ReactNode } from "react";
 
 const TOOLS: { href: string; title: string; description: string; icon: string | ReactNode }[] = [
@@ -68,6 +68,12 @@ const TOOLS: { href: string; title: string; description: string; icon: string | 
     title: "Job Pricing Estimator",
     description: "Enter your trade, zip code, and job details — get a realistic price range for your local market with a ready-to-paste quote for Facebook Marketplace.",
     icon: <DollarSign className="w-6 h-6 text-amber-400" />,
+  },
+  {
+    href: "/tools/before-after-tool",
+    title: "Before & After Maker",
+    description: "Upload two photos and get a perfectly formatted 1080×1080 before/after image ready for Facebook Marketplace — with your branding baked in.",
+    icon: <SplitSquareHorizontal className="w-6 h-6 text-amber-400" />,
   },
 ];
 
