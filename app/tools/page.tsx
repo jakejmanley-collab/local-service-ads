@@ -81,6 +81,12 @@ const TOOLS: { href: string; title: string; description: string; icon: string | 
     description: "Paste your Facebook Marketplace listing and find out which words are getting you suppressed — with safe replacements and a cleaned version ready to copy.",
     icon: "🚫",
   },
+  {
+    href: "/tools/cross-platform-formatter",
+    title: "Cross-Platform Listing Formatter",
+    description: "Fill in your details once and get perfectly formatted, ready-to-paste listings for Facebook Marketplace, Craigslist, and Kijiji — each optimized for that platform.",
+    icon: "📋",
+  },
 ];
 
 export default function ToolsPage() {
