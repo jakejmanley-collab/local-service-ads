@@ -21,6 +21,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const toolPages = [
+    'headline-generator',
+    'bio-writer',
+    'review-response',
+    'estimate-email',
+    'gbp-description',
+    'service-area-writer',
+    'voicemail-script',
+    'job-posting',
+    'fb-listing-analyzer',
+    'service-area-checker',
+    'job-pricing-estimator',
+    'before-after-image',
+  ];
+
+  const toolEntries = toolPages.map((tool) => ({
+    url: `${baseUrl}/tools/${tool}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }));
+
   // Add your main pages too
   return [
     {
@@ -28,6 +50,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
+    },
+    {
+      url: `${baseUrl}/tools`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/preview`,
@@ -47,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    ...toolEntries,
     ...articleEntries,
   ];
 }
