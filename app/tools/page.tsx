@@ -75,6 +75,12 @@ const TOOLS: { href: string; title: string; description: string; icon: string | 
     description: "Upload two photos and get a perfectly formatted 1080×1080 before/after image ready for Facebook Marketplace — with your branding baked in.",
     icon: <SplitSquareHorizontal className="w-6 h-6 text-amber-400" />,
   },
+  {
+    href: "/tools/shadowban-checker",
+    title: "Shadowban & Flagged Word Checker",
+    description: "Paste your Facebook Marketplace listing and find out which words are getting you suppressed — with safe replacements and a cleaned version ready to copy.",
+    icon: "🚫",
+  },
 ];
 
 export default function ToolsPage() {
