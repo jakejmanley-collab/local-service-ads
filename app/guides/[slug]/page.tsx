@@ -22,10 +22,27 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
+function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    let videoId: string | null = null;
+    if (u.hostname.includes('youtube.com')) {
+      videoId = u.searchParams.get('v');
+    } else if (u.hostname === 'youtu.be') {
+      videoId = u.pathname.slice(1);
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  } catch {
+    return null;
+  }
+}
+
 export default async function GuidePage({ params }: { params: { slug: string } }) {
   const { data: page } = await supabase.from('seo_articles').select('*').eq('slug', params.slug).eq('site_tag', 'aretifi').single();
-  
+
   if (!page) notFound();
+
+  const embedUrl = page.youtube_url ? getYouTubeEmbedUrl(page.youtube_url) : null;
 
   return (
     <main className="min-h-screen bg-slate-50 pb-20">
@@ -33,8 +50,22 @@ export default async function GuidePage({ params }: { params: { slug: string } }
         <h1 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight text-slate-900">
           {page.h1}
         </h1>
-        
-        <div 
+
+        {embedUrl && (
+          <div className="mb-10 rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                src={embedUrl}
+                title={page.h1}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+          </div>
+        )}
+
+        <div
           className="prose prose-lg prose-slate max-w-none mb-16 prose-headings:font-bold prose-headings:text-slate-900 prose-a:text-blue-600"
           dangerouslySetInnerHTML={{ __html: page.content }}
         />
