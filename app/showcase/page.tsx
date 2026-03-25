@@ -58,20 +58,26 @@ function StarterSiteMockup() {
       </header>
 
       {/* Hero */}
-      <div className="bg-gradient-to-br from-blue-900 to-blue-700 text-white text-center py-12 px-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-2">
-          Serving Nashville &amp; Surrounding Areas
-        </p>
-        <h1 className="text-2xl md:text-3xl font-extrabold mb-3 leading-tight">
-          Nashville&apos;s Trusted Plumber<br />— Available 24/7
-        </h1>
-        <p className="text-blue-100 text-sm mb-6 max-w-sm mx-auto">
-          Fast, reliable plumbing repairs and installations. Licensed, insured, and
-          ready when you need us most.
-        </p>
-        <button className="bg-yellow-400 text-blue-900 font-bold px-6 py-2.5 rounded-lg text-sm shadow hover:bg-yellow-300 transition-colors">
-          Get a Free Quote
-        </button>
+      <div
+        className="relative text-white text-center py-12 px-6"
+        style={{ backgroundImage: 'url(/showcase/hero.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      >
+        <div className="absolute inset-0 bg-blue-900/80" />
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-2">
+            Serving Nashville &amp; Surrounding Areas
+          </p>
+          <h1 className="text-2xl md:text-3xl font-extrabold mb-3 leading-tight">
+            Nashville&apos;s Trusted Plumber<br />— Available 24/7
+          </h1>
+          <p className="text-blue-100 text-sm mb-6 max-w-sm mx-auto">
+            Fast, reliable plumbing repairs and installations. Licensed, insured, and
+            ready when you need us most.
+          </p>
+          <button className="bg-yellow-400 text-blue-900 font-bold px-6 py-2.5 rounded-lg text-sm shadow hover:bg-yellow-300 transition-colors">
+            Get a Free Quote
+          </button>
+        </div>
       </div>
 
       {/* Services */}
@@ -81,14 +87,17 @@ function StarterSiteMockup() {
         </h2>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { icon: '🚿', title: 'Drain Cleaning', desc: 'Fast, mess-free drain clearing for any clog.' },
-            { icon: '🔥', title: 'Water Heater Install', desc: 'Tank and tankless installations in one day.' },
-            { icon: '🚨', title: 'Emergency Repairs', desc: '24/7 response — we answer every call.' },
+            { img: '/showcase/drain-cleaning.jpg', icon: '🚿', title: 'Drain Cleaning', desc: 'Fast, mess-free drain clearing for any clog.' },
+            { img: '/showcase/water-heater.jpg', icon: '🔥', title: 'Water Heater Install', desc: 'Tank and tankless installations in one day.' },
+            { img: '/showcase/emergency-repair.jpg', icon: '🚨', title: 'Emergency Repairs', desc: '24/7 response — we answer every call.' },
           ].map((s) => (
-            <div key={s.title} className="bg-white rounded-lg p-4 shadow-sm border border-slate-100 text-center">
-              <div className="text-2xl mb-2">{s.icon}</div>
-              <div className="font-semibold text-slate-800 text-xs mb-1">{s.title}</div>
-              <div className="text-slate-500 text-xs leading-relaxed">{s.desc}</div>
+            <div key={s.title} className="bg-white rounded-lg overflow-hidden shadow-sm border border-slate-100 text-center">
+              <img src={s.img} alt={s.title} className="w-full h-20 object-cover" />
+              <div className="p-3">
+                <div className="text-xl mb-1">{s.icon}</div>
+                <div className="font-semibold text-slate-800 text-xs mb-1">{s.title}</div>
+                <div className="text-slate-500 text-xs leading-relaxed">{s.desc}</div>
+              </div>
             </div>
           ))}
         </div>
@@ -163,9 +172,10 @@ function ProSiteMockup() {
       {/* Hero */}
       <div
         className="relative text-white py-14 px-8"
-        style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1d4ed8 100%)' }}
+        style={{ backgroundImage: 'url(/showcase/hero.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
-        <div className="max-w-lg">
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,58,95,0.85) 60%, rgba(29,78,216,0.75) 100%)' }} />
+        <div className="relative z-10 max-w-lg">
           <div className="inline-block bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
             ⭐ #1 Rated Plumber in Nashville
           </div>
