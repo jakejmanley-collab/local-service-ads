@@ -9,13 +9,12 @@ const supabase = createClient(
 );
 
 export async function generateStaticParams() {
-  // Removed the limit to ensure all SEO pages are pre-rendered
-  const { data: articles } = await supabase.from('seo_articles').select('slug');
+  const { data: articles } = await supabase.from('seo_articles').select('slug').eq('site_tag', 'aretifi');
   return (articles || []).map((article) => ({ slug: article.slug }));
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const { data: page } = await supabase.from('seo_articles').select('*').eq('slug', params.slug).single();
+  const { data: page } = await supabase.from('seo_articles').select('*').eq('slug', params.slug).eq('site_tag', 'aretifi').single();
   if (!page) return { title: 'Page Not Found' };
   return { 
     title: `${page.title}`, 
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function GuidePage({ params }: { params: { slug: string } }) {
-  const { data: page } = await supabase.from('seo_articles').select('*').eq('slug', params.slug).single();
+  const { data: page } = await supabase.from('seo_articles').select('*').eq('slug', params.slug).eq('site_tag', 'aretifi').single();
   
   if (!page) notFound();
 

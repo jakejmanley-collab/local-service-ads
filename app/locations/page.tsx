@@ -13,7 +13,8 @@ export default async function LocationsDirectory() {
   // Fetch slugs from your SEO table
   const { data: articles } = await supabase
     .from('seo_articles')
-    .select('slug, title');
+    .select('slug, title')
+    .eq('site_tag', 'aretifi');
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
