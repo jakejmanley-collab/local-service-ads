@@ -37,8 +37,8 @@ function BrowserFrame({
   );
 }
 
-// ─── Starter Site Mockup ─────────────────────────────────────────────────────
-function StarterSiteMockup() {
+// ─── Site Mockup (shared by Starter + Pro) ───────────────────────────────────
+function SiteMockup({ domain }: { domain: string }) {
   return (
     <div className="font-sans text-sm bg-white min-h-[500px]">
       {/* Header */}
@@ -135,7 +135,7 @@ function StarterSiteMockup() {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-slate-700 text-slate-500 text-center">
-          © 2025 Clearwater Plumbing · plumbersworld.com/clearwaterplumbing
+          © 2025 Clearwater Plumbing · {domain}
         </div>
       </footer>
     </div>
@@ -144,101 +144,7 @@ function StarterSiteMockup() {
 
 // ─── Pro Site Mockup ─────────────────────────────────────────────────────────
 function ProSiteMockup() {
-  return (
-    <div className="font-sans text-sm bg-white min-h-[500px]">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center shadow">
-            <span className="text-white text-sm font-black">CP</span>
-          </div>
-          <div>
-            <div className="font-extrabold text-slate-900 text-sm leading-tight">Clearwater Plumbing</div>
-            <div className="text-xs text-slate-500">Licensed &amp; Insured · Nashville, TN</div>
-          </div>
-        </div>
-        <nav className="hidden md:flex gap-5 text-xs font-semibold text-slate-700">
-          <a className="hover:text-blue-600">Home</a>
-          <a className="hover:text-blue-600">Services</a>
-          <a className="hover:text-blue-600">About</a>
-          <a className="hover:text-blue-600">Reviews</a>
-          <a className="hover:text-blue-600">Contact</a>
-        </nav>
-        <button className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow">
-          (615) 555-0142
-        </button>
-      </header>
-
-      {/* Hero */}
-      <div
-        className="relative text-white py-14 px-8"
-        style={{ backgroundImage: 'url(/showcase/hero.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
-      >
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(15,23,42,0.92) 0%, rgba(30,58,95,0.85) 60%, rgba(29,78,216,0.75) 100%)' }} />
-        <div className="relative z-10 max-w-lg">
-          <div className="inline-block bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
-            ⭐ #1 Rated Plumber in Nashville
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold mb-3 leading-tight">
-            Fast, Affordable Plumbing<br />You Can Actually Trust
-          </h1>
-          <p className="text-blue-200 text-sm mb-6">
-            From clogged drains to full re-pipes — we handle it all. Same-day service
-            available. No surprise fees.
-          </p>
-          <div className="flex gap-3 flex-wrap">
-            <button className="bg-yellow-400 text-blue-900 font-bold px-5 py-2.5 rounded-lg text-sm shadow-lg">
-              Get a Free Quote
-            </button>
-            <button className="border border-blue-300 text-white px-5 py-2.5 rounded-lg text-sm font-medium">
-              View All Services →
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Service chips */}
-      <div className="py-6 px-6 bg-blue-50 border-b border-blue-100">
-        <div className="flex flex-wrap gap-2 justify-center">
-          {['Drain Cleaning', 'Water Heater', 'Emergency Repairs', 'Leak Detection', 'Pipe Repair', 'Repiping', 'Sewer Lines', 'Commercial'].map((s) => (
-            <span key={s} className="bg-white text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
-              {s}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Reviews */}
-      <div className="py-6 px-6 grid grid-cols-2 gap-4 bg-white">
-        {[
-          { name: 'Mike T.', text: 'Fixed our burst pipe at midnight. Incredible service!' },
-          { name: 'Sarah K.', text: 'Replaced our water heater same-day. Highly recommend.' },
-        ].map((r) => (
-          <div key={r.name} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-            <div className="text-yellow-400 text-xs mb-1">★★★★★</div>
-            <div className="text-slate-700 text-xs italic mb-1">&ldquo;{r.text}&rdquo;</div>
-            <div className="text-slate-500 text-xs font-semibold">— {r.name}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 px-6 py-5 text-xs">
-        <div className="flex justify-between flex-wrap gap-3">
-          <div>
-            <div className="text-white font-bold mb-1">Clearwater Plumbing</div>
-            <div>clearwaterplumbing.com</div>
-            <div>(615) 555-0142</div>
-          </div>
-          <div>
-            <div className="text-white font-bold mb-1">Service Areas</div>
-            <div>Nashville · Brentwood · Franklin</div>
-            <div>Murfreesboro · Hendersonville</div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+  return <SiteMockup domain="clearwaterplumbing.com" />;
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -602,8 +508,8 @@ export default function ShowcasePage() {
                     <div className="font-extrabold text-slate-900 text-base">Starter</div>
                     <div className="text-blue-600 font-bold">$9/mo</div>
                   </th>
-                  <th className="py-4 px-4 border-b border-indigo-200 bg-indigo-50 rounded-t-xl text-center relative">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
+                  <th className="pt-7 pb-4 px-4 border-b border-indigo-200 bg-indigo-50 rounded-t-xl text-center relative overflow-visible">
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
                       Most Popular
                     </div>
                     <div className="font-extrabold text-slate-900 text-base">Pro</div>
