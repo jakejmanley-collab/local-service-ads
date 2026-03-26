@@ -34,6 +34,7 @@ Requirements:
 - Punchy, direct, no fluff
 - Sound like a real contractor talking to another contractor — casual but authoritative
 - No stage directions, no [pause], no scene descriptions — ONLY the spoken words
+- MUST include at least one real, specific statistic with a source (e.g. "According to HomeAdvisor..." or "The BLS reports...") — this adds authority and credibility
 - End with a clear call to action
 
 Return ONLY the spoken script text. No intro, no metadata, just the words to be spoken.`
@@ -48,6 +49,7 @@ Requirements:
 - Sound like a real contractor talking to another contractor — knowledgeable, practical, no corporate speak
 - Use natural transitions between steps
 - No stage directions, no [pause], no scene descriptions — ONLY the spoken words
+- MUST include at least 2 real, specific statistics with sources (e.g. "According to HomeAdvisor..." or "The BLS reports...") — woven naturally into the content to add authority
 - End with a clear call to action and ask for likes/subscribes naturally
 
 Return ONLY the spoken script text. No intro, no metadata, just the words to be spoken.`;
