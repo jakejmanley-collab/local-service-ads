@@ -37,8 +37,8 @@ function BrowserFrame({
   );
 }
 
-// ─── Starter Site Mockup ─────────────────────────────────────────────────────
-function StarterSiteMockup() {
+// ─── Site Mockup (shared by Starter + Pro) ───────────────────────────────────
+function SiteMockup({ domain }: { domain: string }) {
   return (
     <div className="font-sans text-sm bg-white min-h-[500px]">
       {/* Header */}
@@ -58,20 +58,26 @@ function StarterSiteMockup() {
       </header>
 
       {/* Hero */}
-      <div className="bg-gradient-to-br from-blue-900 to-blue-700 text-white text-center py-12 px-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-2">
-          Serving Nashville &amp; Surrounding Areas
-        </p>
-        <h1 className="text-2xl md:text-3xl font-extrabold mb-3 leading-tight">
-          Nashville&apos;s Trusted Plumber<br />— Available 24/7
-        </h1>
-        <p className="text-blue-100 text-sm mb-6 max-w-sm mx-auto">
-          Fast, reliable plumbing repairs and installations. Licensed, insured, and
-          ready when you need us most.
-        </p>
-        <button className="bg-yellow-400 text-blue-900 font-bold px-6 py-2.5 rounded-lg text-sm shadow hover:bg-yellow-300 transition-colors">
-          Get a Free Quote
-        </button>
+      <div
+        className="relative text-white text-center py-12 px-6"
+        style={{ backgroundImage: 'url(/showcase/hero.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+      >
+        <div className="absolute inset-0 bg-blue-900/80" />
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-2">
+            Serving Nashville &amp; Surrounding Areas
+          </p>
+          <h1 className="text-2xl md:text-3xl font-extrabold mb-3 leading-tight">
+            Nashville&apos;s Trusted Plumber<br />— Available 24/7
+          </h1>
+          <p className="text-blue-100 text-sm mb-6 max-w-sm mx-auto">
+            Fast, reliable plumbing repairs and installations. Licensed, insured, and
+            ready when you need us most.
+          </p>
+          <button className="bg-yellow-400 text-blue-900 font-bold px-6 py-2.5 rounded-lg text-sm shadow hover:bg-yellow-300 transition-colors">
+            Get a Free Quote
+          </button>
+        </div>
       </div>
 
       {/* Services */}
@@ -81,14 +87,17 @@ function StarterSiteMockup() {
         </h2>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { icon: '🚿', title: 'Drain Cleaning', desc: 'Fast, mess-free drain clearing for any clog.' },
-            { icon: '🔥', title: 'Water Heater Install', desc: 'Tank and tankless installations in one day.' },
-            { icon: '🚨', title: 'Emergency Repairs', desc: '24/7 response — we answer every call.' },
+            { img: '/showcase/drain-cleaning.jpg', icon: '🚿', title: 'Drain Cleaning', desc: 'Fast, mess-free drain clearing for any clog.' },
+            { img: '/showcase/water-heater.jpg', icon: '🔥', title: 'Water Heater Install', desc: 'Tank and tankless installations in one day.' },
+            { img: '/showcase/emergency-repair.jpg', icon: '🚨', title: 'Emergency Repairs', desc: '24/7 response — we answer every call.' },
           ].map((s) => (
-            <div key={s.title} className="bg-white rounded-lg p-4 shadow-sm border border-slate-100 text-center">
-              <div className="text-2xl mb-2">{s.icon}</div>
-              <div className="font-semibold text-slate-800 text-xs mb-1">{s.title}</div>
-              <div className="text-slate-500 text-xs leading-relaxed">{s.desc}</div>
+            <div key={s.title} className="bg-white rounded-lg overflow-hidden shadow-sm border border-slate-100 text-center">
+              <img src={s.img} alt={s.title} className="w-full h-20 object-cover" />
+              <div className="p-3">
+                <div className="text-xl mb-1">{s.icon}</div>
+                <div className="font-semibold text-slate-800 text-xs mb-1">{s.title}</div>
+                <div className="text-slate-500 text-xs leading-relaxed">{s.desc}</div>
+              </div>
             </div>
           ))}
         </div>
@@ -126,7 +135,7 @@ function StarterSiteMockup() {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-slate-700 text-slate-500 text-center">
-          © 2025 Clearwater Plumbing · plumbersworld.com/clearwaterplumbing
+          © 2025 Clearwater Plumbing · {domain}
         </div>
       </footer>
     </div>
@@ -135,100 +144,7 @@ function StarterSiteMockup() {
 
 // ─── Pro Site Mockup ─────────────────────────────────────────────────────────
 function ProSiteMockup() {
-  return (
-    <div className="font-sans text-sm bg-white min-h-[500px]">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center shadow">
-            <span className="text-white text-sm font-black">CP</span>
-          </div>
-          <div>
-            <div className="font-extrabold text-slate-900 text-sm leading-tight">Clearwater Plumbing</div>
-            <div className="text-xs text-slate-500">Licensed &amp; Insured · Nashville, TN</div>
-          </div>
-        </div>
-        <nav className="hidden md:flex gap-5 text-xs font-semibold text-slate-700">
-          <a className="hover:text-blue-600">Home</a>
-          <a className="hover:text-blue-600">Services</a>
-          <a className="hover:text-blue-600">About</a>
-          <a className="hover:text-blue-600">Reviews</a>
-          <a className="hover:text-blue-600">Contact</a>
-        </nav>
-        <button className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow">
-          (615) 555-0142
-        </button>
-      </header>
-
-      {/* Hero */}
-      <div
-        className="relative text-white py-14 px-8"
-        style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #1d4ed8 100%)' }}
-      >
-        <div className="max-w-lg">
-          <div className="inline-block bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">
-            ⭐ #1 Rated Plumber in Nashville
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold mb-3 leading-tight">
-            Fast, Affordable Plumbing<br />You Can Actually Trust
-          </h1>
-          <p className="text-blue-200 text-sm mb-6">
-            From clogged drains to full re-pipes — we handle it all. Same-day service
-            available. No surprise fees.
-          </p>
-          <div className="flex gap-3 flex-wrap">
-            <button className="bg-yellow-400 text-blue-900 font-bold px-5 py-2.5 rounded-lg text-sm shadow-lg">
-              Get a Free Quote
-            </button>
-            <button className="border border-blue-300 text-white px-5 py-2.5 rounded-lg text-sm font-medium">
-              View All Services →
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Service chips */}
-      <div className="py-6 px-6 bg-blue-50 border-b border-blue-100">
-        <div className="flex flex-wrap gap-2 justify-center">
-          {['Drain Cleaning', 'Water Heater', 'Emergency Repairs', 'Leak Detection', 'Pipe Repair', 'Repiping', 'Sewer Lines', 'Commercial'].map((s) => (
-            <span key={s} className="bg-white text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
-              {s}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Reviews */}
-      <div className="py-6 px-6 grid grid-cols-2 gap-4 bg-white">
-        {[
-          { name: 'Mike T.', text: 'Fixed our burst pipe at midnight. Incredible service!' },
-          { name: 'Sarah K.', text: 'Replaced our water heater same-day. Highly recommend.' },
-        ].map((r) => (
-          <div key={r.name} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-            <div className="text-yellow-400 text-xs mb-1">★★★★★</div>
-            <div className="text-slate-700 text-xs italic mb-1">&ldquo;{r.text}&rdquo;</div>
-            <div className="text-slate-500 text-xs font-semibold">— {r.name}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 px-6 py-5 text-xs">
-        <div className="flex justify-between flex-wrap gap-3">
-          <div>
-            <div className="text-white font-bold mb-1">Clearwater Plumbing</div>
-            <div>clearwaterplumbing.com</div>
-            <div>(615) 555-0142</div>
-          </div>
-          <div>
-            <div className="text-white font-bold mb-1">Service Areas</div>
-            <div>Nashville · Brentwood · Franklin</div>
-            <div>Murfreesboro · Hendersonville</div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+  return <SiteMockup domain="clearwaterplumbing.com" />;
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -302,7 +218,7 @@ export default function ShowcasePage() {
           {/* Browser mockup */}
           <div className="mb-10">
             <BrowserFrame url="plumbersworld.com/clearwaterplumbing">
-              <StarterSiteMockup />
+              <SiteMockup domain="plumbersworld.com/clearwaterplumbing" />
             </BrowserFrame>
           </div>
 
@@ -424,137 +340,37 @@ export default function ShowcasePage() {
             AI-designed flyers, branded to your business, delivered as a print-ready PDF in 48 hours.
           </p>
 
-          {/* 3 flyers */}
+          {/* Sample config badges */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              <span className="w-2 h-2 rounded-sm bg-blue-600 inline-block" />
+              Layout: Square
+            </span>
+            <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-600 to-red-600 inline-block" />
+              Colors: Blue &amp; Red
+            </span>
+            <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              🔧 Trade: Plumbing
+            </span>
+            <span className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              Custom layouts &amp; colors available
+            </span>
+          </div>
+
+          {/* 3 real flyer images */}
           <div className="grid md:grid-cols-3 gap-6 mb-10">
-
-            {/* Flyer 1 — Special Offer */}
-            <div className="rounded-2xl overflow-hidden shadow-xl" style={{ background: '#0f1e3a' }}>
-              <div className="p-6 flex flex-col h-full min-h-[380px]">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center">
-                    <span className="text-white text-xs font-black">CP</span>
-                  </div>
-                  <div className="bg-yellow-400 text-blue-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wide">
-                    10% OFF
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <p className="text-blue-300 text-xs font-semibold uppercase tracking-widest mb-2">Got a problem?</p>
-                  <h3
-                    className="text-white font-extrabold leading-none mb-3"
-                    style={{ fontSize: '2.2rem', lineHeight: 1.1, fontFamily: 'Anton, sans-serif' }}
-                  >
-                    DRAIN<br />CLOGGED?
-                  </h3>
-                  <p className="text-blue-200 text-sm mb-6 leading-relaxed">
-                    We&apos;ll clear it today —<br />
-                    <span className="text-white font-bold">guaranteed.</span>
-                  </p>
-                  <div className="border-t border-blue-700 pt-4">
-                    <div className="text-white font-extrabold text-xl tracking-wide mb-1">
-                      (615) 555-0142
-                    </div>
-                    <div className="text-blue-300 text-xs">Clearwater Plumbing · Nashville, TN</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 bg-yellow-400 text-blue-900 text-xs font-extrabold text-center py-2 rounded-lg uppercase tracking-wider">
-                  10% Off First-Time Customers
-                </div>
-              </div>
+            <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+              <img src="/showcase/flyer-1.png" alt="Clearwater Plumbing flyer — square blue design" className="w-full h-auto" />
             </div>
-
-            {/* Flyer 2 — Services List */}
-            <div className="rounded-2xl overflow-hidden shadow-xl bg-white border border-blue-100">
-              <div className="bg-blue-600 px-6 py-5 text-white">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                    <span className="text-blue-600 text-xs font-black">CP</span>
-                  </div>
-                  <span className="font-extrabold text-sm tracking-wide">Clearwater Plumbing</span>
-                </div>
-                <div className="text-blue-200 text-xs">Nashville&apos;s Most Trusted Plumber</div>
-              </div>
-
-              <div className="p-6">
-                <h3 className="font-extrabold text-slate-900 text-base mb-4 border-b border-slate-100 pb-3">
-                  Our Services
-                </h3>
-                <ul className="space-y-2.5 mb-5">
-                  {[
-                    'Drain Cleaning & Unclogging',
-                    'Water Heater Installation',
-                    'Emergency Plumbing Repairs',
-                    'Leak Detection & Repair',
-                    'Pipe Replacement (Repiping)',
-                    'Sewer Line Services',
-                  ].map((s) => (
-                    <li key={s} className="flex items-center gap-2 text-slate-700 text-sm">
-                      <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">✓</span>
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex gap-2 mb-4">
-                  <span className="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">Licensed</span>
-                  <span className="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">Insured</span>
-                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">24/7</span>
-                </div>
-
-                <div className="border-t border-slate-100 pt-4 text-xs text-slate-500">
-                  <div className="font-bold text-slate-800">(615) 555-0142</div>
-                  <div>clearwaterplumbing.com</div>
-                </div>
-              </div>
+            <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+              <img src="/showcase/flyer-2.png" alt="Clearwater Plumbing flyer — square red design" className="w-full h-auto" />
             </div>
-
-            {/* Flyer 3 — Emergency */}
-            <div
-              className="rounded-2xl overflow-hidden shadow-xl"
-              style={{ background: 'linear-gradient(160deg, #1a0000 0%, #7f1d1d 60%, #b91c1c 100%)' }}
-            >
-              <div className="p-6 min-h-[380px] flex flex-col">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-6 h-6 rounded-full bg-red-400 flex items-center justify-center">
-                    <span className="text-white text-xs font-black">CP</span>
-                  </div>
-                  <span className="text-red-200 text-xs font-semibold uppercase tracking-wider">Clearwater Plumbing</span>
-                </div>
-
-                <div className="flex-1">
-                  <div className="inline-block bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest">
-                    Always Available
-                  </div>
-                  <h3
-                    className="text-white font-extrabold leading-none mb-3"
-                    style={{ fontSize: '1.6rem', lineHeight: 1.15, fontFamily: 'Anton, sans-serif' }}
-                  >
-                    24/7 EMERGENCY<br />PLUMBING
-                  </h3>
-                  <p className="text-red-200 text-sm mb-6">
-                    We answer every call —<br />
-                    <span className="text-white font-bold">day or night.</span>
-                  </p>
-
-                  <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/20">
-                    <div className="text-white/60 text-xs uppercase tracking-widest mb-1">Call Now</div>
-                    <div
-                      className="text-white font-extrabold tracking-wide"
-                      style={{ fontSize: '1.8rem', lineHeight: 1, fontFamily: 'Anton, sans-serif' }}
-                    >
-                      (615) 555-0142
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 text-red-200 text-xs text-center">
-                  Burst pipes · Flooding · Gas leaks · No heat
-                </div>
-              </div>
+            <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+              <img src="/showcase/flyer-3.png" alt="Clearwater Plumbing flyer — square blue and red design" className="w-full h-auto" />
             </div>
           </div>
+
 
           <p className="text-slate-500 text-sm mb-8 max-w-xl">
             Each flyer is designed by AI under expert guidance and delivered as a
@@ -592,8 +408,8 @@ export default function ShowcasePage() {
                     <div className="font-extrabold text-slate-900 text-base">Starter</div>
                     <div className="text-blue-600 font-bold">$9/mo</div>
                   </th>
-                  <th className="py-4 px-4 border-b border-indigo-200 bg-indigo-50 rounded-t-xl text-center relative">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
+                  <th className="pt-7 pb-4 px-4 border-b border-indigo-200 bg-indigo-50 rounded-t-xl text-center relative overflow-visible">
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-3 py-0.5 rounded-full whitespace-nowrap">
                       Most Popular
                     </div>
                     <div className="font-extrabold text-slate-900 text-base">Pro</div>
