@@ -218,7 +218,7 @@ export default function ShowcasePage() {
           {/* Browser mockup */}
           <div className="mb-10">
             <BrowserFrame url="plumbersworld.com/clearwaterplumbing">
-              <StarterSiteMockup />
+              <SiteMockup domain="plumbersworld.com/clearwaterplumbing" />
             </BrowserFrame>
           </div>
 
@@ -340,9 +340,39 @@ export default function ShowcasePage() {
             AI-designed flyers, branded to your business, delivered as a print-ready PDF in 48 hours.
           </p>
 
-          {/* 3 flyers */}
-          <div className="grid md:grid-cols-3 gap-6 mb-10">
+          {/* Sample config badges */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              <span className="w-2 h-2 rounded-sm bg-blue-600 inline-block" />
+              Layout: Square
+            </span>
+            <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-600 to-red-600 inline-block" />
+              Colors: Blue &amp; Red
+            </span>
+            <span className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              🔧 Trade: Plumbing
+            </span>
+            <span className="inline-flex items-center gap-1.5 bg-orange-50 border border-orange-200 text-orange-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm">
+              Custom layouts &amp; colors available
+            </span>
+          </div>
 
+          {/* 3 real flyer images */}
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
+            <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+              <img src="/showcase/flyer-1.png" alt="Clearwater Plumbing flyer — square blue design" className="w-full h-auto" />
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+              <img src="/showcase/flyer-2.png" alt="Clearwater Plumbing flyer — square red design" className="w-full h-auto" />
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200">
+              <img src="/showcase/flyer-3.png" alt="Clearwater Plumbing flyer — square blue and red design" className="w-full h-auto" />
+            </div>
+          </div>
+
+          {/* old CSS flyer kept below for reference — hidden */}
+          <div className="hidden">
             {/* Flyer 1 — Special Offer */}
             <div className="rounded-2xl overflow-hidden shadow-xl" style={{ background: '#0f1e3a' }}>
               <div className="p-6 flex flex-col h-full min-h-[380px]">
@@ -471,6 +501,7 @@ export default function ShowcasePage() {
               </div>
             </div>
           </div>
+          </div>{/* end hidden */}
 
           <p className="text-slate-500 text-sm mb-8 max-w-xl">
             Each flyer is designed by AI under expert guidance and delivered as a
