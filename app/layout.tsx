@@ -42,6 +42,7 @@ export default function RootLayout({
                 </Link>
               </div>
               <div className="hidden md:flex space-x-6 items-center">
+                <Link href="/tools" className="text-sm font-medium text-slate-600 hover:text-slate-900">Free Tools</Link>
                 <Link href="/preview" className="text-sm font-bold text-blue-600 hover:text-blue-700">Create Flyer</Link>
                 <Link href="/dashboard" className="text-sm font-medium text-slate-600 hover:text-slate-900">My Projects</Link>
                 <Link href="/login" className="bg-slate-900 text-white px-5 py-2 rounded-md text-sm font-bold hover:bg-slate-800 transition-colors">Sign In</Link>
@@ -64,6 +65,7 @@ export default function RootLayout({
             
             <div className="flex flex-col space-y-2">
               <h3 className="font-black text-white uppercase tracking-wider mb-2">Platform</h3>
+              <Link href="/tools" className="hover:text-white transition-colors">Free Tools</Link>
               <Link href="/preview" className="hover:text-white transition-colors">Free Generator</Link>
               <Link href="/dashboard" className="hover:text-white transition-colors">User Dashboard</Link>
               <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
