@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const TRADES = [
   "Plumber",
@@ -73,6 +73,42 @@ export default function HeadlineGeneratorPage() {
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadLoading, setLeadLoading] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [autoGeneratePending, setAutoGeneratePending] = useState(false);
+
+  // Step 1: Read URL params and set state
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("trade");
+    const c = params.get("city");
+    const s = params.get("specialty");
+    if (t) setTrade(t);
+    if (c) setCity(c);
+    if (s) setServiceType(s);
+    if (params.get("autoGenerate") === "true" && t && c) {
+      setAutoGeneratePending(true);
+    }
+  }, []);
+
+  // Step 2: Once trade + city state are set, trigger generate directly
+  useEffect(() => {
+    if (!autoGeneratePending || !trade || !city) return;
+    setAutoGeneratePending(false);
+    setLoading(true);
+    setError("");
+    setHeadlines([]);
+    fetch("/api/tools/headline-generator", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trade, city, serviceType }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) throw new Error(data.error);
+        setHeadlines(data.headlines);
+      })
+      .catch((err) => setError(err?.message || "Something went wrong"))
+      .finally(() => setLoading(false));
+  }, [autoGeneratePending, trade, city, serviceType]);
 
   const handleGenerate = async () => {
     if (!trade || !city) return;
@@ -220,6 +256,7 @@ export default function HeadlineGeneratorPage() {
 
           {/* CTA */}
           <button
+            id="generate-btn"
             onClick={handleGenerate}
             disabled={!trade || !city || loading}
             className="w-full bg-amber-400 hover:bg-amber-300 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-zinc-900 font-bold text-base py-4 rounded-xl transition-colors duration-150"
